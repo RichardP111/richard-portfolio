@@ -55,7 +55,7 @@ type Socials = {
 type Project = {
   title: string;
   description: string;
-  tag: string;
+  tag?: string;
   tech: string[];
   size: string;
   link?: string;
@@ -201,7 +201,7 @@ const CONFIG = {
   PROJECTS: [
     { 
       title: "Smart Chess Board", 
-      description: "Hardware Restoration & Logic Integration. Revitalized a hardware system by diagnosing communication failures and re-soldering lighting paths.", 
+      description: "Inherited and successfully remediated a legacy hardware system. Resolved critical inter-processor communication failures by migrating from unstable GPIO-based signaling to a robust Serial (UART) protocol. Refactored source code on both Raspberry Pi and Arduino platforms to synchronize logic and re-engineered the LED lighting array by correcting hardware polarities and re-soldering connections.", 
       tag: "Hardware Engineering", 
       tech: ["Arduino Uno", "Raspberry Pi", "Neopixels", "OLED Display"], 
       size: "large",
@@ -213,11 +213,11 @@ const CONFIG = {
       tag: "Software Dev", 
       tech: ["Python", "Discord.py"], 
       size: "small",
-      link: "#" 
+      link: "" 
     },
     { 
       title: "BenumTD", 
-      description: "Developed a complex Tower Defense game focusing on optimization. Implemented pathfinding for dynamic enemy routing and custom collision physics, managing complex wave states.", 
+      description: "A LibGDX-based Tower Defense game featuring custom vector physics and optimized pathfinding. Built from the ground up to handle complex wave logic and dynamic routing, the game translates classic 'TD' mechanics into a personalized school-themed experience featuring my teacher and peers.", 
       tag: "Java Game", 
       tech: ["Java", "LibGDX", "OOP"], 
       size: "small",
@@ -225,15 +225,14 @@ const CONFIG = {
     },
     { 
       title: "Truck Game", 
-      description: "Designed and built a game using an Arduino Uno. Programmed a custom rendering engine for a 16x2 LCD display, handling analog joystick inputs for real-time object avoidance mechanics.", 
-      tag: "Game Design", 
+      description: "Developed a high-speed object avoidance game on an Arduino Uno utilizing the LiquidCrystal library for dynamic 16x2 display updates. Engineered a low-latency coordinate system to handle real-time physics and analog joystick inputs for precise player movement.",
       tech: ["Arduino Uno", "Joystick", "LCD 16x2"], 
       size: "small",
       link: "https://github.com/RichardP111/truck_game/blob/main/UNIT_PROJECT_TRUCK.ino" 
     },
     { 
       title: "Memory Matrix", 
-      description: "Low-Latency Pattern Game. Built a reaction-time benchmark system using I2C. Synchronized LED matrices with user inputs to measure cognitive retention, optimizing interrupt service routines for millisecond-precision.", 
+      description: "Engineered a reaction-time assessment tool using an Arduino-based I2C architecture to synchronize LED matrices with user inputs. Optimized interrupt service routines to achieve millisecond-precision in measuring pattern retention and cognitive processing speeds.", 
       tag: "Circuit Design", 
       tech: ["Arduino", "I2C", "LED"], 
       size: "small",
@@ -241,7 +240,7 @@ const CONFIG = {
     },
     { 
       title: "BenumZombs", 
-      description: "Java 2D Rendering Engine. Built a top-down survival shooter from scratch without third-party game engines. Utilized Java's Graphics2D and AWT libraries to engineer custom vector physics, object pooling, and rendering pipelines.", 
+      description: "A scratch-built 2D survival shooter leveraging Java Graphics2D and OOP principles to deliver a high-performance gaming experience. Features custom-engineered vector physics, object-pooling for entity management, and a personalized school-themed asset library.", 
       tag: "Java Game", 
       tech: ["Java", "Graphics2D", "OOP"], 
       size: "small",
@@ -870,16 +869,76 @@ const Contact = ({ email, socials }: ContactProps) => (
 const LegalPage = ({ type, setView }: LegalPageProps) => {
   const content = type === 'privacy' ? {
     title: "Privacy Policy",
-    body: "The Operator respects the privacy of every visitor. This digital portfolio does not utilize tracking cookies, analytics pixels, or persistent data collection mechanisms. Information submitted via direct email contact is used exclusively for professional communication and is never shared with third-party vendors, advertisers, or data brokers."
+    body: (
+      <div className="space-y-6">
+        <p>This Privacy Policy describes how Richard Pu ("we," "us," or "our") collects, uses, and discloses your information when you visit this digital portfolio. We are committed to protecting your privacy and ensuring a secure user experience.</p>
+        
+        <div>
+          <h3 className="text-white font-bold mb-2">1. Information We Collect</h3>
+          <p><strong>A. Automatically Collected Information:</strong> We use Vercel Analytics to monitor site performance and improve user experience. This service collects de-identified data such as browser type, operating system, and general geographic data (City/Country level). IP addresses are masked to maintain anonymity.</p>
+          <p><strong>B. Voluntary Information:</strong> If you contact us via email, we collect your name, email address, and any information included in your inquiry for professional communication purposes.</p>
+        </div>
+
+        <div>
+          <h3 className="text-white font-bold mb-2">2. Use of Information</h3>
+          <p>Data is used exclusively for website optimization, analyzing traffic patterns, and responding to professional inquiries regarding co-op opportunities or project collaborations.</p>
+        </div>
+
+        <div>
+          <h3 className="text-white font-bold mb-2">3. Cookies & Third Parties</h3>
+          <p>This Website utilizes Vercel’s privacy-friendly analytics, which function without invasive persistent cookies. We do not sell, trade, or transfer your personally identifiable information to outside parties.</p>
+        </div>
+
+        <p className="pt-4 border-t border-white/10 text-xs">Last updated: February 2026</p>
+      </div>
+    )
   } : {
     title: "Terms of Service",
-    body: "By accessing this portfolio, you agree to respect the intellectual property of The Operator. All architectural designs, source code snippets, and custom hardware logs are provided 'as-is' for demonstration purposes. Use of specific project assets, including the EcoLens algorithm and school broadcast workflows, without explicit permission is prohibited. Content is licensed under Creative Commons BY-NC-SA 4.0."
+    body: (
+      <div className="space-y-6 text-sm">
+        <p>Welcome to the digital portfolio of Richard Pu. By accessing or using this Website, you agree to be bound by these Terms of Service. If you do not agree to these terms, please refrain from using the site.</p>
+
+        <div>
+          <h3 className="text-white font-bold mb-2 uppercase tracking-wider text-xs">1. Intellectual Property Rights</h3>
+          <p>Unless otherwise stated, all content on this site—including architectural designs, source code snippets (e.g., EcoLens algorithm, Java game engines), hardware logs, and visual media—is the intellectual property of Richard Pu. Most project code is provided for demonstration purposes and is licensed under <strong>Creative Commons BY-NC-SA 4.0</strong>, meaning you must provide credit and cannot use it for commercial purposes without explicit written consent.</p>
+        </div>
+
+        <div>
+          <h3 className="text-white font-bold mb-2 uppercase tracking-wider text-xs">2. Use License & Restrictions</h3>
+          <p>Permission is granted to temporarily view the materials on this Website for personal, non-commercial transitory viewing only. You may not:</p>
+          <ul className="list-disc pl-5 mt-2 space-y-1">
+            <li>Modify or copy the materials for commercial gain.</li>
+            <li>Attempt to decompile or reverse engineer any software contained on the Website.</li>
+            <li>Remove any copyright or other proprietary notations from the materials.</li>
+            <li>Mirror the materials on any other server without authorization.</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="text-white font-bold mb-2 uppercase tracking-wider text-xs">3. Disclaimer of Liability</h3>
+          <p>The materials on this Website are provided on an 'as-is' basis. Richard Pu makes no warranties, expressed or implied, and hereby disclaims all other warranties including, without limitation, implied warranties or conditions of merchantability or fitness for a particular purpose. Hardware projects and circuit designs are documented for portfolio purposes and should not be replicated without proper engineering supervision.</p>
+        </div>
+
+        <div>
+          <h3 className="text-white font-bold mb-2 uppercase tracking-wider text-xs">4. External Links</h3>
+          <p>This Website contains links to external platforms such as GitHub, LinkedIn, and Instagram. We have not reviewed all of the sites linked to our Website and are not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement.</p>
+        </div>
+
+        <p className="pt-4 border-t border-white/10 text-xs">Last updated: February 2026</p>
+      </div>
+    )
   };
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen pt-32 px-6 max-w-3xl mx-auto pb-24">
-      <button onClick={() => setView('main')} className="flex items-center gap-2 text-indigo-400 hover:text-white mb-8 transition-colors"><ChevronRight size={18} className="rotate-180" /> Back to Portfolio</button>
+      <button onClick={() => setView('main')} className="flex items-center gap-2 text-indigo-400 hover:text-white mb-8 transition-colors">
+        <ChevronRight size={18} className="rotate-180" /> Back to Portfolio
+      </button>
       <h1 className="text-4xl font-bold text-white mb-8">{content.title}</h1>
-      <div className="p-8 rounded-3xl bg-white/5 border border-white/10 text-slate-400 leading-relaxed space-y-6"><p>{content.body}</p><p>Last updated: February 2026</p><p>For inquiries, contact: {CONFIG.EMAIL}</p></div>
+      <div className="p-8 rounded-3xl bg-white/5 border border-white/10 text-slate-400 leading-relaxed">
+        {content.body}
+        <p className="mt-6 text-sm">For inquiries, contact: {CONFIG.EMAIL}</p>
+      </div>
     </motion.div>
   );
 };
@@ -898,7 +957,7 @@ export default function App() {
   const skillCats = [
     { title: "Languages", skills: ["Java", "Python", "C++", "HTML/CSS", "Swift", "Kotlin", "Groovy"] },
     { title: "Hardware & Design", skills: ["Arduino", "Raspberry Pi", "Circuit Design", "3D Design & Printing"] },
-    { title: "Tools & Ecosystems", skills: ["VS Code", "Eclipse", "Arduino IDE", "Gradle", "Google Antigravity"] }
+    { title: "Tools & Ecosystems", skills: ["VSCode", "Eclipse", "Arduino IDE", "Gradle", "Google Antigravity"] }
   ];
 
   return (
