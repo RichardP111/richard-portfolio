@@ -226,6 +226,7 @@ const CONFIG = {
     { 
       title: "Truck Game", 
       description: "Developed a high-speed object avoidance game on an Arduino Uno utilizing the LiquidCrystal library for dynamic 16x2 display updates. Engineered a low-latency coordinate system to handle real-time physics and analog joystick inputs for precise player movement.",
+      tag: "Circuit Design", 
       tech: ["Arduino Uno", "Joystick", "LCD 16x2"], 
       size: "small",
       link: "https://github.com/RichardP111/truck_game/blob/main/UNIT_PROJECT_TRUCK.ino" 
@@ -265,7 +266,7 @@ const CONFIG = {
     { 
       title: "TSS Announcements", 
       role: "Co-President & Social Media Director", 
-      desc: "Manage the institution's primary digital communication channels. Curate and broadcast daily announcements, bridging the information gap between administration, students, and parents.", 
+      desc: "Manage the organizations primary digital communication channels. Curate and broadcast daily announcements, bridging the information gap between administration, students, and parents.", 
       icon: <Activity size={20} />,
       link: "https://www.instagram.com/tssannouncements/"
     },
@@ -635,7 +636,7 @@ const ScrollProgress = () => {
 
 const BootSequence = ({ onComplete }: BootSequenceProps) => {
   const [lines, setLines] = useState<string[]>([]);
-  const bootText = ["INITIALIZING KERNEL...", "LOADING MEMORY MODULES... [OK]", "VERIFYING CRYPTO KEYS... [OK]", "ESTABLISHING SECURE CONNECTION...", "MOUNTING FILE SYSTEM...", "STARTING RICHARD.OS v15.0", "ACCESS GRANTED"];
+  const bootText = ["INITIALIZING KERNEL...", "LOADING MEMORY MODULES... [OK]", "VERIFYING KEYS... [OK]", "ESTABLISHING SECURE CONNECTION...", "MOUNTING FILE SYSTEM...", "STARTING RICHARD.OS v15.0", "ACCESS GRANTED"];
   useEffect(() => {
     let currentLines: string[] = [];
     bootText.forEach((text, index) => {
@@ -843,7 +844,7 @@ const Footer = ({ setView, socials, email }: FooterProps) => (
         </ul></div>
         <div><h4 className="text-white font-bold mb-4">Legal</h4><ul className="space-y-3 text-sm text-slate-400"><li><button onClick={() => setView('privacy')} className="hover:text-indigo-400 transition-colors flex items-center gap-2"><ShieldCheck size={14}/> Privacy Policy</button></li><li><button onClick={() => setView('terms')} className="hover:text-indigo-400 transition-colors flex items-center gap-2"><Scale size={14}/> Terms of Service</button></li><li className="flex items-center gap-2 pt-2 opacity-60"><FileText size={14} /> CC BY-NC-SA 4.0</li></ul></div>
       </div>
-      <div className="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-white/5 text-xs text-slate-500"><p>© 2026 Richard Pu. All hardware synchronized.</p><p>Designed & Engineered in Canada 🇨🇦</p></div>
+      <div className="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-white/5 text-xs text-slate-500"><p>© 2026 Richard Pu. All hardware synchronized.</p><p>Designed & Engineered in Canada</p></div>
     </div>
   </footer>
 );
@@ -974,7 +975,7 @@ export default function App() {
                 <NeuralCanvas /><div className="absolute bottom-0 left-0 w-full h-[400px] z-0 opacity-40"><CyberGrid /></div>
                 <motion.div initial={{ scale: 2, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 1.5, ease: "circOut", delay: 0.5 }} className="relative z-10 text-center max-w-4xl pointer-events-none">
                   <h1 className="text-5xl md:text-8xl font-black text-white tracking-tight mb-6 pointer-events-auto"><AutoGlitchText text="RICHARD PU" className="block" /><span className="text-2xl md:text-4xl font-normal text-slate-400 block mt-2">Engineering the <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 font-bold">Interface</span> Between Worlds.</span></h1>
-                  <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed pointer-events-auto">Computer Engineering Student specializing in custom hardware restoration, low-level embedded software, and full-stack interactive design.</p>
+                  <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed pointer-events-auto">Computer Engineering Student specializing in custom hardware, low-level embedded software, and full-stack interactive design.</p>
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto"><a href="#projects" className="px-8 py-4 rounded-full bg-white text-slate-950 font-bold flex items-center justify-center gap-2 hover:bg-indigo-50 transition-colors w-full sm:w-auto">Explore Works <ChevronRight size={18} /></a><a href="#about" className="px-8 py-4 rounded-full bg-white/5 border border-white/10 text-white font-bold backdrop-blur-sm hover:bg-white/10 transition-colors w-full sm:w-auto flex items-center justify-center">About Me</a></div>
                 </motion.div>
                 <motion.div animate={{ y: [0, 10, 0] }} transition={{ duration: 2, repeat: Infinity }} className="absolute bottom-10 left-1/2 -translate-x-1/2 text-slate-600"><div className="w-6 h-10 border-2 border-slate-700 rounded-full flex justify-center p-1"><div className="w-1 h-2 bg-slate-700 rounded-full" /></div></motion.div>
@@ -984,7 +985,7 @@ export default function App() {
               <section id="projects" className="py-24 px-6 max-w-7xl mx-auto relative z-10"><CircuitBackground /><div className="mb-16 relative z-10"><h2 className="text-sm font-mono text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2"><CircuitBoard size={16} /> Technical Projects</h2><ScrollRevealHeader text="Bridging Logic and Physicality." className="text-4xl md:text-5xl font-bold text-white block" /></div><div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">{CONFIG.PROJECTS.map((p, idx) => <ProjectCard key={idx} project={p} index={idx} />)}</div></section>
               <ParallaxText baseVelocity={-2}>3D DESIGN • PRINTING • CIRCUIT DESIGN • </ParallaxText>
               
-              <section id="about" className="py-24 px-6 bg-slate-950/50 relative z-10 overflow-hidden"><div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center"><motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}><ScrollRevealHeader text="Bridging the Gap" className="text-4xl font-bold text-white mb-8" /><RevealText delay={0.2}><p className="text-slate-400 text-lg mb-6 leading-relaxed">My engineering philosophy is rooted in the "full-stack" of reality. I don't just want to write the code; I want to build the machine that runs it. I seek to understand the entire stack, from the electron flow on a PCB to high-level system logic.</p></RevealText><div className="space-y-6 mb-8">{skillCats.map((cat) => (<div key={cat.title}><h4 className="text-xs font-mono text-indigo-400 mb-2 uppercase">{cat.title}</h4><div className="flex flex-wrap gap-2">{cat.skills.map(skill => (<span key={skill} className="text-xs font-medium bg-white/5 text-slate-300 px-3 py-1.5 rounded-full border border-white/5 hover:bg-indigo-600 transition-colors cursor-default">{skill}</span>))}</div></div>))}</div><DraggableTerminal /></motion.div><div className="relative aspect-square rounded-3xl bg-slate-900 border border-indigo-500/20 flex items-center justify-center overflow-hidden group"><NeuralNexus /><div className="absolute inset-4 border border-indigo-500/10 rounded-2xl pointer-events-none" /></div></div></section>
+              <section id="about" className="py-24 px-6 bg-slate-950/50 relative z-10 overflow-hidden"><div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center"><motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}><ScrollRevealHeader text="Bridging the Gap" className="text-4xl font-bold text-white mb-8" /><RevealText delay={0.2}><p className="text-slate-400 text-lg mb-6 leading-relaxed">My approach to engineering is centered on the integration of hardware and software systems. I am driven by a need to understand the entire technical stack, from low-level circuit design and PCB-level interactions to high-level application logic and system architecture.</p></RevealText><div className="space-y-6 mb-8">{skillCats.map((cat) => (<div key={cat.title}><h4 className="text-xs font-mono text-indigo-400 mb-2 uppercase">{cat.title}</h4><div className="flex flex-wrap gap-2">{cat.skills.map(skill => (<span key={skill} className="text-xs font-medium bg-white/5 text-slate-300 px-3 py-1.5 rounded-full border border-white/5 hover:bg-indigo-600 transition-colors cursor-default">{skill}</span>))}</div></div>))}</div><DraggableTerminal /></motion.div><div className="relative aspect-square rounded-3xl bg-slate-900 border border-indigo-500/20 flex items-center justify-center overflow-hidden group"><NeuralNexus /><div className="absolute inset-4 border border-indigo-500/10 rounded-2xl pointer-events-none" /></div></div></section>
               
               <LifeGallery images={CONFIG.GALLERY} />
               
