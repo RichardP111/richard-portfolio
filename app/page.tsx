@@ -190,6 +190,7 @@ type LegalPageProps = {
 // --- 0. CENTRAL CONFIGURATION ---
 const CONFIG = {
   EMAIL: "richardpu6@gmail.com",
+  RESUME: "/resume.pdf",
   PROFILE_IMAGE_SRC: "https://lh3.googleusercontent.com/ogw/AF2bZyjYvPrbBzBEso1zBrRqnjS1KebQ_jxX5FWnn9-xtnkcrdQ=s64-c-mo",
   SOCIALS: {
     GITHUB: "https://github.com/RichardP111",       
@@ -278,7 +279,7 @@ const CONFIG = {
     }
   ],
   GALLERY: [
-    { label: "BenumZombs", date: "JAN 2026", src: "/images/benumZombs.png" }, 
+    { label: "BenumZombs", date: "JAN 2026", src: "/images/benumZombs.jpg" }, 
     { label: "BenumTD", date: "JUN 2025", src: "/images/benumTD.png" },
     { label: "Smart Chess Board", date: "JAN 2025", src: "/images/chess.png" },
     { label: "Truck Game", date: "NOV 2024", src: "/images/truckGame.png" }
@@ -805,9 +806,11 @@ const Navbar = ({ setView, socials }: NavbarProps) => {
           ))}
           <div className="h-4 w-[1px] bg-white/10" />
           <div className="flex items-center gap-4">
-            <MagneticButton className="flex items-center gap-2 text-xs font-medium bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white px-3 py-1.5 rounded-full transition-all">
-              <FileText size={14} /> RESUME
-            </MagneticButton>
+            <a href={CONFIG.RESUME} target="_blank" rel="noopener noreferrer">
+              <MagneticButton className="flex items-center gap-2 text-xs font-medium bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white px-3 py-1.5 rounded-full transition-all">
+                <FileText size={14} /> RESUME
+              </MagneticButton>
+            </a>
             <MagneticLink href={socials.GITHUB}><Github size={18} className="text-slate-400 hover:text-white" /></MagneticLink>
             <MagneticLink href={socials.LINKEDIN}><Linkedin size={18} className="text-slate-400 hover:text-white" /></MagneticLink>
           </div>
