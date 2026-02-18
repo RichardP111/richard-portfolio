@@ -43,6 +43,148 @@ import {
   Scale
 } from 'lucide-react';
 
+type Socials = {
+  GITHUB: string;
+  LINKEDIN: string;
+  INSTAGRAM: string;
+  DISCORD: string;
+};
+
+type Project = {
+  title: string;
+  description: string;
+  tag: string;
+  tech: string[];
+  size: string;
+  link?: string;
+};
+
+type Extracurricular = {
+  title: string;
+  role: string;
+  desc: string;
+  icon: React.ReactNode;
+  link?: string;
+};
+
+type GalleryImage = {
+  label: string;
+  date: string;
+  src: string;
+};
+
+type Spark = {
+  id: number;
+  x: number;
+  y: number;
+};
+
+type TerminalEntry = {
+  type: 'input' | 'output';
+  content: string;
+};
+
+type ViewState = 'main' | 'privacy' | 'terms';
+
+type ProfileImageProps = {
+  className?: string;
+};
+
+type ScrambleHoverProps = {
+  text: string;
+  className?: string;
+};
+
+type DecryptedTextProps = {
+  text: string;
+  className?: string;
+  speed?: number;
+  trigger?: boolean;
+};
+
+type AutoGlitchTextProps = {
+  text: string;
+  className?: string;
+};
+
+type ScrollRevealHeaderProps = {
+  text: string;
+  className?: string;
+};
+
+type RevealTextProps = {
+  children: React.ReactNode;
+  delay?: number;
+};
+
+type ParallaxTextProps = {
+  children: React.ReactNode;
+  baseVelocity?: number;
+};
+
+type GlitchTextProps = {
+  text: string;
+};
+
+type MagneticLinkProps = {
+  children: React.ReactNode;
+  href: string;
+  onClick?: React.MouseEventHandler<HTMLAnchorElement>;
+  className?: string;
+};
+
+type MagneticButtonProps = {
+  children: React.ReactNode;
+  className?: string;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+};
+
+type BootSequenceProps = {
+  onComplete: () => void;
+};
+
+type ProjectCardProps = {
+  project: Project;
+  index: number;
+};
+
+type HoloImageProps = {
+  label: string;
+  date: string;
+  src: string;
+  onClick?: () => void;
+};
+
+type ImageModalProps = {
+  selectedImage: GalleryImage | null;
+  onClose: () => void;
+};
+
+type LifeGalleryProps = {
+  images: GalleryImage[];
+};
+
+type NavbarProps = {
+  setView: React.Dispatch<React.SetStateAction<ViewState>>;
+  socials: Socials;
+};
+
+type FooterProps = {
+  setView: React.Dispatch<React.SetStateAction<ViewState>>;
+  socials: Socials;
+  email: string;
+};
+
+type ContactProps = {
+  email: string;
+  socials: Socials;
+};
+
+type LegalPageProps = {
+  type: Exclude<ViewState, 'main'>;
+  setView: React.Dispatch<React.SetStateAction<ViewState>>;
+};
+
 // --- 0. CENTRAL CONFIGURATION ---
 // EDIT THIS SECTION TO UPDATE YOUR CONTENT
 const CONFIG = {
@@ -144,7 +286,7 @@ const CONFIG = {
 
 // --- 1. VISUAL PRIMITIVES ---
 
-const ProfileImage = ({ className = "" }) => {
+const ProfileImage = ({ className = "" }: ProfileImageProps) => {
   if (CONFIG.PROFILE_IMAGE_SRC) {
     return (
       <img 
@@ -216,26 +358,34 @@ const CircuitBackground = () => {
 };
 
 const NeuralCanvas = () => {
-  const canvasRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    let width, height;
-    let particles = [];
+    if (!ctx) return;
+    const context = ctx;
+    let width = 0;
+    let height = 0;
+    let particles: Particle[] = [];
     const resize = () => { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; };
     class Particle {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      size: number;
       constructor() { this.x = Math.random() * width; this.y = Math.random() * height; this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5; this.size = Math.random() * 2 + 1; }
       update() { this.x += this.vx; this.y += this.vy; if (this.x < 0 || this.x > width) this.vx *= -1; if (this.y < 0 || this.y > height) this.vy *= -1; }
-      draw() { ctx.fillStyle = 'rgba(99, 102, 241, 0.4)'; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+      draw() { context.fillStyle = 'rgba(99, 102, 241, 0.4)'; context.beginPath(); context.arc(this.x, this.y, this.size, 0, Math.PI * 2); context.fill(); }
     }
     const animate = () => {
-      ctx.clearRect(0, 0, width, height);
+      context.clearRect(0, 0, width, height);
       particles.forEach(p => { p.update(); p.draw(); });
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           let dist = Math.hypot(particles[i].x - particles[j].x, particles[i].y - particles[j].y);
-          if (dist < 150) { ctx.strokeStyle = `rgba(99, 102, 241, ${1 - dist / 150})`; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke(); }
+          if (dist < 150) { context.strokeStyle = `rgba(99, 102, 241, ${1 - dist / 150})`; context.lineWidth = 1; context.beginPath(); context.moveTo(particles[i].x, particles[i].y); context.lineTo(particles[j].x, particles[j].y); context.stroke(); }
         }
       }
       requestAnimationFrame(animate);
@@ -262,10 +412,11 @@ const NeuralNexus = () => (
 // --- 2. INTERACTION & TEXT COMPONENTS ---
 
 const ClickSpark = () => {
-  const [sparks, setSparks] = useState([]);
+  const [sparks, setSparks] = useState<Spark[]>([]);
   useEffect(() => {
-    const handleClick = (e) => {
-      if (e.target.closest('button') || e.target.closest('a')) return;
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target;
+      if (target instanceof Element && (target.closest('button') || target.closest('a'))) return;
       const newSpark = { id: Date.now(), x: e.clientX, y: e.clientY };
       setSparks(prev => [...prev, newSpark]);
       setTimeout(() => setSparks(prev => prev.filter(s => s.id !== newSpark.id)), 1000);
@@ -294,13 +445,13 @@ const ClickSpark = () => {
   );
 };
 
-const ScrambleHover = ({ text, className }) => {
+const ScrambleHover = ({ text, className }: ScrambleHoverProps) => {
   const [displayText, setDisplayText] = useState(text);
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";
   const scramble = () => {
     let iteration = 0;
     const interval = setInterval(() => {
-      setDisplayText(text.split("").map((l, i) => i < iteration ? text[i] : chars[Math.floor(Math.random() * chars.length)]).join(""));
+      setDisplayText(text.split("").map((char, i) => i < iteration ? text[i] : chars[Math.floor(Math.random() * chars.length)]).join(""));
       if (iteration >= text.length) clearInterval(interval);
       iteration += 1 / 3;
     }, 30);
@@ -308,14 +459,14 @@ const ScrambleHover = ({ text, className }) => {
   return <span onMouseEnter={scramble} className={`${className} cursor-pointer`}>{displayText}</span>;
 };
 
-const DecryptedText = ({ text, className, speed = 25, trigger = true }) => {
+const DecryptedText = ({ text, className, speed = 25, trigger = true }: DecryptedTextProps) => {
   const [displayText, setDisplayText] = useState("");
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";
   useEffect(() => {
     if (!trigger) return;
     let iteration = 0;
     const interval = setInterval(() => {
-      setDisplayText(text.split("").map((l, i) => i < iteration ? text[i] : chars[Math.floor(Math.random() * chars.length)]).join(""));
+      setDisplayText(text.split("").map((char, i) => i < iteration ? text[i] : chars[Math.floor(Math.random() * chars.length)]).join(""));
       if (iteration >= text.length) clearInterval(interval);
       iteration += 1 / 2;
     }, speed);
@@ -324,14 +475,14 @@ const DecryptedText = ({ text, className, speed = 25, trigger = true }) => {
   return <span className={className}>{displayText}</span>;
 };
 
-const AutoGlitchText = ({ text, className }) => {
+const AutoGlitchText = ({ text, className }: AutoGlitchTextProps) => {
   const [displayText, setDisplayText] = useState(text);
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";
   useEffect(() => {
     const triggerGlitch = () => {
       let iteration = 0;
       const interval = setInterval(() => {
-        setDisplayText(text.split("").map((l, i) => i < iteration ? text[i] : chars[Math.floor(Math.random() * chars.length)]).join(""));
+        setDisplayText(text.split("").map((char, i) => i < iteration ? text[i] : chars[Math.floor(Math.random() * chars.length)]).join(""));
         if (iteration >= text.length) clearInterval(interval);
         iteration += 1 / 3;
       }, 30);
@@ -342,7 +493,7 @@ const AutoGlitchText = ({ text, className }) => {
   return <span className={className}>{displayText}</span>;
 };
 
-const ScrollRevealHeader = ({ text, className }) => {
+const ScrollRevealHeader = ({ text, className }: ScrollRevealHeaderProps) => {
   const [hasViewed, setHasViewed] = useState(false);
   return (
     <motion.div onViewportEnter={() => setHasViewed(true)} viewport={{ once: true, margin: "-100px" }}>
@@ -351,25 +502,25 @@ const ScrollRevealHeader = ({ text, className }) => {
   );
 };
 
-const RevealText = ({ children, delay = 0 }) => (
+const RevealText = ({ children, delay = 0 }: RevealTextProps) => (
   <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay }}>
     {children}
   </motion.div>
 );
 
-const wrap = (min, max, v) => {
+const wrap = (min: number, max: number, v: number) => {
   const rangeSize = max - min;
   return ((((v - min) % rangeSize) + rangeSize) % rangeSize) + min;
 };
 
-const ParallaxText = ({ children, baseVelocity = 100 }) => {
+const ParallaxText = ({ children, baseVelocity = 100 }: ParallaxTextProps) => {
   const baseX = useMotionValue(0);
   const { scrollY } = useScroll();
   const scrollVelocity = useVelocity(scrollY);
   const smoothVelocity = useSpring(scrollVelocity, { damping: 50, stiffness: 400 });
   const velocityFactor = useTransform(smoothVelocity, [0, 1000], [0, 5], { clamp: false });
-  const x = useTransform(baseX, (v) => `${wrap(-20, -45, v)}%`);
-  const directionFactor = useRef(1);
+  const x = useTransform(baseX, (v: number) => `${wrap(-20, -45, v)}%`);
+  const directionFactor = useRef<number>(1);
   useAnimationFrame((t, delta) => {
     let moveBy = directionFactor.current * baseVelocity * (delta / 1000);
     if (velocityFactor.get() < 0) directionFactor.current = -1;
@@ -389,13 +540,13 @@ const ParallaxText = ({ children, baseVelocity = 100 }) => {
   );
 };
 
-const GlitchText = ({ text }) => {
+const GlitchText = ({ text }: GlitchTextProps) => {
   const [displayText, setDisplayText] = useState(text);
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";
   const scramble = () => {
     let iteration = 0;
     const interval = setInterval(() => {
-      setDisplayText(text.split("").map((l, i) => i < iteration ? text[i] : chars[Math.floor(Math.random() * chars.length)]).join(""));
+      setDisplayText(text.split("").map((char, i) => i < iteration ? text[i] : chars[Math.floor(Math.random() * chars.length)]).join(""));
       if (iteration >= text.length) clearInterval(interval);
       iteration += 1 / 3;
     }, 30);
@@ -408,7 +559,7 @@ const GlitchText = ({ text }) => {
 const CursorFollower = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   useEffect(() => {
-    const handleMouseMove = (e) => setMousePos({ x: e.clientX, y: e.clientY });
+    const handleMouseMove = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY });
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
@@ -423,7 +574,7 @@ const SystemHUD = () => {
     const t = setInterval(() => setTime(new Date().toLocaleTimeString([], { hour12: false })), 1000);
     return () => clearInterval(t);
   }, []);
-  useEffect(() => scrollY.onChange((v) => setScrollVel(Math.abs(v - (scrollY.getPrevious() || 0)))), [scrollY]);
+  useEffect(() => scrollY.onChange((v: number) => setScrollVel(Math.abs(v - (scrollY.getPrevious() || 0)))), [scrollY]);
   return (
     <div className="fixed bottom-6 right-6 z-50 hidden md:flex flex-col gap-2 font-mono text-[10px] text-indigo-400/60 pointer-events-none select-none mix-blend-plus-lighter">
       <div className="flex items-center gap-2 border-b border-indigo-500/20 pb-1 mb-1 justify-between">
@@ -435,11 +586,13 @@ const SystemHUD = () => {
   );
 };
 
-const MagneticLink = ({ children, onClick, href, className = "" }) => {
-  const ref = useRef(null);
+const MagneticLink = ({ children, onClick, href, className = "" }: MagneticLinkProps) => {
+  const ref = useRef<HTMLAnchorElement | null>(null);
   const [pos, setPos] = useState({ x: 0, y: 0 });
-  const handleMouse = (e) => {
-    const r = ref.current.getBoundingClientRect();
+  const handleMouse = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const node = ref.current;
+    if (!node) return;
+    const r = node.getBoundingClientRect();
     setPos({ x: (e.clientX - (r.left + r.width / 2)) * 0.3, y: (e.clientY - (r.top + r.height / 2)) * 0.3 });
   };
   return (
@@ -449,11 +602,13 @@ const MagneticLink = ({ children, onClick, href, className = "" }) => {
   );
 };
 
-const MagneticButton = ({ children, className = "", onClick }) => {
-  const ref = useRef(null);
+const MagneticButton = ({ children, className = "", onClick }: MagneticButtonProps) => {
+  const ref = useRef<HTMLButtonElement | null>(null);
   const [pos, setPos] = useState({ x: 0, y: 0 });
-  const handleMouse = (e) => {
-    const r = ref.current.getBoundingClientRect();
+  const handleMouse = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const node = ref.current;
+    if (!node) return;
+    const r = node.getBoundingClientRect();
     setPos({ x: (e.clientX - (r.left + r.width / 2)) * 0.2, y: (e.clientY - (r.top + r.height / 2)) * 0.2 });
   };
   return (
@@ -477,11 +632,11 @@ const ScrollProgress = () => {
   return <motion.div className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 origin-left z-[60]" style={{ scaleX }} />;
 };
 
-const BootSequence = ({ onComplete }) => {
-  const [lines, setLines] = useState([]);
+const BootSequence = ({ onComplete }: BootSequenceProps) => {
+  const [lines, setLines] = useState<string[]>([]);
   const bootText = ["INITIALIZING KERNEL...", "LOADING MEMORY MODULES... [OK]", "VERIFYING CRYPTO KEYS... [OK]", "ESTABLISHING SECURE CONNECTION...", "MOUNTING FILE SYSTEM...", "STARTING RICHARD.OS v15.0", "ACCESS GRANTED"];
   useEffect(() => {
-    let currentLines = [];
+    let currentLines: string[] = [];
     bootText.forEach((text, index) => {
       setTimeout(() => {
         currentLines.push(text);
@@ -500,10 +655,10 @@ const BootSequence = ({ onComplete }) => {
 // --- 4. PAGE SECTIONS & CONTENT COMPONENTS ---
 
 const DraggableTerminal = () => {
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState<TerminalEntry[]>([]);
   const [input, setInput] = useState('');
-  const bottomRef = useRef(null);
-  const containerRef = useRef(null);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const cmds = ["RichardOS Kernel v15.0.0 initialized.", "Mounting /usr/richard/skills... [OK]", 'Type "help" for command list.'];
@@ -516,7 +671,7 @@ const DraggableTerminal = () => {
     }
   }, [history]);
 
-  const handleCommand = (e) => {
+  const handleCommand = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       let output = '';
       switch (input.trim().toLowerCase()) {
@@ -530,6 +685,7 @@ const DraggableTerminal = () => {
       setInput('');
     }
   };
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value);
   return (
     <div className="relative z-40 w-full max-w-2xl mx-auto my-12 h-[350px]">
       <motion.div drag dragMomentum={false} className="absolute top-0 left-0 w-full bg-slate-950/90 backdrop-blur-md border border-slate-800 rounded-lg overflow-hidden font-mono text-sm shadow-2xl">
@@ -540,7 +696,7 @@ const DraggableTerminal = () => {
         </div>
         <div ref={containerRef} className="p-4 h-64 overflow-y-auto space-y-2 custom-scrollbar cursor-text interactive">
           {history.map((entry, i) => <div key={i} className={entry.type === 'input' ? 'text-indigo-400' : 'text-slate-300'}>{entry.type === 'input' ? '> ' : ''}{entry.content}</div>)}
-          <div className="flex items-center text-indigo-400"><span className="mr-2">{'>'}</span><input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleCommand} className="bg-transparent border-none outline-none flex-1 interactive" placeholder="enter command..." autoFocus /></div>
+          <div className="flex items-center text-indigo-400"><span className="mr-2">{'>'}</span><input type="text" value={input} onChange={handleInputChange} onKeyDown={handleCommand} className="bg-transparent border-none outline-none flex-1 interactive" placeholder="enter command..." autoFocus /></div>
           <div ref={bottomRef} />
         </div>
       </motion.div>
@@ -548,8 +704,8 @@ const DraggableTerminal = () => {
   );
 };
 
-const ProjectCard = ({ project, index }) => {
-  const ref = useRef(null);
+const ProjectCard = ({ project, index }: ProjectCardProps) => {
+  const ref = useRef<HTMLDivElement | null>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const mouseX = useSpring(x, { stiffness: 500, damping: 100 });
@@ -564,7 +720,7 @@ const ProjectCard = ({ project, index }) => {
   return (
     <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className={project.size === 'large' ? 'md:col-span-2 md:row-span-2' : 'col-span-1'}>
       <Container {...props} className="block h-full">
-      <motion.div ref={ref} onMouseMove={(e) => { const r = ref.current.getBoundingClientRect(); x.set((e.clientX - r.left - r.width / 2) / r.width); y.set((e.clientY - r.top - r.height / 2) / r.height); }} onMouseLeave={() => { x.set(0); y.set(0); }} style={{ rotateY, rotateX, transformStyle: "preserve-3d" }} className="group relative h-full w-full overflow-hidden rounded-3xl border border-white/5 bg-slate-900/50 p-1 hover:border-indigo-500/50 interactive cursor-pointer">
+      <motion.div ref={ref} onMouseMove={(e: React.MouseEvent<HTMLDivElement>) => { const node = ref.current; if (!node) return; const r = node.getBoundingClientRect(); x.set((e.clientX - r.left - r.width / 2) / r.width); y.set((e.clientY - r.top - r.height / 2) / r.height); }} onMouseLeave={() => { x.set(0); y.set(0); }} style={{ rotateY, rotateX, transformStyle: "preserve-3d" }} className="group relative h-full w-full overflow-hidden rounded-3xl border border-white/5 bg-slate-900/50 p-1 hover:border-indigo-500/50 interactive cursor-pointer">
         <motion.div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" style={{ maskImage, WebkitMaskImage: maskImage }} />
         <div className="relative h-full w-full overflow-hidden rounded-[calc(1.5rem-1px)] bg-slate-950 p-6 flex flex-col justify-between">
            <div className="absolute top-0 left-0 w-full h-1 bg-cyan-400 opacity-0 group-hover:opacity-50 blur-[2px] animate-[scan-down_1.5s_linear_infinite]" />
@@ -581,7 +737,7 @@ const ProjectCard = ({ project, index }) => {
   );
 };
 
-const HoloImage = ({ label, date, src, onClick }) => (
+const HoloImage = ({ label, date, src, onClick }: HoloImageProps) => (
   <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900 interactive cursor-zoom-in" onClick={onClick}>
     <div className="absolute inset-0 bg-indigo-500/20 opacity-0 group-hover:opacity-100 mix-blend-color-dodge transition-opacity z-10 pointer-events-none" />
     <div className="absolute inset-0 z-20 opacity-0 group-hover:opacity-30 pointer-events-none bg-[linear-gradient(to_bottom,transparent_50%,rgba(0,0,0,0.5)_50%)] bg-[size:100%_4px]" />
@@ -602,11 +758,11 @@ const HoloImage = ({ label, date, src, onClick }) => (
   </div>
 );
 
-const ImageModal = ({ selectedImage, onClose }) => {
+const ImageModal = ({ selectedImage, onClose }: ImageModalProps) => {
   if (!selectedImage) return null;
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 cursor-zoom-out">
-      <motion.div layoutId={`image-${selectedImage.label}`} className="relative bg-slate-900 rounded-2xl overflow-hidden max-w-4xl w-full border border-indigo-500/30 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <motion.div layoutId={`image-${selectedImage.label}`} className="relative bg-slate-900 rounded-2xl overflow-hidden max-w-4xl w-full border border-indigo-500/30 shadow-2xl" onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}>
         <div className="aspect-video bg-slate-800 flex items-center justify-center relative">
            {selectedImage.src ? (
              <img src={selectedImage.src} alt={selectedImage.label} className="absolute inset-0 w-full h-full object-contain bg-black" />
@@ -622,8 +778,8 @@ const ImageModal = ({ selectedImage, onClose }) => {
   );
 };
 
-const LifeGallery = ({ images }) => {
-  const [sel, setSel] = useState(null);
+const LifeGallery = ({ images }: LifeGalleryProps) => {
+  const [sel, setSel] = useState<GalleryImage | null>(null);
   return (
     <section id="records" className="py-24 px-6 max-w-7xl mx-auto relative z-10">
       <div className="mb-16"><h2 className="text-sm font-mono text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2"><Aperture size={16} /> Visual Database</h2><ScrollRevealHeader text="Field Operations & Logs." className="text-4xl md:text-5xl font-bold text-white block" /></div>
@@ -633,7 +789,7 @@ const LifeGallery = ({ images }) => {
   );
 };
 
-const Navbar = ({ setView, socials }) => {
+const Navbar = ({ setView, socials }: NavbarProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navLinks = [{ name: 'Projects', href: '#projects' }, { name: 'About', href: '#about' }, { name: 'Records', href: '#records' }, { name: 'Contact', href: '#contact' }];
   return (
@@ -671,7 +827,7 @@ const Navbar = ({ setView, socials }) => {
   );
 };
 
-const Footer = ({ setView, socials, email }) => (
+const Footer = ({ setView, socials, email }: FooterProps) => (
   <footer className="py-12 bg-slate-950 border-t border-white/5 relative z-20">
     <div className="max-w-7xl mx-auto px-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
@@ -689,7 +845,7 @@ const Footer = ({ setView, socials, email }) => (
   </footer>
 );
 
-const Contact = ({ email, socials }) => (
+const Contact = ({ email, socials }: ContactProps) => (
   <section id="contact" className="py-24 px-6 max-w-7xl mx-auto relative z-10 overflow-hidden">
     <div className="absolute inset-0 pointer-events-none opacity-20">{[...Array(20)].map((_, i) => <motion.div key={i} className="absolute top-0 w-px bg-gradient-to-b from-transparent via-indigo-500 to-transparent" style={{ left: `${Math.random() * 100}%`, height: `${Math.random() * 50 + 20}%` }} animate={{ top: ['-100%', '100%'] }} transition={{ duration: Math.random() * 3 + 2, repeat: Infinity, ease: "linear", delay: Math.random() * 2 }} />)}</div>
     <div className="bg-gradient-to-br from-indigo-600 to-indigo-900 rounded-[3rem] p-12 md:p-20 relative overflow-hidden text-center">
@@ -707,7 +863,7 @@ const Contact = ({ email, socials }) => (
   </section>
 );
 
-const LegalPage = ({ type, setView }) => {
+const LegalPage = ({ type, setView }: LegalPageProps) => {
   const content = type === 'privacy' ? {
     title: "Privacy Policy",
     body: "The Operator (Richard Pu) respects the privacy of every visitor. This digital portfolio does not utilize tracking cookies, analytics pixels, or persistent data collection mechanisms. Information submitted via direct email contact is used exclusively for professional communication and is never shared with third-party vendors, advertisers, or data brokers."
@@ -728,7 +884,7 @@ const LegalPage = ({ type, setView }) => {
 
 export default function App() {
   const [booted, setBooted] = useState(false);
-  const [view, setView] = useState('main'); 
+  const [view, setView] = useState<ViewState>('main'); 
 
   useEffect(() => {
     if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
