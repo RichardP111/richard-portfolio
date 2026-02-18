@@ -188,56 +188,55 @@ type LegalPageProps = {
 };
 
 // --- 0. CENTRAL CONFIGURATION ---
-// EDIT THIS SECTION TO UPDATE YOUR CONTENT
 const CONFIG = {
   EMAIL: "richardpu6@gmail.com",
-  PROFILE_IMAGE_SRC: "", // Paste your image URL here
+  PROFILE_IMAGE_SRC: "https://lh3.googleusercontent.com/ogw/AF2bZyjYvPrbBzBEso1zBrRqnjS1KebQ_jxX5FWnn9-xtnkcrdQ=s64-c-mo",
   SOCIALS: {
-    GITHUB: "https://github.com",       // Add your link
-    LINKEDIN: "https://linkedin.com",   // Add your link
-    INSTAGRAM: "https://instagram.com", // Add your link
-    DISCORD: "#",                       // Add your link
+    GITHUB: "https://github.com/RichardP111",       
+    LINKEDIN: "https://www.linkedin.com/in/richard-p-662a87297/",  
+    INSTAGRAM: "https://www.instagram.com/_._.richard/", 
+    DISCORD: "https://discordapp.com/users/726468579037544448",                      
   },
   PROJECTS: [
     { 
       title: "Smart Chess Board", 
-      description: "Hardware Restoration & Logic Integration. Revitalized a legacy hardware system by diagnosing circuit failures and re-soldering critical logic paths. Integrated an I2C OLED display for real-time game state feedback and programmed Arduino-based logic to interpret physical button inputs and drive LED indicators.", 
+      description: "Hardware Restoration & Logic Integration. Revitalized a hardware system by diagnosing communication failures and re-soldering lighting paths.", 
       tag: "Hardware Engineering", 
-      tech: ["Arduino Uno", "I2C OLED", "Buttons", "C++"], 
+      tech: ["Arduino Uno", "Raspberry Pi", "Neopixels", "OLED Display"], 
       size: "large",
-      link: "#" 
+      link: "https://photos.app.goo.gl/NTa5nXoFwXf7LzDq6" 
     },
     { 
       title: "Classroom Sentinel", 
-      description: "Discord Community Automation. Engineered a robust Python bot to manage server operations. Implemented asynchronous moderation filters, automated role hierarchies, and developed interactive engagement modules to foster community activity.", 
+      description: "Discord Server Automation. Engineered a robust Python bot to manage server operations. Implemented asynchronous moderation filters, automated role hierarchies, and developed interactive engagement modules to foster community activity.", 
       tag: "Software Dev", 
-      tech: ["Python", "Discord.py", "AsyncIO", "SQLite"], 
+      tech: ["Python", "Discord.py"], 
       size: "small",
       link: "#" 
     },
     { 
-      title: "BenumTD Strategy", 
-      description: "React-Based Tactical Engine. Developed a complex Tower Defense game focusing on state optimization. Implemented A* pathfinding for dynamic enemy routing and custom collision physics, managing complex wave states at 60FPS.", 
-      tag: "Web Game", 
-      tech: ["React", "JavaScript", "Framer Motion"], 
+      title: "BenumTD", 
+      description: "Developed a complex Tower Defense game focusing on optimization. Implemented pathfinding for dynamic enemy routing and custom collision physics, managing complex wave states.", 
+      tag: "Java Game", 
+      tech: ["Java", "Graphics2D", "OOP"], 
       size: "small",
-      link: "#" 
+      link: "https://github.com/RichardP111/BenumTD" 
     },
     { 
-      title: "Handheld Truck Game", 
-      description: "Embedded Systems Console. Designed and built a portable gaming device using an Arduino Uno. Programmed a custom rendering engine for a 16x2 LCD display, handling analog joystick inputs for real-time object avoidance mechanics.", 
-      tag: "Embedded", 
+      title: "Truck Game", 
+      description: "Designed and built a game using an Arduino Uno. Programmed a custom rendering engine for a 16x2 LCD display, handling analog joystick inputs for real-time object avoidance mechanics.", 
+      tag: "Game Design", 
       tech: ["Arduino Uno", "Joystick", "LCD 16x2"], 
       size: "small",
-      link: "#" 
+      link: "https://github.com/RichardP111/truck_game/blob/main/UNIT_PROJECT_TRUCK.ino" 
     },
     { 
       title: "Memory Matrix", 
-      description: "Low-Latency Pattern Hardware. Built a reaction-time benchmark system using I2C protocols. Synchronized LED matrices with user inputs to measure cognitive retention, optimizing interrupt service routines for millisecond-precision.", 
+      description: "Low-Latency Pattern Game. Built a reaction-time benchmark system using I2C. Synchronized LED matrices with user inputs to measure cognitive retention, optimizing interrupt service routines for millisecond-precision.", 
       tag: "Circuit Design", 
       tech: ["Arduino", "I2C", "EEPROM"], 
       size: "small",
-      link: "#" 
+      link: "https://github.com/RichardP111/memory_game/blob/main/UNIT_PROJECT.ino" 
     },
     { 
       title: "BenumZombs", 
@@ -245,44 +244,44 @@ const CONFIG = {
       tag: "Java Game", 
       tech: ["Java", "Graphics2D", "OOP"], 
       size: "small",
-      link: "#" 
+      link: "https://github.com/RichardP111/BenumZombs" 
     }
   ],
   EXTRACURRICULARS: [
     { 
       title: "Tech Crew", 
-      role: "Co-President | Technical Director", 
-      desc: "Lead the technical architecture for large-scale school productions. Oversee signal flow design, DMX lighting orchestration, and live-event troubleshooting, managing a team of technicians in high-pressure environments.", 
+      role: "Co-President", 
+      desc: "Lead the technical production for large-scale school productions. Oversee team leadership, training, and live-event troubleshooting, managing a team of technicians in high-pressure environments.", 
       icon: <Zap size={20} />,
-      link: "#"
+      link: "https://www.instagram.com/tsstechcrew/"
     },
     { 
       title: "Peer Mentor", 
-      role: "Executive Lead", 
-      desc: "Architect the transition framework for incoming Grade 9 cohorts. Design and execute comprehensive orientation strategies, fostering student integration and developing the next generation of student leaders.", 
+      role: "Executive", 
+      desc: "Help support the transition framework for incoming Grade 9s. Design and execute orientation strategies, fostering student integration and developing the next generation of student leaders.", 
       icon: <School size={20} />,
-      link: "#"
+      link: "https://www.instagram.com/tss.mentors/"
     },
     { 
       title: "TSS Announcements", 
       role: "Co-President & Social Media Director", 
       desc: "Manage the institution's primary digital communication channels. Curate and broadcast daily announcements, bridging the information gap between administration, students, and parents.", 
       icon: <Activity size={20} />,
-      link: "#"
+      link: "https://www.instagram.com/tssannouncements/"
     },
     { 
       title: "YRHacks Hackathon", 
       role: "Participant | Computer Vision", 
-      desc: "Developed 'EcoLens', a recycling assistant leveraging machine learning. Engineered an image recognition pipeline to classify waste materials and provide real-time disposal guidance.", 
+      desc: "Developed 'EcoLens' with 3 others, a recycling assistant leveraging machine learning. Engineered an image recognition pipeline to classify waste materials and provide real-time disposal guidance.", 
       icon: <Recycle size={20} />,
-      link: "#"
+      link: "https://github.com/zhanglollo/EcoLens"
     }
   ],
   GALLERY: [
-    { label: "Hackathon Finals", date: "NOV 2025", src: "" }, 
-    { label: "Robotics Lab V2", date: "SEPT 2025", src: "" },
-    { label: "Server Rack Setup", date: "JULY 2025", src: "" },
-    { label: "Prototyping Phase", date: "MAY 2025", src: "" }
+    { label: "BenumZombs", date: "JAN 2026", src: "/images/benumZombs.png" }, 
+    { label: "BenumTD", date: "JUN 2025", src: "/images/benumTD.png" },
+    { label: "Smart Chess Board", date: "JAN 2025", src: "/images/chess.png" },
+    { label: "Truck Game", date: "NOV 2024", src: "/images/truckGame.png" }
   ]
 };
 
@@ -868,7 +867,7 @@ const Contact = ({ email, socials }: ContactProps) => (
 const LegalPage = ({ type, setView }: LegalPageProps) => {
   const content = type === 'privacy' ? {
     title: "Privacy Policy",
-    body: "The Operator (Richard Pu) respects the privacy of every visitor. This digital portfolio does not utilize tracking cookies, analytics pixels, or persistent data collection mechanisms. Information submitted via direct email contact is used exclusively for professional communication and is never shared with third-party vendors, advertisers, or data brokers."
+    body: "The Operator respects the privacy of every visitor. This digital portfolio does not utilize tracking cookies, analytics pixels, or persistent data collection mechanisms. Information submitted via direct email contact is used exclusively for professional communication and is never shared with third-party vendors, advertisers, or data brokers."
   } : {
     title: "Terms of Service",
     body: "By accessing this portfolio, you agree to respect the intellectual property of The Operator. All architectural designs, source code snippets, and custom hardware logs are provided 'as-is' for demonstration purposes. Use of specific project assets, including the EcoLens algorithm and school broadcast workflows, without explicit permission is prohibited. Content is licensed under Creative Commons BY-NC-SA 4.0."
