@@ -219,7 +219,7 @@ const CONFIG = {
       title: "BenumTD", 
       description: "Developed a complex Tower Defense game focusing on optimization. Implemented pathfinding for dynamic enemy routing and custom collision physics, managing complex wave states.", 
       tag: "Java Game", 
-      tech: ["Java", "Graphics2D", "OOP"], 
+      tech: ["Java", "LibGDX", "OOP"], 
       size: "small",
       link: "https://github.com/RichardP111/BenumTD" 
     },
@@ -235,7 +235,7 @@ const CONFIG = {
       title: "Memory Matrix", 
       description: "Low-Latency Pattern Game. Built a reaction-time benchmark system using I2C. Synchronized LED matrices with user inputs to measure cognitive retention, optimizing interrupt service routines for millisecond-precision.", 
       tag: "Circuit Design", 
-      tech: ["Arduino", "I2C", "EEPROM"], 
+      tech: ["Arduino", "I2C", "LED"], 
       size: "small",
       link: "https://github.com/RichardP111/memory_game/blob/main/UNIT_PROJECT.ino" 
     },
@@ -856,7 +856,7 @@ const Contact = ({ email, socials }: ContactProps) => (
       <div className="absolute top-0 right-0 h-full w-full opacity-10 pointer-events-none"><CircuitBoard size={400} className="absolute -right-20 -top-20" /></div>
       <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
         <ScrollRevealHeader text="Let's build something revolutionary." className="text-4xl md:text-6xl font-black text-white mb-6 block" />
-        <p className="text-indigo-100 text-lg mb-12 max-w-xl mx-auto opacity-80">Currently looking for internship opportunities and project collaborations. Let's talk about hardware, games, or high-performance systems.</p>
+        <p className="text-indigo-100 text-lg mb-12 max-w-xl mx-auto opacity-80">Currently looking for co-op opportunities and project collaborations. Let's talk about hardware, games, or high-performance systems.</p>
         <a href={`mailto:${email}`} className="inline-flex items-center gap-4 text-3xl md:text-5xl font-bold text-white hover:text-indigo-200 transition-all border-b-4 border-white/30 pb-2 mb-16 interactive">{email} <ExternalLink size={32} /></a>
         <div className="flex flex-col md:flex-row items-center justify-between pt-12 border-t border-white/20 gap-8">
           <div className="flex items-center gap-8"><a href={socials.GITHUB} className="text-white opacity-60 hover:opacity-100 transition-opacity flex items-center gap-2 interactive"><Github size={20} /> GitHub</a><a href={socials.LINKEDIN} className="text-white opacity-60 hover:opacity-100 transition-opacity flex items-center gap-2 interactive"><Linkedin size={20} /> LinkedIn</a></div>
