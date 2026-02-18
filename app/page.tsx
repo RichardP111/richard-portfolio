@@ -213,7 +213,7 @@ const CONFIG = {
       tag: "Software Dev", 
       tech: ["Python", "Discord.py"], 
       size: "small",
-      link: "" 
+      link: "https://github.com/RichardP111/Discord_Bot" 
     },
     { 
       title: "BenumTD", 
