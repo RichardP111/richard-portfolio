@@ -1,69 +1,58 @@
-# ▮▮▮▮▮▮▯▯ SYSTEM_MANUAL: RICHARD_P_PORTFOLIO
+# Richard Pu | Computer Engineering Portfolio
 
-> **STATUS:** ONLINE  
-> **KERNEL:** v15.0.0  
-> **OPERATOR:** Richard P
+A showcase of high-performance software and hardware integration, featuring custom-built game engines, embedded systems, and hardware restoration projects.
 
----
+## 🛠 Engineering Philosophy
 
-## 01 // OVERVIEW
-**RichardOS** is a specialized portfolio interface designed to bridge the gap between hardware engineering and software architecture. Built on **Next.js** and rendered with **Framer Motion**, this system simulates a low-level operating environment to showcase projects in embedded systems, game development, and full-stack web engineering.
-
-### ⚡ Core Parameters
-- **Theme:** Cyber-Industrial / System Interface
-- **Visuals:** Canvas-based Neural Networks, CRT Scanlines, Holo-glitch text.
-- **Interactivity:** Magnetic UI elements, draggable terminal, keyboard-driven commands.
+My approach to engineering is centered on the integration of hardware and software systems. I am driven by a need to understand the entire technical stack, from low-level circuit design and PCB-level interactions to high-level application logic and system architecture.
 
 ---
 
-## 02 // TECHNICAL STACK
-The system runs on a high-performance modern web stack, heavily customized for motion and physics.
+## 🚀 Featured Projects
 
-| Core | Styling & Motion | Backend & Logic |
-| :--- | :--- | :--- |
-| ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white) | ![Tailwind](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white) | ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white) |
-| ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB) | ![Framer](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white) | ![Node](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white) |
+### 🎮 Software Engineering
 
----
+* **BenumTD: High-Performance Java Tower Defense**
+  * Developed a custom 2D Tower Defense game utilizing the **LibGDX** framework.
+  * Engineered a robust system for dynamic pathfinding and custom collision physics to manage high-velocity entity interactions.
+  * Implemented modular wave-state logic to handle escalating difficulty and real-time rendering.
+  * [View Repository](https://github.com/RichardP111/BenumTD)
 
-## 03 // SYSTEM MODULES (PROJECTS)
+* **BenumZombs: Native Java Game Engine**
+  * Engineered a top-down survival shooter from the ground up in Java, bypassing commercial engines to implement custom low-level systems.
+  * Developed a high-performance rendering pipeline using **Java Graphics2D** and **AWT**.
+  * Incorporated custom vector-based physics and efficient object pooling for high-density entity management.
+  * [View Repository](https://github.com/RichardP111/BenumZombs)
 
-### 🛠️ Hardware & Embedded
-* **Smart Chess Board** `[Arduino, C++, I2C]`
-    * *Legacy hardware restoration with OLED integration and real-time state feedback.*
-* **Handheld Truck Game** `[Embedded C, LCD]`
-    * *Custom 16x2 LCD rendering engine with analog joystick support.*
-* **Memory Matrix** `[Circuit Design]`
-    * *Low-latency reaction benchmark system using synchronized LED matrices.*
+### ⚡ Hardware & Embedded Systems
 
-### 💻 Software & Simulation
-* **Classroom Sentinel** `[Python, Discord.py]`
-    * *Async automation bot for server operations and community management.*
-* **BenumTD Strategy** `[React, Framer Motion]`
-    * *Complex Tower Defense engine with A* pathfinding and 60FPS state optimization.*
-* **BenumZombs** `[Java, Graphics2D]`
-    * *Custom 2D rendering pipeline built from scratch without game engines.*
+* **Smart Chess Board: Hardware & System Architecture Overhaul**
+  * Inherited and remediated a legacy hardware system, resolving critical inter-processor communication failures.
+  * Migrated from unstable GPIO-based signaling to a robust **Serial (UART)** protocol for Raspberry Pi and Arduino communication.
+  * Restored visual feedback systems by diagnosing inverse-wired lighting paths and performing precision re-soldering.
 
----
+* **Embedded Real-Time Collision Logic (Truck Game)**
+  * Developed a high-speed object avoidance game on an **Arduino Uno**.
+  * Engineered a low-latency coordinate system to handle real-time physics and analog joystick inputs on a 16x2 LCD display utilizing the LiquidCrystal library.
+  * [View Repository](https://github.com/RichardP111/truck_game/blob/main/UNIT_PROJECT_TRUCK.ino)
 
-## 04 // OPERATOR LOGS (EXPERIENCE)
-* **Tech Crew:** Co-President | Technical Director
-* **TSS Announcements:** Co-President & Social Media Director
-* **Peer Mentors:** Executive Lead
-* **YRHacks:** Computer Vision Developer (EcoLens)
+* **Memory Matrix: Low-Latency Cognitive Benchmark**
+  * Engineered a reaction-time assessment tool using an Arduino-based **I2C architecture**.
+  * Optimized interrupt service routines to achieve millisecond-precision in pattern retention measurement.
+  * [View Repository](https://github.com/RichardP111/memory_game/blob/main/UNIT_PROJECT.ino)
 
 ---
 
-## 05 // INITIALIZATION SEQUENCE
+## 💻 Technical Stack
 
-To boot the system locally:
+* **Languages:** Java, Python, C++, Kotlin, Swift, HTML/CSS.
+* **Hardware:** Arduino, Raspberry Pi, Circuit Design, PCB Soldering, 3D Design & Printing.
+* **Tools:** VS Code, Eclipse, Arduino IDE, Git, Gradle.
 
-```bash
-# 1. Clone the repository
-git clone [https://github.com/richardp111/richard-portfolio.git](https://github.com/richardp111/richard-portfolio.git)
+---
 
-# 2. Install dependencies
-npm install
+## 📬 Contact
 
-# 3. Initialize Dev Server
-npm run dev
+* **Email:** [richardpu6@gmail.com](mailto:richardpu6@gmail.com)
+* **LinkedIn:** [Richard Pu](https://www.linkedin.com/in/richard-p-662a87297/)
+* **GitHub:** [RichardP111](https://github.com/RichardP111)
