@@ -680,7 +680,7 @@ const ProjectModal = ({ selectedProject, onClose }: ProjectModalProps) => {
   );
 };
 
-// --- UPDATED IMAGE MODAL (Gallery) ---
+// --- IMAGE MODAL (Gallery) ---
 const ImageModal = ({ selectedImage, onClose }: ImageModalProps) => {
   if (!selectedImage) return null;
   return (
@@ -689,18 +689,17 @@ const ImageModal = ({ selectedImage, onClose }: ImageModalProps) => {
       animate={{ opacity: 1 }} 
       exit={{ opacity: 0 }} 
       onClick={onClose} 
-      // Z-Index higher than everything
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 cursor-zoom-out"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-md p-4 cursor-zoom-out"
     >
       <motion.div 
         layoutId={`image-${selectedImage.label}`} 
-        className="relative bg-transparent max-w-5xl w-full h-full flex items-center justify-center pointer-events-none mt-12"
+        className="relative w-full h-full flex items-center justify-center pointer-events-none"
       >
         <div 
-          className="relative w-full flex flex-col items-center justify-center pointer-events-auto"
+          className="relative max-w-5xl w-full flex flex-col items-center justify-center pointer-events-auto"
           onClick={(e) => e.stopPropagation()}
         >
-           {/* Image Container with Max Height */}
+           {/* Image Container */}
            <div className="relative w-full max-h-[85vh] flex justify-center overflow-hidden rounded-lg bg-slate-900 border border-indigo-500/30 shadow-2xl">
              {selectedImage.src ? (
                <img 
@@ -712,6 +711,12 @@ const ImageModal = ({ selectedImage, onClose }: ImageModalProps) => {
                <div className="w-full aspect-video bg-gradient-to-br from-indigo-900/20 to-slate-900/20" />
              )}
              
+             {/* TEXT OVERLAY (Moved inside so it's never cut off) */}
+             <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-12 text-left">
+               <h3 className="text-2xl font-bold text-white">{selectedImage.label}</h3>
+               <p className="text-indigo-400 font-mono mt-1">{selectedImage.date}</p>
+             </div>
+
              {/* Close button inside the frame, top right */}
              <button 
                onClick={onClose} 
@@ -719,11 +724,6 @@ const ImageModal = ({ selectedImage, onClose }: ImageModalProps) => {
              >
                <X size={24} />
              </button>
-           </div>
-           
-           <div className="mt-4 text-center">
-             <h3 className="text-2xl font-bold text-white">{selectedImage.label}</h3>
-             <p className="text-indigo-400 font-mono">{selectedImage.date}</p>
            </div>
         </div>
       </motion.div>
