@@ -845,26 +845,72 @@ const LegalPage = ({ type, setView }: LegalPageProps) => {
     body: (
       <div className="space-y-6">
         <p>This Privacy Policy describes how Richard Pu ("we," "us," or "our") collects, uses, and discloses your information when you visit this digital portfolio. We are committed to protecting your privacy and ensuring a secure user experience.</p>
-        <div><h3 className="text-white font-bold mb-2">1. Information We Collect</h3><p><strong>A. Automatically Collected Information:</strong> We use Vercel Analytics to monitor site performance...</p></div>
-        <div><h3 className="text-white font-bold mb-2">2. Use of Information</h3><p>Data is used exclusively for website optimization...</p></div>
+        
+        <div>
+          <h3 className="text-white font-bold mb-2">1. Information We Collect</h3>
+          <p><strong>A. Automatically Collected Information:</strong> We use Vercel Analytics to monitor site performance and improve user experience. This service collects de-identified data such as browser type, operating system, and general geographic data (City/Country level). IP addresses are masked to maintain anonymity.</p>
+          <p><strong>B. Voluntary Information:</strong> If you contact us via email, we collect your name, email address, and any information included in your inquiry for professional communication purposes.</p>
+        </div>
+
+        <div>
+          <h3 className="text-white font-bold mb-2">2. Use of Information</h3>
+          <p>Data is used exclusively for website optimization, analyzing traffic patterns, and responding to professional inquiries regarding co-op opportunities or project collaborations.</p>
+        </div>
+
+        <div>
+          <h3 className="text-white font-bold mb-2">3. Cookies & Third Parties</h3>
+          <p>This Website utilizes Vercel’s privacy-friendly analytics, which function without invasive persistent cookies. We do not sell, trade, or transfer your personally identifiable information to outside parties.</p>
+        </div>
+
         <p className="pt-4 border-t border-white/10 text-xs">Last updated: February 2026</p>
       </div>
     )
-  } : {
+    } : {
     title: "Terms of Service",
     body: (
       <div className="space-y-6 text-sm">
-        <p>Welcome to the digital portfolio of Richard Pu. By accessing or using this Website, you agree to be bound by these Terms of Service.</p>
-        <div><h3 className="text-white font-bold mb-2 uppercase tracking-wider text-xs">1. Intellectual Property Rights</h3><p>Unless otherwise stated, all content on this site is the intellectual property of Richard Pu.</p></div>
+        <p>Welcome to the digital portfolio of Richard Pu. By accessing or using this Website, you agree to be bound by these Terms of Service. If you do not agree to these terms, please refrain from using the site.</p>
+
+        <div>
+          <h3 className="text-white font-bold mb-2 uppercase tracking-wider text-xs">1. Intellectual Property Rights</h3>
+          <p>Unless otherwise stated, all content on this site—including architectural designs, source code snippets (e.g., EcoLens algorithm, Java game engines), hardware logs, and visual media—is the intellectual property of Richard Pu. Most project code is provided for demonstration purposes and is licensed under <strong>Creative Commons BY-NC-SA 4.0</strong>, meaning you must provide credit and cannot use it for commercial purposes without explicit written consent.</p>
+        </div>
+
+        <div>
+          <h3 className="text-white font-bold mb-2 uppercase tracking-wider text-xs">2. Use License & Restrictions</h3>
+          <p>Permission is granted to temporarily view the materials on this Website for personal, non-commercial transitory viewing only. You may not:</p>
+          <ul className="list-disc pl-5 mt-2 space-y-1">
+            <li>Modify or copy the materials for commercial gain.</li>
+            <li>Attempt to decompile or reverse engineer any software contained on the Website.</li>
+            <li>Remove any copyright or other proprietary notations from the materials.</li>
+            <li>Mirror the materials on any other server without authorization.</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="text-white font-bold mb-2 uppercase tracking-wider text-xs">3. Disclaimer of Liability</h3>
+          <p>The materials on this Website are provided on an 'as-is' basis. Richard Pu makes no warranties, expressed or implied, and hereby disclaims all other warranties including, without limitation, implied warranties or conditions of merchantability or fitness for a particular purpose. Hardware projects and circuit designs are documented for portfolio purposes and should not be replicated without proper engineering supervision.</p>
+        </div>
+
+        <div>
+          <h3 className="text-white font-bold mb-2 uppercase tracking-wider text-xs">4. External Links</h3>
+          <p>This Website contains links to external platforms such as GitHub, LinkedIn, and Instagram. We have not reviewed all of the sites linked to our Website and are not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement.</p>
+        </div>
+
         <p className="pt-4 border-t border-white/10 text-xs">Last updated: February 2026</p>
       </div>
     )
   };
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen pt-32 px-6 max-w-3xl mx-auto pb-24">
-      <button onClick={() => setView('main')} className="flex items-center gap-2 text-indigo-400 hover:text-white mb-8 transition-colors"><ChevronRight size={18} className="rotate-180" /> Back to Portfolio</button>
+      <button onClick={() => setView('main')} className="flex items-center gap-2 text-indigo-400 hover:text-white mb-8 transition-colors">
+        <ChevronRight size={18} className="rotate-180" /> Back to Portfolio
+      </button>
       <h1 className="text-4xl font-bold text-white mb-8">{content.title}</h1>
-      <div className="p-8 rounded-3xl bg-white/5 border border-white/10 text-slate-400 leading-relaxed">{content.body}</div>
+      <div className="p-8 rounded-3xl bg-white/5 border border-white/10 text-slate-400 leading-relaxed">
+        {content.body}
+        <p className="mt-6 text-sm">For inquiries, contact: {CONFIG.EMAIL}</p>
+      </div>
     </motion.div>
   );
 };
