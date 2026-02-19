@@ -30,7 +30,6 @@ import {
 } from 'lucide-react';
 
 // --- TYPE DEFINITIONS ---
-
 type Socials = {
   GITHUB: string;
   LINKEDIN: string;
@@ -48,7 +47,7 @@ type Project = {
   mediaSrc: string; 
   github?: string; 
   downloadLink?: string;
-  schematic?: string; // New field for PDF Schematics
+  schematic?: string;
 };
 
 type Extracurricular = {
@@ -215,7 +214,7 @@ const CONFIG = {
   ]
 };
 
-// --- 1. VISUAL PRIMITIVES (Unchanged) ---
+// --- 1. VISUAL PRIMITIVES ---
 const ProfileImage = ({ className = "" }: ProfileImageProps) => {
   if (CONFIG.PROFILE_IMAGE_SRC) {
     return <img src={CONFIG.PROFILE_IMAGE_SRC} alt="Richard Pu" className={`object-cover ${className}`} />;
@@ -307,7 +306,7 @@ const NeuralNexus = () => (
   </div>
 );
 
-// --- 2. INTERACTION & TEXT COMPONENTS (Mostly Unchanged) ---
+// --- 2. INTERACTION & TEXT COMPONENTS ---
 
 const ClickSpark = () => {
   const [sparks, setSparks] = useState<Spark[]>([]);
@@ -429,7 +428,7 @@ const GlitchText = ({ text }: GlitchTextProps) => {
   return <span onMouseEnter={scramble} className="cursor-default hover:text-indigo-400 transition-colors interactive">{displayText}</span>;
 };
 
-// --- 3. UI COMPONENTS (Unchanged) ---
+// --- 3. UI COMPONENTS ---
 
 const CursorFollower = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -513,12 +512,32 @@ const DraggableTerminal = () => {
   const handleCommand = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       let output = '';
-      switch (input.trim().toLowerCase()) {
-        case 'help': output = 'Commands: about, projects, skills, contact, clear'; break;
-        case 'about': output = 'Computer Engineering Student. Builder of hardware. Lover of code.'; break;
-        case 'skills': output = 'Java, Kotlin, C++, Python, React, Circuit Design, Arduino...'; break;
-        case 'clear': setHistory([]); setInput(''); return;
-        default: output = `Command not found: ${input}`;
+      const command = input.trim().toLowerCase();
+      
+      switch (command) {
+        case 'help': 
+          output = 'Commands: about, projects, skills, contact, clear'; 
+          break;
+        case 'about': 
+          output = 'Computer Engineering Student. Builder of hardware. Lover of code.'; 
+          break;
+        case 'skills': 
+          output = 'Java, Kotlin, C++, Python, React, Circuit Design, Arduino...'; 
+          break;
+        case 'projects': 
+          output = 'Navigating to Projects Section...'; 
+          window.location.href = '#projects';
+          break;
+        case 'contact': 
+          output = 'Opening Contact Channel...'; 
+          window.location.href = '#contact';
+          break;
+        case 'clear': 
+          setHistory([]); 
+          setInput(''); 
+          return;
+        default: 
+          output = `Command not found: ${input}`;
       }
       setHistory(prev => [...prev, { type: 'input', content: input }, { type: 'output', content: output }]);
       setInput('');
@@ -538,7 +557,7 @@ const DraggableTerminal = () => {
   );
 };
 
-// --- UPDATED PROJECT CARD ---
+// --- PROJECT CARD ---
 const ProjectCard = ({ project, index, onClick }: ProjectCardProps) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const x = useMotionValue(0);
@@ -549,7 +568,6 @@ const ProjectCard = ({ project, index, onClick }: ProjectCardProps) => {
   const rotateY = useTransform(mouseX, [-0.5, 0.5], ["5deg", "-5deg"]);
   const maskImage = useMotionTemplate`radial-gradient(250px at ${mouseX}px ${mouseY}px, white, transparent)`;
   
-  // No longer an 'a' tag, now a button-like div
   return (
     <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className={project.size === 'large' ? 'md:col-span-2 md:row-span-2' : 'col-span-1'}>
       <div onClick={onClick} className="block h-full cursor-pointer">
@@ -570,7 +588,7 @@ const ProjectCard = ({ project, index, onClick }: ProjectCardProps) => {
   );
 };
 
-// --- NEW PROJECT MODAL COMPONENT ---
+// --- MODAL COMPONENT ---
 const ProjectModal = ({ selectedProject, onClose }: ProjectModalProps) => {
   if (!selectedProject) return null;
 
@@ -580,13 +598,11 @@ const ProjectModal = ({ selectedProject, onClose }: ProjectModalProps) => {
       animate={{ opacity: 1 }} 
       exit={{ opacity: 0 }} 
       onClick={onClose} 
-      // Z-Index higher than everything, fixed position
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
     >
       <motion.div 
         layoutId={`project-${selectedProject.title}`} 
-        // Constrain max height, added margin top to visually center nicely
-        className="relative bg-slate-900 rounded-3xl overflow-hidden max-w-2xl w-full border border-indigo-500/30 shadow-2xl flex flex-col max-h-[85vh] mt-12" 
+        className="relative bg-slate-900 rounded-3xl overflow-hidden max-w-2xl w-full border border-indigo-500/30 shadow-2xl flex flex-col max-h-[85vh]" 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
@@ -711,7 +727,7 @@ const ImageModal = ({ selectedImage, onClose }: ImageModalProps) => {
                <div className="w-full aspect-video bg-gradient-to-br from-indigo-900/20 to-slate-900/20" />
              )}
              
-             {/* TEXT OVERLAY (Moved inside so it's never cut off) */}
+             {/* TEXT OVERLAY */}
              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-12 text-left">
                <h3 className="text-2xl font-bold text-white">{selectedImage.label}</h3>
                <p className="text-indigo-400 font-mono mt-1">{selectedImage.date}</p>
@@ -731,7 +747,6 @@ const ImageModal = ({ selectedImage, onClose }: ImageModalProps) => {
   );
 };
 
-// ... (HoloImage, Navbar, Footer, Contact, LegalPage remain mostly unchanged)
 const HoloImage = ({ label, date, src, onClick }: HoloImageProps) => (
   <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900 interactive cursor-zoom-in" onClick={onClick}>
     <div className="absolute inset-0 bg-indigo-500/20 opacity-0 group-hover:opacity-100 mix-blend-color-dodge transition-opacity z-10 pointer-events-none" />
@@ -753,7 +768,7 @@ const HoloImage = ({ label, date, src, onClick }: HoloImageProps) => (
   </div>
 );
 
-// REFACTORED LIFEGALLERY: Now accepts onSelect prop instead of managing its own state
+// LIFEGALLERY
 const LifeGallery = ({ images, onSelect }: LifeGalleryProps) => {
   return (
     <section id="records" className="py-24 px-6 max-w-7xl mx-auto relative z-10">
@@ -915,13 +930,13 @@ const LegalPage = ({ type, setView }: LegalPageProps) => {
   );
 };
 
+
 // --- 5. MAIN APP ---
 
 export default function App() {
   const [booted, setBooted] = useState(false);
   const [view, setView] = useState<ViewState>('main'); 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  // NEW: Lifted state for Image Gallery
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
 
   useEffect(() => {
@@ -992,7 +1007,7 @@ export default function App() {
         
         <Footer setView={setView} socials={CONFIG.SOCIALS} email={CONFIG.EMAIL} />
 
-        {/* MODALS: MOVED OUTSIDE MAIN TO FIX Z-INDEX */}
+        {/* MODALS*/}
         <AnimatePresence>
           {selectedProject && (
             <ProjectModal 
