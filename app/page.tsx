@@ -47,7 +47,8 @@ type Project = {
   mediaType: 'video' | 'image';
   mediaSrc: string; 
   github?: string; 
-  downloadLink?: string; 
+  downloadLink?: string;
+  schematic?: string; // New field for PDF Schematics
 };
 
 type Extracurricular = {
@@ -89,11 +90,11 @@ type GlitchTextProps = { text: string };
 type MagneticLinkProps = { children: React.ReactNode; href: string; onClick?: React.MouseEventHandler<HTMLAnchorElement>; className?: string };
 type MagneticButtonProps = { children: React.ReactNode; className?: string; onClick?: React.MouseEventHandler<HTMLButtonElement> };
 type BootSequenceProps = { onComplete: () => void };
-type ProjectCardProps = { project: Project; index: number; onClick: () => void }; // Added onClick
+type ProjectCardProps = { project: Project; index: number; onClick: () => void }; 
 type HoloImageProps = { label: string; date: string; src: string; onClick?: () => void };
 type ImageModalProps = { selectedImage: GalleryImage | null; onClose: () => void };
-type ProjectModalProps = { selectedProject: Project | null; onClose: () => void }; // New Modal Prop
-type LifeGalleryProps = { images: GalleryImage[] };
+type ProjectModalProps = { selectedProject: Project | null; onClose: () => void }; 
+type LifeGalleryProps = { images: GalleryImage[]; onSelect: (img: GalleryImage) => void }; // Updated prop type
 type NavbarProps = { setView: React.Dispatch<React.SetStateAction<ViewState>>; socials: Socials };
 type FooterProps = { setView: React.Dispatch<React.SetStateAction<ViewState>>; socials: Socials; email: string };
 type ContactProps = { email: string; socials: Socials };
@@ -119,6 +120,7 @@ const CONFIG = {
       size: "large",
       mediaType: 'video' as const,
       mediaSrc: "/videos/chessBoardVideo.mp4",
+      schematic: "/chessSchematic.pdf"
     },
     { 
       title: "Classroom Sentinel", 
@@ -149,7 +151,8 @@ const CONFIG = {
       size: "small",
       mediaType: 'video' as const,
       mediaSrc: "/videos/truckGameVideo.mp4",
-      github: "https://github.com/RichardP111/truck_game/blob/main/UNIT_PROJECT_TRUCK.ino" 
+      github: "https://github.com/RichardP111/truck_game/blob/main/UNIT_PROJECT_TRUCK.ino",
+      schematic: "/truckGameSchematic.pdf"
     },
     { 
       title: "Memory Matrix", 
@@ -159,7 +162,8 @@ const CONFIG = {
       size: "small",
       mediaType: 'video' as const,
       mediaSrc: "/videos/memoryGameVideo.mp4",
-      github: "https://github.com/RichardP111/memory_game/blob/main/UNIT_PROJECT.ino" 
+      github: "https://github.com/RichardP111/memory_game/blob/main/UNIT_PROJECT.ino",
+      schematic: "/memoryGameSchematic.pdf"
     },
     { 
       title: "BenumZombs", 
@@ -168,7 +172,7 @@ const CONFIG = {
       tech: ["Java", "Graphics2D", "OOP"], 
       size: "small",
       mediaType: 'image' as const,
-      mediaSrc: "/images/benumZombsGame.jpg", 
+      mediaSrc: "/images/benumZombsGame.png", 
       github: "https://github.com/RichardP111/BenumZombs",
       downloadLink: "/jar/BenumZombs.jar"
     }
@@ -576,11 +580,13 @@ const ProjectModal = ({ selectedProject, onClose }: ProjectModalProps) => {
       animate={{ opacity: 1 }} 
       exit={{ opacity: 0 }} 
       onClick={onClose} 
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
+      // Z-Index higher than everything, fixed position
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
     >
       <motion.div 
         layoutId={`project-${selectedProject.title}`} 
-        className="relative bg-slate-900 rounded-3xl overflow-hidden max-w-2xl w-full border border-indigo-500/30 shadow-2xl flex flex-col max-h-[90vh]" 
+        // Constrain max height, added margin top to visually center nicely
+        className="relative bg-slate-900 rounded-3xl overflow-hidden max-w-2xl w-full border border-indigo-500/30 shadow-2xl flex flex-col max-h-[85vh] mt-12" 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
@@ -650,8 +656,19 @@ const ProjectModal = ({ selectedProject, onClose }: ProjectModalProps) => {
               </a>
             )}
 
-            {/* If no links are available (e.g. Smart Chess Board) */}
-            {!selectedProject.github && !selectedProject.downloadLink && (
+            {/* NEW SCHEMATIC BUTTON */}
+            {selectedProject.schematic && (
+              <a 
+                href={selectedProject.schematic} 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-6 py-3 rounded-full bg-indigo-600/20 text-indigo-400 border border-indigo-500/50 font-bold hover:bg-indigo-600 hover:text-white transition-all"
+              >
+                <FileText size={20} /> View Schematic
+              </a>
+            )}
+
+            {!selectedProject.github && !selectedProject.downloadLink && !selectedProject.schematic && (
                <div className="text-slate-500 text-sm italic flex items-center gap-2">
                  <ShieldCheck size={16} /> Proprietary / Source Unavailable
                </div>
@@ -664,7 +681,6 @@ const ProjectModal = ({ selectedProject, onClose }: ProjectModalProps) => {
 };
 
 // --- UPDATED IMAGE MODAL (Gallery) ---
-// Fixes: Higher Z-Index, Max Height constraint, Object Contain
 const ImageModal = ({ selectedImage, onClose }: ImageModalProps) => {
   if (!selectedImage) return null;
   return (
@@ -673,12 +689,12 @@ const ImageModal = ({ selectedImage, onClose }: ImageModalProps) => {
       animate={{ opacity: 1 }} 
       exit={{ opacity: 0 }} 
       onClick={onClose} 
-      // Changed z-index to 200 to be above Navbar (which is usually z-50)
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 cursor-zoom-out"
+      // Z-Index higher than everything
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 cursor-zoom-out"
     >
       <motion.div 
         layoutId={`image-${selectedImage.label}`} 
-        className="relative bg-transparent max-w-5xl w-full h-full flex items-center justify-center pointer-events-none"
+        className="relative bg-transparent max-w-5xl w-full h-full flex items-center justify-center pointer-events-none mt-12"
       >
         <div 
           className="relative w-full flex flex-col items-center justify-center pointer-events-auto"
@@ -715,7 +731,7 @@ const ImageModal = ({ selectedImage, onClose }: ImageModalProps) => {
   );
 };
 
-// ... (HoloImage, LifeGallery, Navbar, Footer, Contact, LegalPage remain mostly unchanged)
+// ... (HoloImage, Navbar, Footer, Contact, LegalPage remain mostly unchanged)
 const HoloImage = ({ label, date, src, onClick }: HoloImageProps) => (
   <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900 interactive cursor-zoom-in" onClick={onClick}>
     <div className="absolute inset-0 bg-indigo-500/20 opacity-0 group-hover:opacity-100 mix-blend-color-dodge transition-opacity z-10 pointer-events-none" />
@@ -737,13 +753,12 @@ const HoloImage = ({ label, date, src, onClick }: HoloImageProps) => (
   </div>
 );
 
-const LifeGallery = ({ images }: LifeGalleryProps) => {
-  const [sel, setSel] = useState<GalleryImage | null>(null);
+// REFACTORED LIFEGALLERY: Now accepts onSelect prop instead of managing its own state
+const LifeGallery = ({ images, onSelect }: LifeGalleryProps) => {
   return (
     <section id="records" className="py-24 px-6 max-w-7xl mx-auto relative z-10">
       <div className="mb-16"><h2 className="text-sm font-mono text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2"><Aperture size={16} /> Visual Database</h2><ScrollRevealHeader text="Field Operations & Logs." className="text-4xl md:text-5xl font-bold text-white block" /></div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">{images.map((img, i) => (<motion.div key={i} layoutId={`image-${img.label}`} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}><HoloImage label={img.label} date={img.date} src={img.src} onClick={() => setSel(img)} /></motion.div>))}</div>
-      <AnimatePresence>{sel && <ImageModal selectedImage={sel} onClose={() => setSel(null)} />}</AnimatePresence>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">{images.map((img, i) => (<motion.div key={i} layoutId={`image-${img.label}`} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}><HoloImage label={img.label} date={img.date} src={img.src} onClick={() => onSelect(img)} /></motion.div>))}</div>
     </section>
   );
 };
@@ -860,6 +875,8 @@ export default function App() {
   const [booted, setBooted] = useState(false);
   const [view, setView] = useState<ViewState>('main'); 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  // NEW: Lifted state for Image Gallery
+  const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
 
   useEffect(() => {
     if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
@@ -879,6 +896,7 @@ export default function App() {
         <GrainOverlay /><ClickSpark /><CursorFollower /><ScanlineOverlay /><SystemHUD /><ScrollProgress />
         <Navbar setView={setView} socials={CONFIG.SOCIALS} />
         
+        {/* Main Content Area */}
         <main className="relative z-10">
           {view === 'main' ? (
             <>
@@ -914,28 +932,36 @@ export default function App() {
               
               <section id="about" className="py-24 px-6 bg-slate-950/50 relative z-10 overflow-hidden"><div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center"><motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}><ScrollRevealHeader text="Bridging the Gap" className="text-4xl font-bold text-white mb-8" /><RevealText delay={0.2}><p className="text-slate-400 text-lg mb-6 leading-relaxed">My approach to engineering is centered on the integration of hardware and software systems. I am driven by a need to understand the entire technical stack, from low-level circuit design and PCB-level interactions to high-level application logic and system architecture.</p></RevealText><div className="space-y-6 mb-8">{skillCats.map((cat) => (<div key={cat.title}><h4 className="text-xs font-mono text-indigo-400 mb-2 uppercase">{cat.title}</h4><div className="flex flex-wrap gap-2">{cat.skills.map(skill => (<span key={skill} className="text-xs font-medium bg-white/5 text-slate-300 px-3 py-1.5 rounded-full border border-white/5 hover:bg-indigo-600 transition-colors cursor-default">{skill}</span>))}</div></div>))}</div><DraggableTerminal /></motion.div><div className="relative aspect-square rounded-3xl bg-slate-900 border border-indigo-500/20 flex items-center justify-center overflow-hidden group"><NeuralNexus /><div className="absolute inset-4 border border-indigo-500/10 rounded-2xl pointer-events-none" /></div></div></section>
               
-              <LifeGallery images={CONFIG.GALLERY} />
+              {/* Pass state setter to LifeGallery */}
+              <LifeGallery images={CONFIG.GALLERY} onSelect={setSelectedImage} />
               
               <section id="extras" className="py-24 px-6 max-w-7xl mx-auto relative z-10"><div className="mb-16"><h2 className="text-sm font-mono text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2"><Activity size={16} /> Operations & Leadership</h2><ScrollRevealHeader text="Beyond the IDE." className="text-4xl md:text-5xl font-bold text-white tracking-tight block" /></div><div className="grid grid-cols-1 md:grid-cols-2 gap-6">{CONFIG.EXTRACURRICULARS.map((item, idx) => (<motion.div key={idx} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1 }} className="group flex items-start gap-4 p-6 rounded-2xl bg-white/5 border border-white/5 hover:border-indigo-500/30 transition-all interactive h-full"><div className="p-3 rounded-xl bg-slate-900 text-indigo-400 group-hover:text-indigo-300 transition-all">{item.icon}</div><div><h4 className="text-xl font-bold text-white mb-1 group-hover:text-indigo-200 transition-colors">{item.title}</h4><p className="text-xs font-mono text-indigo-400 mb-2 uppercase tracking-wide">{item.role}</p><p className="text-sm text-slate-400 leading-relaxed">{item.desc}</p></div></motion.div>))}</div></section>
               
               <Contact email={CONFIG.EMAIL} socials={CONFIG.SOCIALS} />
-
-              {/* Render Project Modal */}
-              <AnimatePresence>
-                {selectedProject && (
-                  <ProjectModal 
-                    selectedProject={selectedProject} 
-                    onClose={() => setSelectedProject(null)} 
-                  />
-                )}
-              </AnimatePresence>
-
             </>
           ) : (
             <LegalPage type={view} setView={setView} />
           )}
         </main>
+        
         <Footer setView={setView} socials={CONFIG.SOCIALS} email={CONFIG.EMAIL} />
+
+        {/* MODALS: MOVED OUTSIDE MAIN TO FIX Z-INDEX */}
+        <AnimatePresence>
+          {selectedProject && (
+            <ProjectModal 
+              selectedProject={selectedProject} 
+              onClose={() => setSelectedProject(null)} 
+            />
+          )}
+          {selectedImage && (
+             <ImageModal 
+               selectedImage={selectedImage} 
+               onClose={() => setSelectedImage(null)} 
+             />
+          )}
+        </AnimatePresence>
+
       </div>
       <style dangerouslySetInnerHTML={{ __html: `
         html { scroll-behavior: smooth; }
