@@ -6,44 +6,30 @@ import {
   Github, 
   Linkedin, 
   Cpu, 
-  Gamepad2, 
   ExternalLink, 
   ChevronRight, 
-  ChevronDown,
-  Code2, 
-  Terminal, 
-  Layers, 
-  Menu, 
   X,
   CircuitBoard, 
   ArrowUpRight,
-  Sparkles,
-  Loader2,
   Activity,
-  Wifi,
   Move,
   FileText,
-  Award,
-  Users,
   Zap,
   Camera,
   Aperture,
   Maximize,
-  Binary,
-  Database,
   Recycle,
   School,
-  Radar,
-  Bot,
-  Globe,
-  Smartphone,
+  Menu,
   Instagram,
   Disc,
-  Printer,
-  Box,
   ShieldCheck,
-  Scale
+  Scale,
+  Download,
+  Play
 } from 'lucide-react';
+
+// --- TYPE DEFINITIONS ---
 
 type Socials = {
   GITHUB: string;
@@ -58,7 +44,10 @@ type Project = {
   tag?: string;
   tech: string[];
   size: string;
-  link?: string;
+  mediaType: 'video' | 'image';
+  mediaSrc: string; 
+  github?: string; 
+  downloadLink?: string; 
 };
 
 type Extracurricular = {
@@ -88,104 +77,27 @@ type TerminalEntry = {
 
 type ViewState = 'main' | 'privacy' | 'terms';
 
-type ProfileImageProps = {
-  className?: string;
-};
-
-type ScrambleHoverProps = {
-  text: string;
-  className?: string;
-};
-
-type DecryptedTextProps = {
-  text: string;
-  className?: string;
-  speed?: number;
-  trigger?: boolean;
-};
-
-type AutoGlitchTextProps = {
-  text: string;
-  className?: string;
-};
-
-type ScrollRevealHeaderProps = {
-  text: string;
-  className?: string;
-};
-
-type RevealTextProps = {
-  children: React.ReactNode;
-  delay?: number;
-};
-
-type ParallaxTextProps = {
-  children: React.ReactNode;
-  baseVelocity?: number;
-};
-
-type GlitchTextProps = {
-  text: string;
-};
-
-type MagneticLinkProps = {
-  children: React.ReactNode;
-  href: string;
-  onClick?: React.MouseEventHandler<HTMLAnchorElement>;
-  className?: string;
-};
-
-type MagneticButtonProps = {
-  children: React.ReactNode;
-  className?: string;
-  onClick?: React.MouseEventHandler<HTMLButtonElement>;
-};
-
-type BootSequenceProps = {
-  onComplete: () => void;
-};
-
-type ProjectCardProps = {
-  project: Project;
-  index: number;
-};
-
-type HoloImageProps = {
-  label: string;
-  date: string;
-  src: string;
-  onClick?: () => void;
-};
-
-type ImageModalProps = {
-  selectedImage: GalleryImage | null;
-  onClose: () => void;
-};
-
-type LifeGalleryProps = {
-  images: GalleryImage[];
-};
-
-type NavbarProps = {
-  setView: React.Dispatch<React.SetStateAction<ViewState>>;
-  socials: Socials;
-};
-
-type FooterProps = {
-  setView: React.Dispatch<React.SetStateAction<ViewState>>;
-  socials: Socials;
-  email: string;
-};
-
-type ContactProps = {
-  email: string;
-  socials: Socials;
-};
-
-type LegalPageProps = {
-  type: Exclude<ViewState, 'main'>;
-  setView: React.Dispatch<React.SetStateAction<ViewState>>;
-};
+// Props
+type ProfileImageProps = { className?: string };
+type ScrambleHoverProps = { text: string; className?: string };
+type DecryptedTextProps = { text: string; className?: string; speed?: number; trigger?: boolean };
+type AutoGlitchTextProps = { text: string; className?: string };
+type ScrollRevealHeaderProps = { text: string; className?: string };
+type RevealTextProps = { children: React.ReactNode; delay?: number };
+type ParallaxTextProps = { children: React.ReactNode; baseVelocity?: number };
+type GlitchTextProps = { text: string };
+type MagneticLinkProps = { children: React.ReactNode; href: string; onClick?: React.MouseEventHandler<HTMLAnchorElement>; className?: string };
+type MagneticButtonProps = { children: React.ReactNode; className?: string; onClick?: React.MouseEventHandler<HTMLButtonElement> };
+type BootSequenceProps = { onComplete: () => void };
+type ProjectCardProps = { project: Project; index: number; onClick: () => void }; // Added onClick
+type HoloImageProps = { label: string; date: string; src: string; onClick?: () => void };
+type ImageModalProps = { selectedImage: GalleryImage | null; onClose: () => void };
+type ProjectModalProps = { selectedProject: Project | null; onClose: () => void }; // New Modal Prop
+type LifeGalleryProps = { images: GalleryImage[] };
+type NavbarProps = { setView: React.Dispatch<React.SetStateAction<ViewState>>; socials: Socials };
+type FooterProps = { setView: React.Dispatch<React.SetStateAction<ViewState>>; socials: Socials; email: string };
+type ContactProps = { email: string; socials: Socials };
+type LegalPageProps = { type: Exclude<ViewState, 'main'>; setView: React.Dispatch<React.SetStateAction<ViewState>> };
 
 // --- 0. CENTRAL CONFIGURATION ---
 const CONFIG = {
@@ -205,7 +117,8 @@ const CONFIG = {
       tag: "Hardware Engineering", 
       tech: ["Arduino Uno", "Raspberry Pi", "Neopixels", "OLED Display"], 
       size: "large",
-      link: "https://photos.app.goo.gl/NTa5nXoFwXf7LzDq6" 
+      mediaType: 'video' as const,
+      mediaSrc: "/videos/chessBoardVideo.mp4",
     },
     { 
       title: "Classroom Sentinel", 
@@ -213,7 +126,9 @@ const CONFIG = {
       tag: "Software Dev", 
       tech: ["Python", "Discord.py"], 
       size: "small",
-      link: "" 
+      mediaType: 'image' as const,
+      mediaSrc: "/images/discordBot.png",
+      github: "https://github.com/RichardP111/Discord_Bot" 
     },
     { 
       title: "BenumTD", 
@@ -221,14 +136,20 @@ const CONFIG = {
       tag: "Java Game", 
       tech: ["Java", "LibGDX", "OOP"], 
       size: "small",
-      link: "https://github.com/RichardP111/BenumTD" 
+      mediaType: 'image' as const,
+      mediaSrc: "/images/benumTD.png",
+      github: "https://github.com/RichardP111/BenumTD",
+      downloadLink: "/jar/benumTD.jar"
     },
     { 
       title: "Truck Game", 
       description: "Developed a high-speed object avoidance game on an Arduino Uno utilizing the LiquidCrystal library for dynamic 16x2 display updates. Engineered a low-latency coordinate system to handle real-time physics and analog joystick inputs for precise player movement.",
+      tag: "Circuit Design", 
       tech: ["Arduino Uno", "Joystick", "LCD 16x2"], 
       size: "small",
-      link: "https://github.com/RichardP111/truck_game/blob/main/UNIT_PROJECT_TRUCK.ino" 
+      mediaType: 'video' as const,
+      mediaSrc: "/videos/truckGameVideo.mp4",
+      github: "https://github.com/RichardP111/truck_game/blob/main/UNIT_PROJECT_TRUCK.ino" 
     },
     { 
       title: "Memory Matrix", 
@@ -236,7 +157,9 @@ const CONFIG = {
       tag: "Circuit Design", 
       tech: ["Arduino", "I2C", "LED"], 
       size: "small",
-      link: "https://github.com/RichardP111/memory_game/blob/main/UNIT_PROJECT.ino" 
+      mediaType: 'video' as const,
+      mediaSrc: "/videos/memoryGameVideo.mp4",
+      github: "https://github.com/RichardP111/memory_game/blob/main/UNIT_PROJECT.ino" 
     },
     { 
       title: "BenumZombs", 
@@ -244,35 +167,38 @@ const CONFIG = {
       tag: "Java Game", 
       tech: ["Java", "Graphics2D", "OOP"], 
       size: "small",
-      link: "https://github.com/RichardP111/BenumZombs" 
+      mediaType: 'image' as const,
+      mediaSrc: "/images/benumZombsGame.jpg", 
+      github: "https://github.com/RichardP111/BenumZombs",
+      downloadLink: "/jar/BenumZombs.jar"
     }
   ],
   EXTRACURRICULARS: [
     { 
       title: "Tech Crew", 
       role: "Co-President", 
-      desc: "Lead the technical production for large-scale school productions. Oversee team leadership, training, and live-event troubleshooting, managing a team of technicians in high-pressure environments.", 
+      desc: "Lead the technical production for large-scale school productions. Oversee team leadership, training, and live-event troubleshooting.", 
       icon: <Zap size={20} />,
       link: "https://www.instagram.com/tsstechcrew/"
     },
     { 
       title: "Peer Mentor", 
       role: "Executive", 
-      desc: "Help support the transition framework for incoming Grade 9s. Design and execute orientation strategies, fostering student integration and developing the next generation of student leaders.", 
+      desc: "Help support the transition framework for incoming Grade 9s. Design and execute orientation strategies.", 
       icon: <School size={20} />,
       link: "https://www.instagram.com/tss.mentors/"
     },
     { 
       title: "TSS Announcements", 
       role: "Co-President & Social Media Director", 
-      desc: "Manage the institution's primary digital communication channels. Curate and broadcast daily announcements, bridging the information gap between administration, students, and parents.", 
+      desc: "Manage the organizations primary digital communication channels. Curate and broadcast daily announcements.", 
       icon: <Activity size={20} />,
       link: "https://www.instagram.com/tssannouncements/"
     },
     { 
       title: "YRHacks Hackathon", 
       role: "Participant | Computer Vision", 
-      desc: "Developed 'EcoLens' with 3 others, a recycling assistant leveraging machine learning. Engineered an image recognition pipeline to classify waste materials and provide real-time disposal guidance.", 
+      desc: "Developed 'EcoLens' with 3 others, a recycling assistant leveraging machine learning.", 
       icon: <Recycle size={20} />,
       link: "https://github.com/zhanglollo/EcoLens"
     }
@@ -285,44 +211,24 @@ const CONFIG = {
   ]
 };
 
-// --- 1. VISUAL PRIMITIVES ---
-
+// --- 1. VISUAL PRIMITIVES (Unchanged) ---
 const ProfileImage = ({ className = "" }: ProfileImageProps) => {
   if (CONFIG.PROFILE_IMAGE_SRC) {
-    return (
-      <img 
-        src={CONFIG.PROFILE_IMAGE_SRC} 
-        alt="Richard Pu" 
-        className={`object-cover ${className}`} 
-      />
-    );
+    return <img src={CONFIG.PROFILE_IMAGE_SRC} alt="Richard Pu" className={`object-cover ${className}`} />;
   }
-  return (
-    <div className={`bg-indigo-600 flex items-center justify-center font-bold text-white ${className}`}>
-      RP
-    </div>
-  );
+  return <div className={`bg-indigo-600 flex items-center justify-center font-bold text-white ${className}`}>RP</div>;
 };
 
 const GrainOverlay = () => (
   <div className="fixed inset-0 pointer-events-none z-[40] opacity-[0.03] mix-blend-overlay">
-    <div className="w-full h-full bg-slate-900" 
-         style={{ 
-           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` 
-         }} 
-    />
+    <div className="w-full h-full bg-slate-900" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
   </div>
 );
 
 const ScanlineOverlay = () => {
   return (
     <div className="fixed inset-0 pointer-events-none z-[50] overflow-hidden opacity-[0.03]">
-      <motion.div
-        className="w-full h-[100px] bg-gradient-to-b from-transparent via-white to-transparent"
-        animate={{ top: ['-10%', '110%'] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-        style={{ position: 'absolute' }}
-      />
+      <motion.div className="w-full h-[100px] bg-gradient-to-b from-transparent via-white to-transparent" animate={{ top: ['-10%', '110%'] }} transition={{ duration: 8, repeat: Infinity, ease: "linear" }} style={{ position: 'absolute' }} />
     </div>
   );
 };
@@ -331,32 +237,25 @@ const CyberGrid = () => {
   return (
     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none perspective-[500px]">
       <div className="absolute bottom-[-100px] left-[-50%] w-[200%] h-[500px] bg-[linear-gradient(to_right,#4f46e520_1px,transparent_1px),linear-gradient(to_bottom,#4f46e520_1px,transparent_1px)] bg-[size:40px_40px] [transform:rotateX(60deg)] animate-[grid-move_20s_linear_infinite]" />
-      <style>{`
-        @keyframes grid-move {
-          0% { transform: rotateX(60deg) translateY(0); }
-          100% { transform: rotateX(60deg) translateY(40px); }
-        }
-      `}</style>
+      <style>{`@keyframes grid-move { 0% { transform: rotateX(60deg) translateY(0); } 100% { transform: rotateX(60deg) translateY(40px); } }`}</style>
     </div>
   );
 };
 
-const CircuitBackground = () => {
-  return (
-    <div className="absolute inset-0 pointer-events-none opacity-10 overflow-hidden">
-      <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <pattern id="circuit-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-            <path d="M10 10 h80 v80 h-80 Z" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-indigo-500" />
-            <path d="M50 10 v30 M10 50 h30 M90 50 h-30 M50 90 v-30" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-indigo-500" />
-            <circle cx="50" cy="50" r="2" fill="currentColor" className="text-cyan-400" />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#circuit-pattern)" />
-      </svg>
-    </div>
-  );
-};
+const CircuitBackground = () => (
+  <div className="absolute inset-0 pointer-events-none opacity-10 overflow-hidden">
+    <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="circuit-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+          <path d="M10 10 h80 v80 h-80 Z" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-indigo-500" />
+          <path d="M50 10 v30 M10 50 h30 M90 50 h-30 M50 90 v-30" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-indigo-500" />
+          <circle cx="50" cy="50" r="2" fill="currentColor" className="text-cyan-400" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#circuit-pattern)" />
+    </svg>
+  </div>
+);
 
 const NeuralCanvas = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -366,16 +265,10 @@ const NeuralCanvas = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     const context = ctx;
-    let width = 0;
-    let height = 0;
-    let particles: Particle[] = [];
+    let width = 0; let height = 0; let particles: any[] = [];
     const resize = () => { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; };
     class Particle {
-      x: number;
-      y: number;
-      vx: number;
-      vy: number;
-      size: number;
+      x: number; y: number; vx: number; vy: number; size: number;
       constructor() { this.x = Math.random() * width; this.y = Math.random() * height; this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5; this.size = Math.random() * 2 + 1; }
       update() { this.x += this.vx; this.y += this.vy; if (this.x < 0 || this.x > width) this.vx *= -1; if (this.y < 0 || this.y > height) this.vy *= -1; }
       draw() { context.fillStyle = 'rgba(99, 102, 241, 0.4)'; context.beginPath(); context.arc(this.x, this.y, this.size, 0, Math.PI * 2); context.fill(); }
@@ -410,7 +303,7 @@ const NeuralNexus = () => (
   </div>
 );
 
-// --- 2. INTERACTION & TEXT COMPONENTS ---
+// --- 2. INTERACTION & TEXT COMPONENTS (Mostly Unchanged) ---
 
 const ClickSpark = () => {
   const [sparks, setSparks] = useState<Spark[]>([]);
@@ -427,21 +320,7 @@ const ClickSpark = () => {
   }, []);
   return (
     <div className="fixed inset-0 pointer-events-none z-[101]">
-      <AnimatePresence>
-        {sparks.map(s => (
-          <div key={s.id} className="absolute top-0 left-0" style={{ transform: `translate(${s.x}px, ${s.y}px)` }}>
-            {[...Array(8)].map((_, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 1, x: 0, y: 0, scale: 1 }}
-                animate={{ opacity: 0, x: Math.cos(i * (Math.PI / 4)) * 60, y: Math.sin(i * (Math.PI / 4)) * 60, scale: 0 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="absolute w-1 h-1 bg-cyan-400 rounded-full shadow-[0_0_15px_rgba(34,211,238,1)]"
-              />
-            ))}
-          </div>
-        ))}
-      </AnimatePresence>
+      <AnimatePresence>{sparks.map(s => (<div key={s.id} className="absolute top-0 left-0" style={{ transform: `translate(${s.x}px, ${s.y}px)` }}>{[...Array(8)].map((_, i) => (<motion.div key={i} initial={{ opacity: 1, x: 0, y: 0, scale: 1 }} animate={{ opacity: 0, x: Math.cos(i * (Math.PI / 4)) * 60, y: Math.sin(i * (Math.PI / 4)) * 60, scale: 0 }} transition={{ duration: 0.5, ease: "easeOut" }} className="absolute w-1 h-1 bg-cyan-400 rounded-full shadow-[0_0_15px_rgba(34,211,238,1)]" />))}</div>))}</AnimatePresence>
     </div>
   );
 };
@@ -496,17 +375,11 @@ const AutoGlitchText = ({ text, className }: AutoGlitchTextProps) => {
 
 const ScrollRevealHeader = ({ text, className }: ScrollRevealHeaderProps) => {
   const [hasViewed, setHasViewed] = useState(false);
-  return (
-    <motion.div onViewportEnter={() => setHasViewed(true)} viewport={{ once: true, margin: "-100px" }}>
-      <DecryptedText text={text} className={className} trigger={hasViewed} />
-    </motion.div>
-  );
+  return <motion.div onViewportEnter={() => setHasViewed(true)} viewport={{ once: true, margin: "-100px" }}><DecryptedText text={text} className={className} trigger={hasViewed} /></motion.div>;
 };
 
 const RevealText = ({ children, delay = 0 }: RevealTextProps) => (
-  <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay }}>
-    {children}
-  </motion.div>
+  <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay }}>{children}</motion.div>
 );
 
 const wrap = (min: number, max: number, v: number) => {
@@ -532,10 +405,7 @@ const ParallaxText = ({ children, baseVelocity = 100 }: ParallaxTextProps) => {
   return (
     <div className="overflow-hidden whitespace-nowrap flex flex-nowrap mb-12 opacity-30 select-none pointer-events-none" aria-hidden="true">
       <motion.div className="flex whitespace-nowrap text-4xl md:text-6xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-r from-indigo-500/20 to-cyan-500/20" style={{ x }}>
-        <span className="block mr-12">{children}</span>
-        <span className="block mr-12">{children}</span>
-        <span className="block mr-12">{children}</span>
-        <span className="block mr-12">{children}</span>
+        {[...Array(4)].map((_, i) => <span key={i} className="block mr-12">{children}</span>)}
       </motion.div>
     </div>
   );
@@ -555,7 +425,7 @@ const GlitchText = ({ text }: GlitchTextProps) => {
   return <span onMouseEnter={scramble} className="cursor-default hover:text-indigo-400 transition-colors interactive">{displayText}</span>;
 };
 
-// --- 3. UI COMPONENTS ---
+// --- 3. UI COMPONENTS (Unchanged) ---
 
 const CursorFollower = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -578,10 +448,7 @@ const SystemHUD = () => {
   useEffect(() => scrollY.onChange((v: number) => setScrollVel(Math.abs(v - (scrollY.getPrevious() || 0)))), [scrollY]);
   return (
     <div className="fixed bottom-6 right-6 z-50 hidden md:flex flex-col gap-2 font-mono text-[10px] text-indigo-400/60 pointer-events-none select-none mix-blend-plus-lighter">
-      <div className="flex items-center gap-2 border-b border-indigo-500/20 pb-1 mb-1 justify-between">
-        <div className="flex items-center gap-2"><Activity size={12} className="animate-pulse" /><span>SYS.MONITOR // v15.0</span></div>
-        <div className="relative w-4 h-4 rounded-full border border-indigo-500/50 overflow-hidden"><div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0_deg,rgba(99,102,241,0.5)_360deg)] animate-[spin_2s_linear_infinite]" /></div>
-      </div>
+      <div className="flex items-center gap-2 border-b border-indigo-500/20 pb-1 mb-1 justify-between"><div className="flex items-center gap-2"><Activity size={12} className="animate-pulse" /><span>SYS.MONITOR // v15.0</span></div><div className="relative w-4 h-4 rounded-full border border-indigo-500/50 overflow-hidden"><div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0_deg,rgba(99,102,241,0.5)_360deg)] animate-[spin_2s_linear_infinite]" /></div></div>
       <div className="grid grid-cols-2 gap-x-4"><span>VEL.S: {scrollVel.toFixed(0)} px/f</span><span>TIME: {time}</span><span>CORE: STABLE</span><span>ONLINE: TRUE</span></div>
     </div>
   );
@@ -596,11 +463,7 @@ const MagneticLink = ({ children, onClick, href, className = "" }: MagneticLinkP
     const r = node.getBoundingClientRect();
     setPos({ x: (e.clientX - (r.left + r.width / 2)) * 0.3, y: (e.clientY - (r.top + r.height / 2)) * 0.3 });
   };
-  return (
-    <motion.a href={href} ref={ref} onClick={onClick} className={`${className} interactive inline-block`} animate={{ x: pos.x, y: pos.y }} transition={{ type: "spring", stiffness: 200, damping: 10 }} onMouseMove={handleMouse} onMouseLeave={() => setPos({ x: 0, y: 0 })}>
-      {children}
-    </motion.a>
-  );
+  return <motion.a href={href} ref={ref} onClick={onClick} className={`${className} interactive inline-block`} animate={{ x: pos.x, y: pos.y }} transition={{ type: "spring", stiffness: 200, damping: 10 }} onMouseMove={handleMouse} onMouseLeave={() => setPos({ x: 0, y: 0 })}>{children}</motion.a>;
 };
 
 const MagneticButton = ({ children, className = "", onClick }: MagneticButtonProps) => {
@@ -612,19 +475,7 @@ const MagneticButton = ({ children, className = "", onClick }: MagneticButtonPro
     const r = node.getBoundingClientRect();
     setPos({ x: (e.clientX - (r.left + r.width / 2)) * 0.2, y: (e.clientY - (r.top + r.height / 2)) * 0.2 });
   };
-  return (
-    <motion.button
-      ref={ref}
-      className={`${className} interactive`}
-      animate={{ x: pos.x, y: pos.y }}
-      transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}
-      onMouseMove={handleMouse}
-      onMouseLeave={() => setPos({ x: 0, y: 0 })}
-      onClick={onClick}
-    >
-      {children}
-    </motion.button>
-  );
+  return <motion.button ref={ref} className={`${className} interactive`} animate={{ x: pos.x, y: pos.y }} transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }} onMouseMove={handleMouse} onMouseLeave={() => setPos({ x: 0, y: 0 })} onClick={onClick}>{children}</motion.button>;
 };
 
 const ScrollProgress = () => {
@@ -635,22 +486,12 @@ const ScrollProgress = () => {
 
 const BootSequence = ({ onComplete }: BootSequenceProps) => {
   const [lines, setLines] = useState<string[]>([]);
-  const bootText = ["INITIALIZING KERNEL...", "LOADING MEMORY MODULES... [OK]", "VERIFYING CRYPTO KEYS... [OK]", "ESTABLISHING SECURE CONNECTION...", "MOUNTING FILE SYSTEM...", "STARTING RICHARD.OS v15.0", "ACCESS GRANTED"];
+  const bootText = ["INITIALIZING KERNEL...", "LOADING MEMORY MODULES... [OK]", "VERIFYING KEYS... [OK]", "ESTABLISHING SECURE CONNECTION...", "MOUNTING FILE SYSTEM...", "STARTING RICHARD.OS v15.0", "ACCESS GRANTED"];
   useEffect(() => {
     let currentLines: string[] = [];
-    bootText.forEach((text, index) => {
-      setTimeout(() => {
-        currentLines.push(text);
-        setLines([...currentLines]);
-        if (index === bootText.length - 1) setTimeout(onComplete, 500);
-      }, (index + 1) * 200);
-    });
+    bootText.forEach((text, index) => { setTimeout(() => { currentLines.push(text); setLines([...currentLines]); if (index === bootText.length - 1) setTimeout(onComplete, 500); }, (index + 1) * 200); });
   }, []);
-  return (
-    <motion.div initial={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black z-[200] flex items-center justify-center font-mono text-indigo-500 text-sm p-8">
-      <div className="w-full max-w-md">{lines.map((l, i) => <div key={i} className="mb-1">{`> ${l}`}</div>)}<div className="animate-pulse mt-2">_</div></div>
-    </motion.div>
-  );
+  return <motion.div initial={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black z-[200] flex items-center justify-center font-mono text-indigo-500 text-sm p-8"><div className="w-full max-w-md">{lines.map((l, i) => <div key={i} className="mb-1">{`> ${l}`}</div>)}<div className="animate-pulse mt-2">_</div></div></motion.div>;
 };
 
 // --- 4. PAGE SECTIONS & CONTENT COMPONENTS ---
@@ -660,18 +501,11 @@ const DraggableTerminal = () => {
   const [input, setInput] = useState('');
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-
   useEffect(() => {
     const cmds = ["RichardOS Kernel v15.0.0 initialized.", "Mounting /usr/richard/skills... [OK]", 'Type "help" for command list.'];
     cmds.forEach((c, i) => setTimeout(() => setHistory(prev => [...prev, { type: 'output', content: c }]), (i + 1) * 500));
   }, []);
-
-  useEffect(() => {
-    if (containerRef.current) {
-        containerRef.current.scrollTop = containerRef.current.scrollHeight;
-    }
-  }, [history]);
-
+  useEffect(() => { if (containerRef.current) containerRef.current.scrollTop = containerRef.current.scrollHeight; }, [history]);
   const handleCommand = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       let output = '';
@@ -686,18 +520,13 @@ const DraggableTerminal = () => {
       setInput('');
     }
   };
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value);
   return (
     <div className="relative z-40 w-full max-w-2xl mx-auto my-12 h-[350px]">
       <motion.div drag dragMomentum={false} className="absolute top-0 left-0 w-full bg-slate-950/90 backdrop-blur-md border border-slate-800 rounded-lg overflow-hidden font-mono text-sm shadow-2xl">
-        <div className="bg-slate-900 px-4 py-2 border-b border-slate-800 flex items-center justify-between cursor-move interactive">
-          <div className="flex gap-1.5"><div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50" /><div className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50" /><div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50" /></div>
-          <span className="text-slate-500 ml-2">guest@richard-pu-portfolio:~</span>
-          <Move size={14} className="text-slate-600" />
-        </div>
+        <div className="bg-slate-900 px-4 py-2 border-b border-slate-800 flex items-center justify-between cursor-move interactive"><div className="flex gap-1.5"><div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50" /><div className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50" /><div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50" /></div><span className="text-slate-500 ml-2">guest@richard-pu-portfolio:~</span><Move size={14} className="text-slate-600" /></div>
         <div ref={containerRef} className="p-4 h-64 overflow-y-auto space-y-2 custom-scrollbar cursor-text interactive">
           {history.map((entry, i) => <div key={i} className={entry.type === 'input' ? 'text-indigo-400' : 'text-slate-300'}>{entry.type === 'input' ? '> ' : ''}{entry.content}</div>)}
-          <div className="flex items-center text-indigo-400"><span className="mr-2">{'>'}</span><input type="text" value={input} onChange={handleInputChange} onKeyDown={handleCommand} className="bg-transparent border-none outline-none flex-1 interactive" placeholder="enter command..." autoFocus /></div>
+          <div className="flex items-center text-indigo-400"><span className="mr-2">{'>'}</span><input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleCommand} className="bg-transparent border-none outline-none flex-1 interactive" placeholder="enter command..." autoFocus /></div>
           <div ref={bottomRef} />
         </div>
       </motion.div>
@@ -705,7 +534,8 @@ const DraggableTerminal = () => {
   );
 };
 
-const ProjectCard = ({ project, index }: ProjectCardProps) => {
+// --- UPDATED PROJECT CARD ---
+const ProjectCard = ({ project, index, onClick }: ProjectCardProps) => {
   const ref = useRef<HTMLDivElement | null>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -715,29 +545,177 @@ const ProjectCard = ({ project, index }: ProjectCardProps) => {
   const rotateY = useTransform(mouseX, [-0.5, 0.5], ["5deg", "-5deg"]);
   const maskImage = useMotionTemplate`radial-gradient(250px at ${mouseX}px ${mouseY}px, white, transparent)`;
   
-  const Container = project.link ? 'a' : 'div';
-  const props = project.link ? { href: project.link, target: "_blank", rel: "noopener noreferrer" } : {};
-
+  // No longer an 'a' tag, now a button-like div
   return (
     <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className={project.size === 'large' ? 'md:col-span-2 md:row-span-2' : 'col-span-1'}>
-      <Container {...props} className="block h-full">
-      <motion.div ref={ref} onMouseMove={(e: React.MouseEvent<HTMLDivElement>) => { const node = ref.current; if (!node) return; const r = node.getBoundingClientRect(); x.set((e.clientX - r.left - r.width / 2) / r.width); y.set((e.clientY - r.top - r.height / 2) / r.height); }} onMouseLeave={() => { x.set(0); y.set(0); }} style={{ rotateY, rotateX, transformStyle: "preserve-3d" }} className="group relative h-full w-full overflow-hidden rounded-3xl border border-white/5 bg-slate-900/50 p-1 hover:border-indigo-500/50 interactive cursor-pointer">
-        <motion.div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" style={{ maskImage, WebkitMaskImage: maskImage }} />
-        <div className="relative h-full w-full overflow-hidden rounded-[calc(1.5rem-1px)] bg-slate-950 p-6 flex flex-col justify-between">
-           <div className="absolute top-0 left-0 w-full h-1 bg-cyan-400 opacity-0 group-hover:opacity-50 blur-[2px] animate-[scan-down_1.5s_linear_infinite]" />
-           <div>
-              <div className="flex items-center justify-between mb-4"><span className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 text-[10px] uppercase tracking-widest text-indigo-400 font-bold border border-white/10">{project.tag}</span><ArrowUpRight size={18} className="text-slate-600 group-hover:text-white" /></div>
-              <h3 className="font-bold text-white mb-2 text-xl group-hover:text-indigo-300"><GlitchText text={project.title} /></h3>
-              <p className="text-slate-400 text-sm leading-relaxed mb-6">{project.description}</p>
-           </div>
-           <div className="flex flex-wrap gap-2 mt-auto">{project.tech.map(t => <span key={t} className="text-[10px] font-mono text-slate-500 bg-slate-900 px-2 py-1 rounded border border-white/5">{t}</span>)}</div>
-        </div>
-      </motion.div>
-      </Container>
+      <div onClick={onClick} className="block h-full cursor-pointer">
+        <motion.div ref={ref} onMouseMove={(e: React.MouseEvent<HTMLDivElement>) => { const node = ref.current; if (!node) return; const r = node.getBoundingClientRect(); x.set((e.clientX - r.left - r.width / 2) / r.width); y.set((e.clientY - r.top - r.height / 2) / r.height); }} onMouseLeave={() => { x.set(0); y.set(0); }} style={{ rotateY, rotateX, transformStyle: "preserve-3d" }} className="group relative h-full w-full overflow-hidden rounded-3xl border border-white/5 bg-slate-900/50 p-1 hover:border-indigo-500/50 interactive">
+          <motion.div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" style={{ maskImage, WebkitMaskImage: maskImage }} />
+          <div className="relative h-full w-full overflow-hidden rounded-[calc(1.5rem-1px)] bg-slate-950 p-6 flex flex-col justify-between">
+             <div className="absolute top-0 left-0 w-full h-1 bg-cyan-400 opacity-0 group-hover:opacity-50 blur-[2px] animate-[scan-down_1.5s_linear_infinite]" />
+             <div>
+                <div className="flex items-center justify-between mb-4"><span className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 text-[10px] uppercase tracking-widest text-indigo-400 font-bold border border-white/10">{project.tag}</span><ArrowUpRight size={18} className="text-slate-600 group-hover:text-white" /></div>
+                <h3 className="font-bold text-white mb-2 text-xl group-hover:text-indigo-300"><GlitchText text={project.title} /></h3>
+                <p className="text-slate-400 text-sm leading-relaxed mb-6 line-clamp-3">{project.description}</p>
+             </div>
+             <div className="flex flex-wrap gap-2 mt-auto">{project.tech.map(t => <span key={t} className="text-[10px] font-mono text-slate-500 bg-slate-900 px-2 py-1 rounded border border-white/5">{t}</span>)}</div>
+          </div>
+        </motion.div>
+      </div>
     </motion.div>
   );
 };
 
+// --- NEW PROJECT MODAL COMPONENT ---
+const ProjectModal = ({ selectedProject, onClose }: ProjectModalProps) => {
+  if (!selectedProject) return null;
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }} 
+      onClick={onClose} 
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
+    >
+      <motion.div 
+        layoutId={`project-${selectedProject.title}`} 
+        className="relative bg-slate-900 rounded-3xl overflow-hidden max-w-2xl w-full border border-indigo-500/30 shadow-2xl flex flex-col max-h-[90vh]" 
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close Button */}
+        <button onClick={onClose} className="absolute top-4 right-4 p-2 bg-black/50 rounded-full text-white hover:bg-white/20 transition-colors z-30">
+          <X size={20} />
+        </button>
+
+        {/* Media Section (Top) */}
+        <div className="w-full aspect-video bg-black relative flex items-center justify-center overflow-hidden shrink-0">
+          {selectedProject.mediaType === 'video' ? (
+             <video 
+               src={selectedProject.mediaSrc} 
+               controls 
+               autoPlay 
+               loop
+               muted
+               className="w-full h-full object-cover"
+             >
+               Your browser does not support video.
+             </video>
+          ) : (
+             <img 
+               src={selectedProject.mediaSrc} 
+               alt={selectedProject.title} 
+               className="w-full h-full object-cover" 
+             />
+          )}
+        </div>
+
+        {/* Content Section (Scrollable) */}
+        <div className="p-8 overflow-y-auto custom-scrollbar flex-1">
+          <div className="mb-6">
+            <h2 className="text-3xl font-bold text-white mb-2">{selectedProject.title}</h2>
+            <div className="flex flex-wrap gap-2">
+              {selectedProject.tech.map(t => (
+                <span key={t} className="text-xs font-mono text-indigo-400 bg-indigo-900/20 px-2 py-1 rounded border border-indigo-500/20">
+                  {t}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="prose prose-invert prose-sm max-w-none text-slate-300 mb-8">
+            <p className="leading-relaxed">{selectedProject.description}</p>
+          </div>
+
+          {/* Action Buttons (Bottom) */}
+          <div className="flex flex-wrap items-center gap-4 mt-auto pt-6 border-t border-white/10">
+            {selectedProject.github && (
+              <a 
+                href={selectedProject.github} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-6 py-3 rounded-full bg-white text-slate-950 font-bold hover:bg-indigo-50 transition-colors"
+              >
+                <Github size={20} /> View Source
+              </a>
+            )}
+            
+            {selectedProject.downloadLink && (
+              <a 
+                href={selectedProject.downloadLink} 
+                download
+                className="flex items-center gap-2 px-6 py-3 rounded-full bg-indigo-600/20 text-indigo-400 border border-indigo-500/50 font-bold hover:bg-indigo-600 hover:text-white transition-all"
+              >
+                <Download size={20} /> Download .JAR
+              </a>
+            )}
+
+            {/* If no links are available (e.g. Smart Chess Board) */}
+            {!selectedProject.github && !selectedProject.downloadLink && (
+               <div className="text-slate-500 text-sm italic flex items-center gap-2">
+                 <ShieldCheck size={16} /> Proprietary / Source Unavailable
+               </div>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+// --- UPDATED IMAGE MODAL (Gallery) ---
+// Fixes: Higher Z-Index, Max Height constraint, Object Contain
+const ImageModal = ({ selectedImage, onClose }: ImageModalProps) => {
+  if (!selectedImage) return null;
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }} 
+      onClick={onClose} 
+      // Changed z-index to 200 to be above Navbar (which is usually z-50)
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 cursor-zoom-out"
+    >
+      <motion.div 
+        layoutId={`image-${selectedImage.label}`} 
+        className="relative bg-transparent max-w-5xl w-full h-full flex items-center justify-center pointer-events-none"
+      >
+        <div 
+          className="relative w-full flex flex-col items-center justify-center pointer-events-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+           {/* Image Container with Max Height */}
+           <div className="relative w-full max-h-[85vh] flex justify-center overflow-hidden rounded-lg bg-slate-900 border border-indigo-500/30 shadow-2xl">
+             {selectedImage.src ? (
+               <img 
+                 src={selectedImage.src} 
+                 alt={selectedImage.label} 
+                 className="w-auto h-auto max-w-full max-h-[85vh] object-contain bg-black" 
+               />
+             ) : (
+               <div className="w-full aspect-video bg-gradient-to-br from-indigo-900/20 to-slate-900/20" />
+             )}
+             
+             {/* Close button inside the frame, top right */}
+             <button 
+               onClick={onClose} 
+               className="absolute top-4 right-4 p-2 bg-black/50 rounded-full text-white hover:bg-red-500/80 transition-colors z-30 border border-white/10"
+             >
+               <X size={24} />
+             </button>
+           </div>
+           
+           <div className="mt-4 text-center">
+             <h3 className="text-2xl font-bold text-white">{selectedImage.label}</h3>
+             <p className="text-indigo-400 font-mono">{selectedImage.date}</p>
+           </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+// ... (HoloImage, LifeGallery, Navbar, Footer, Contact, LegalPage remain mostly unchanged)
 const HoloImage = ({ label, date, src, onClick }: HoloImageProps) => (
   <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900 interactive cursor-zoom-in" onClick={onClick}>
     <div className="absolute inset-0 bg-indigo-500/20 opacity-0 group-hover:opacity-100 mix-blend-color-dodge transition-opacity z-10 pointer-events-none" />
@@ -758,26 +736,6 @@ const HoloImage = ({ label, date, src, onClick }: HoloImageProps) => (
     </div>
   </div>
 );
-
-const ImageModal = ({ selectedImage, onClose }: ImageModalProps) => {
-  if (!selectedImage) return null;
-  return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 cursor-zoom-out">
-      <motion.div layoutId={`image-${selectedImage.label}`} className="relative bg-slate-900 rounded-2xl overflow-hidden max-w-4xl w-full border border-indigo-500/30 shadow-2xl" onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}>
-        <div className="aspect-video bg-slate-800 flex items-center justify-center relative">
-           {selectedImage.src ? (
-             <img src={selectedImage.src} alt={selectedImage.label} className="absolute inset-0 w-full h-full object-contain bg-black" />
-           ) : (
-             <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/20 to-slate-900/20" />
-           )}
-           {!selectedImage.src && <Camera size={96} className="text-white/10" />}
-           <button onClick={onClose} className="absolute top-4 right-4 p-2 bg-black/50 rounded-full text-white hover:bg-white/20 transition-colors z-30"><X size={24} /></button>
-           <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black to-transparent z-20"><h3 className="text-3xl font-bold text-white mb-2">{selectedImage.label}</h3><p className="text-indigo-400 font-mono">{selectedImage.date}</p></div>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-};
 
 const LifeGallery = ({ images }: LifeGalleryProps) => {
   const [sel, setSel] = useState<GalleryImage | null>(null);
@@ -843,7 +801,7 @@ const Footer = ({ setView, socials, email }: FooterProps) => (
         </ul></div>
         <div><h4 className="text-white font-bold mb-4">Legal</h4><ul className="space-y-3 text-sm text-slate-400"><li><button onClick={() => setView('privacy')} className="hover:text-indigo-400 transition-colors flex items-center gap-2"><ShieldCheck size={14}/> Privacy Policy</button></li><li><button onClick={() => setView('terms')} className="hover:text-indigo-400 transition-colors flex items-center gap-2"><Scale size={14}/> Terms of Service</button></li><li className="flex items-center gap-2 pt-2 opacity-60"><FileText size={14} /> CC BY-NC-SA 4.0</li></ul></div>
       </div>
-      <div className="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-white/5 text-xs text-slate-500"><p>© 2026 Richard Pu. All hardware synchronized.</p><p>Designed & Engineered in Canada 🇨🇦</p></div>
+      <div className="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-white/5 text-xs text-slate-500"><p>© 2026 Richard Pu. All hardware synchronized.</p><p>Designed & Engineered in Canada</p></div>
     </div>
   </footer>
 );
@@ -872,23 +830,8 @@ const LegalPage = ({ type, setView }: LegalPageProps) => {
     body: (
       <div className="space-y-6">
         <p>This Privacy Policy describes how Richard Pu ("we," "us," or "our") collects, uses, and discloses your information when you visit this digital portfolio. We are committed to protecting your privacy and ensuring a secure user experience.</p>
-        
-        <div>
-          <h3 className="text-white font-bold mb-2">1. Information We Collect</h3>
-          <p><strong>A. Automatically Collected Information:</strong> We use Vercel Analytics to monitor site performance and improve user experience. This service collects de-identified data such as browser type, operating system, and general geographic data (City/Country level). IP addresses are masked to maintain anonymity.</p>
-          <p><strong>B. Voluntary Information:</strong> If you contact us via email, we collect your name, email address, and any information included in your inquiry for professional communication purposes.</p>
-        </div>
-
-        <div>
-          <h3 className="text-white font-bold mb-2">2. Use of Information</h3>
-          <p>Data is used exclusively for website optimization, analyzing traffic patterns, and responding to professional inquiries regarding co-op opportunities or project collaborations.</p>
-        </div>
-
-        <div>
-          <h3 className="text-white font-bold mb-2">3. Cookies & Third Parties</h3>
-          <p>This Website utilizes Vercel’s privacy-friendly analytics, which function without invasive persistent cookies. We do not sell, trade, or transfer your personally identifiable information to outside parties.</p>
-        </div>
-
+        <div><h3 className="text-white font-bold mb-2">1. Information We Collect</h3><p><strong>A. Automatically Collected Information:</strong> We use Vercel Analytics to monitor site performance...</p></div>
+        <div><h3 className="text-white font-bold mb-2">2. Use of Information</h3><p>Data is used exclusively for website optimization...</p></div>
         <p className="pt-4 border-t border-white/10 text-xs">Last updated: February 2026</p>
       </div>
     )
@@ -896,49 +839,17 @@ const LegalPage = ({ type, setView }: LegalPageProps) => {
     title: "Terms of Service",
     body: (
       <div className="space-y-6 text-sm">
-        <p>Welcome to the digital portfolio of Richard Pu. By accessing or using this Website, you agree to be bound by these Terms of Service. If you do not agree to these terms, please refrain from using the site.</p>
-
-        <div>
-          <h3 className="text-white font-bold mb-2 uppercase tracking-wider text-xs">1. Intellectual Property Rights</h3>
-          <p>Unless otherwise stated, all content on this site—including architectural designs, source code snippets (e.g., EcoLens algorithm, Java game engines), hardware logs, and visual media—is the intellectual property of Richard Pu. Most project code is provided for demonstration purposes and is licensed under <strong>Creative Commons BY-NC-SA 4.0</strong>, meaning you must provide credit and cannot use it for commercial purposes without explicit written consent.</p>
-        </div>
-
-        <div>
-          <h3 className="text-white font-bold mb-2 uppercase tracking-wider text-xs">2. Use License & Restrictions</h3>
-          <p>Permission is granted to temporarily view the materials on this Website for personal, non-commercial transitory viewing only. You may not:</p>
-          <ul className="list-disc pl-5 mt-2 space-y-1">
-            <li>Modify or copy the materials for commercial gain.</li>
-            <li>Attempt to decompile or reverse engineer any software contained on the Website.</li>
-            <li>Remove any copyright or other proprietary notations from the materials.</li>
-            <li>Mirror the materials on any other server without authorization.</li>
-          </ul>
-        </div>
-
-        <div>
-          <h3 className="text-white font-bold mb-2 uppercase tracking-wider text-xs">3. Disclaimer of Liability</h3>
-          <p>The materials on this Website are provided on an 'as-is' basis. Richard Pu makes no warranties, expressed or implied, and hereby disclaims all other warranties including, without limitation, implied warranties or conditions of merchantability or fitness for a particular purpose. Hardware projects and circuit designs are documented for portfolio purposes and should not be replicated without proper engineering supervision.</p>
-        </div>
-
-        <div>
-          <h3 className="text-white font-bold mb-2 uppercase tracking-wider text-xs">4. External Links</h3>
-          <p>This Website contains links to external platforms such as GitHub, LinkedIn, and Instagram. We have not reviewed all of the sites linked to our Website and are not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement.</p>
-        </div>
-
+        <p>Welcome to the digital portfolio of Richard Pu. By accessing or using this Website, you agree to be bound by these Terms of Service.</p>
+        <div><h3 className="text-white font-bold mb-2 uppercase tracking-wider text-xs">1. Intellectual Property Rights</h3><p>Unless otherwise stated, all content on this site is the intellectual property of Richard Pu.</p></div>
         <p className="pt-4 border-t border-white/10 text-xs">Last updated: February 2026</p>
       </div>
     )
   };
-
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen pt-32 px-6 max-w-3xl mx-auto pb-24">
-      <button onClick={() => setView('main')} className="flex items-center gap-2 text-indigo-400 hover:text-white mb-8 transition-colors">
-        <ChevronRight size={18} className="rotate-180" /> Back to Portfolio
-      </button>
+      <button onClick={() => setView('main')} className="flex items-center gap-2 text-indigo-400 hover:text-white mb-8 transition-colors"><ChevronRight size={18} className="rotate-180" /> Back to Portfolio</button>
       <h1 className="text-4xl font-bold text-white mb-8">{content.title}</h1>
-      <div className="p-8 rounded-3xl bg-white/5 border border-white/10 text-slate-400 leading-relaxed">
-        {content.body}
-        <p className="mt-6 text-sm">For inquiries, contact: {CONFIG.EMAIL}</p>
-      </div>
+      <div className="p-8 rounded-3xl bg-white/5 border border-white/10 text-slate-400 leading-relaxed">{content.body}</div>
     </motion.div>
   );
 };
@@ -948,6 +859,7 @@ const LegalPage = ({ type, setView }: LegalPageProps) => {
 export default function App() {
   const [booted, setBooted] = useState(false);
   const [view, setView] = useState<ViewState>('main'); 
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   useEffect(() => {
     if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
@@ -974,23 +886,50 @@ export default function App() {
                 <NeuralCanvas /><div className="absolute bottom-0 left-0 w-full h-[400px] z-0 opacity-40"><CyberGrid /></div>
                 <motion.div initial={{ scale: 2, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 1.5, ease: "circOut", delay: 0.5 }} className="relative z-10 text-center max-w-4xl pointer-events-none">
                   <h1 className="text-5xl md:text-8xl font-black text-white tracking-tight mb-6 pointer-events-auto"><AutoGlitchText text="RICHARD PU" className="block" /><span className="text-2xl md:text-4xl font-normal text-slate-400 block mt-2">Engineering the <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 font-bold">Interface</span> Between Worlds.</span></h1>
-                  <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed pointer-events-auto">Computer Engineering Student specializing in custom hardware restoration, low-level embedded software, and full-stack interactive design.</p>
+                  <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed pointer-events-auto">Computer Engineering Student specializing in custom hardware, low-level embedded software, and full-stack interactive design.</p>
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto"><a href="#projects" className="px-8 py-4 rounded-full bg-white text-slate-950 font-bold flex items-center justify-center gap-2 hover:bg-indigo-50 transition-colors w-full sm:w-auto">Explore Works <ChevronRight size={18} /></a><a href="#about" className="px-8 py-4 rounded-full bg-white/5 border border-white/10 text-white font-bold backdrop-blur-sm hover:bg-white/10 transition-colors w-full sm:w-auto flex items-center justify-center">About Me</a></div>
                 </motion.div>
                 <motion.div animate={{ y: [0, 10, 0] }} transition={{ duration: 2, repeat: Infinity }} className="absolute bottom-10 left-1/2 -translate-x-1/2 text-slate-600"><div className="w-6 h-10 border-2 border-slate-700 rounded-full flex justify-center p-1"><div className="w-1 h-2 bg-slate-700 rounded-full" /></div></motion.div>
               </section>
 
               <ParallaxText baseVelocity={2}>JAVA • PYTHON • C++ • ARDUINO • </ParallaxText>
-              <section id="projects" className="py-24 px-6 max-w-7xl mx-auto relative z-10"><CircuitBackground /><div className="mb-16 relative z-10"><h2 className="text-sm font-mono text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2"><CircuitBoard size={16} /> Technical Projects</h2><ScrollRevealHeader text="Bridging Logic and Physicality." className="text-4xl md:text-5xl font-bold text-white block" /></div><div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">{CONFIG.PROJECTS.map((p, idx) => <ProjectCard key={idx} project={p} index={idx} />)}</div></section>
+              
+              <section id="projects" className="py-24 px-6 max-w-7xl mx-auto relative z-10">
+                <CircuitBackground />
+                <div className="mb-16 relative z-10"><h2 className="text-sm font-mono text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2"><CircuitBoard size={16} /> Technical Projects</h2><ScrollRevealHeader text="Bridging Logic and Physicality." className="text-4xl md:text-5xl font-bold text-white block" /></div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+                  {CONFIG.PROJECTS.map((p, idx) => (
+                    <ProjectCard 
+                      key={idx} 
+                      project={p} 
+                      index={idx} 
+                      onClick={() => setSelectedProject(p)} 
+                    />
+                  ))}
+                </div>
+              </section>
+
               <ParallaxText baseVelocity={-2}>3D DESIGN • PRINTING • CIRCUIT DESIGN • </ParallaxText>
               
-              <section id="about" className="py-24 px-6 bg-slate-950/50 relative z-10 overflow-hidden"><div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center"><motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}><ScrollRevealHeader text="Bridging the Gap" className="text-4xl font-bold text-white mb-8" /><RevealText delay={0.2}><p className="text-slate-400 text-lg mb-6 leading-relaxed">My engineering philosophy is rooted in the "full-stack" of reality. I don't just want to write the code; I want to build the machine that runs it. I seek to understand the entire stack, from the electron flow on a PCB to high-level system logic.</p></RevealText><div className="space-y-6 mb-8">{skillCats.map((cat) => (<div key={cat.title}><h4 className="text-xs font-mono text-indigo-400 mb-2 uppercase">{cat.title}</h4><div className="flex flex-wrap gap-2">{cat.skills.map(skill => (<span key={skill} className="text-xs font-medium bg-white/5 text-slate-300 px-3 py-1.5 rounded-full border border-white/5 hover:bg-indigo-600 transition-colors cursor-default">{skill}</span>))}</div></div>))}</div><DraggableTerminal /></motion.div><div className="relative aspect-square rounded-3xl bg-slate-900 border border-indigo-500/20 flex items-center justify-center overflow-hidden group"><NeuralNexus /><div className="absolute inset-4 border border-indigo-500/10 rounded-2xl pointer-events-none" /></div></div></section>
+              <section id="about" className="py-24 px-6 bg-slate-950/50 relative z-10 overflow-hidden"><div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center"><motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}><ScrollRevealHeader text="Bridging the Gap" className="text-4xl font-bold text-white mb-8" /><RevealText delay={0.2}><p className="text-slate-400 text-lg mb-6 leading-relaxed">My approach to engineering is centered on the integration of hardware and software systems. I am driven by a need to understand the entire technical stack, from low-level circuit design and PCB-level interactions to high-level application logic and system architecture.</p></RevealText><div className="space-y-6 mb-8">{skillCats.map((cat) => (<div key={cat.title}><h4 className="text-xs font-mono text-indigo-400 mb-2 uppercase">{cat.title}</h4><div className="flex flex-wrap gap-2">{cat.skills.map(skill => (<span key={skill} className="text-xs font-medium bg-white/5 text-slate-300 px-3 py-1.5 rounded-full border border-white/5 hover:bg-indigo-600 transition-colors cursor-default">{skill}</span>))}</div></div>))}</div><DraggableTerminal /></motion.div><div className="relative aspect-square rounded-3xl bg-slate-900 border border-indigo-500/20 flex items-center justify-center overflow-hidden group"><NeuralNexus /><div className="absolute inset-4 border border-indigo-500/10 rounded-2xl pointer-events-none" /></div></div></section>
               
               <LifeGallery images={CONFIG.GALLERY} />
               
               <section id="extras" className="py-24 px-6 max-w-7xl mx-auto relative z-10"><div className="mb-16"><h2 className="text-sm font-mono text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2"><Activity size={16} /> Operations & Leadership</h2><ScrollRevealHeader text="Beyond the IDE." className="text-4xl md:text-5xl font-bold text-white tracking-tight block" /></div><div className="grid grid-cols-1 md:grid-cols-2 gap-6">{CONFIG.EXTRACURRICULARS.map((item, idx) => (<motion.div key={idx} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1 }} className="group flex items-start gap-4 p-6 rounded-2xl bg-white/5 border border-white/5 hover:border-indigo-500/30 transition-all interactive h-full"><div className="p-3 rounded-xl bg-slate-900 text-indigo-400 group-hover:text-indigo-300 transition-all">{item.icon}</div><div><h4 className="text-xl font-bold text-white mb-1 group-hover:text-indigo-200 transition-colors">{item.title}</h4><p className="text-xs font-mono text-indigo-400 mb-2 uppercase tracking-wide">{item.role}</p><p className="text-sm text-slate-400 leading-relaxed">{item.desc}</p></div></motion.div>))}</div></section>
               
               <Contact email={CONFIG.EMAIL} socials={CONFIG.SOCIALS} />
+
+              {/* Render Project Modal */}
+              <AnimatePresence>
+                {selectedProject && (
+                  <ProjectModal 
+                    selectedProject={selectedProject} 
+                    onClose={() => setSelectedProject(null)} 
+                  />
+                )}
+              </AnimatePresence>
+
             </>
           ) : (
             <LegalPage type={view} setView={setView} />
