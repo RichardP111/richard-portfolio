@@ -519,7 +519,7 @@ const DraggableTerminal = () => {
           output = 'Commands: about, projects, skills, contact, clear'; 
           break;
         case 'about': 
-          output = 'Computer Engineering Student. Builder of hardware. Lover of code.'; 
+          output = 'Computer Engineering Candidate. Builder of hardware. Lover of code.'; 
           break;
         case 'skills': 
           output = 'Java, Kotlin, C++, Python, React, Circuit Design, Arduino...'; 
@@ -965,7 +965,7 @@ export default function App() {
                 <NeuralCanvas /><div className="absolute bottom-0 left-0 w-full h-[400px] z-0 opacity-40"><CyberGrid /></div>
                 <motion.div initial={{ scale: 2, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 1.5, ease: "circOut", delay: 0.5 }} className="relative z-10 text-center max-w-4xl pointer-events-none">
                   <h1 className="text-5xl md:text-8xl font-black text-white tracking-tight mb-6 pointer-events-auto"><AutoGlitchText text="RICHARD PU" className="block" /><span className="text-2xl md:text-4xl font-normal text-slate-400 block mt-2">Engineering the <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 font-bold">Interface</span> Between Worlds.</span></h1>
-                  <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed pointer-events-auto">Computer Engineering Student specializing in custom hardware, low-level embedded software, and full-stack interactive design.</p>
+                  <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed pointer-events-auto">Computer Engineering Candidate specializing in custom hardware, low-level embedded software, and full-stack interactive design.</p>
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto"><a href="#projects" className="px-8 py-4 rounded-full bg-white text-slate-950 font-bold flex items-center justify-center gap-2 hover:bg-indigo-50 transition-colors w-full sm:w-auto">Explore Works <ChevronRight size={18} /></a><a href="#about" className="px-8 py-4 rounded-full bg-white/5 border border-white/10 text-white font-bold backdrop-blur-sm hover:bg-white/10 transition-colors w-full sm:w-auto flex items-center justify-center">About Me</a></div>
                 </motion.div>
                 <motion.div animate={{ y: [0, 10, 0] }} transition={{ duration: 2, repeat: Infinity }} className="absolute bottom-10 left-1/2 -translate-x-1/2 text-slate-600"><div className="w-6 h-10 border-2 border-slate-700 rounded-full flex justify-center p-1"><div className="w-1 h-2 bg-slate-700 rounded-full" /></div></motion.div>
