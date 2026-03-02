@@ -26,7 +26,10 @@ import {
   ShieldCheck,
   Scale,
   Download,
-  Play
+  Accessibility,
+  Eye,
+  Type,
+  VideoOff
 } from 'lucide-react';
 
 // --- TYPE DEFINITIONS ---
@@ -77,6 +80,12 @@ type TerminalEntry = {
 
 type ViewState = 'main' | 'privacy' | 'terms';
 
+type A11yState = {
+  highContrast: boolean;
+  largeText: boolean;
+  reduceMotion: boolean;
+};
+
 // Props
 type ProfileImageProps = { className?: string };
 type ScrambleHoverProps = { text: string; className?: string };
@@ -93,7 +102,7 @@ type ProjectCardProps = { project: Project; index: number; onClick: () => void }
 type HoloImageProps = { label: string; date: string; src: string; onClick?: () => void };
 type ImageModalProps = { selectedImage: GalleryImage | null; onClose: () => void };
 type ProjectModalProps = { selectedProject: Project | null; onClose: () => void }; 
-type LifeGalleryProps = { images: GalleryImage[]; onSelect: (img: GalleryImage) => void }; // Updated prop type
+type LifeGalleryProps = { images: GalleryImage[]; onSelect: (img: GalleryImage) => void };
 type NavbarProps = { setView: React.Dispatch<React.SetStateAction<ViewState>>; socials: Socials };
 type FooterProps = { setView: React.Dispatch<React.SetStateAction<ViewState>>; socials: Socials; email: string };
 type ContactProps = { email: string; socials: Socials };
@@ -239,7 +248,7 @@ const ScanlineOverlay = () => {
 const CyberGrid = () => {
   return (
     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none perspective-[500px]">
-      <div className="absolute bottom-[-100px] left-[-50%] w-[200%] h-[500px] bg-[linear-gradient(to_right,#4f46e520_1px,transparent_1px),linear-gradient(to_bottom,#4f46e520_1px,transparent_1px)] bg-[size:40px_40px] [transform:rotateX(60deg)] animate-[grid-move_20s_linear_infinite]" />
+      <div className="absolute bottom-[-100px] left-[-50%] w-[200%] h-[500px] bg-[linear-gradient(to_right,#4f46e520_1px,transparent_1px),linear-gradient(to_bottom,#4f46e520_1px,transparent_1px)] bg-[size:40px_40px] [transform:rotateX(60deg)] animate-[grid-move_20s_linear_infinite] motion-reduce:animate-none" />
       <style>{`@keyframes grid-move { 0% { transform: rotateX(60deg) translateY(0); } 100% { transform: rotateX(60deg) translateY(40px); } }`}</style>
     </div>
   );
@@ -269,6 +278,12 @@ const NeuralCanvas = () => {
     if (!ctx) return;
     const context = ctx;
     let width = 0; let height = 0; let particles: any[] = [];
+    let animationFrameId: number;
+    
+    // Check for reduced motion preference
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (mediaQuery.matches) return; // Disable canvas animation if motion is reduced
+
     const resize = () => { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; };
     class Particle {
       x: number; y: number; vx: number; vy: number; size: number;
@@ -285,21 +300,24 @@ const NeuralCanvas = () => {
           if (dist < 150) { context.strokeStyle = `rgba(99, 102, 241, ${1 - dist / 150})`; context.lineWidth = 1; context.beginPath(); context.moveTo(particles[i].x, particles[i].y); context.lineTo(particles[j].x, particles[j].y); context.stroke(); }
         }
       }
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
     };
     resize(); for (let i = 0; i < 50; i++) particles.push(new Particle()); animate();
     window.addEventListener('resize', resize);
-    return () => window.removeEventListener('resize', resize);
+    return () => {
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animationFrameId);
+    };
   }, []);
-  return <canvas ref={canvasRef} className="absolute inset-0 z-0 pointer-events-none opacity-40" />;
+  return <canvas ref={canvasRef} className="absolute inset-0 z-0 pointer-events-none opacity-40 motion-reduce:hidden" />;
 };
 
 const NeuralNexus = () => (
-  <div className="relative w-full h-full flex items-center justify-center">
-    <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="absolute w-24 h-24 bg-indigo-500/20 rounded-full blur-xl z-0" />
+  <div className="relative w-full h-full flex items-center justify-center motion-reduce:animate-none">
+    <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="absolute w-24 h-24 bg-indigo-500/20 rounded-full blur-xl z-0 motion-reduce:animate-none" />
     <div className="relative z-10 w-16 h-16 bg-gradient-to-br from-indigo-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg shadow-indigo-500/50"><Cpu size={32} className="text-white" /></div>
     {[80, 160, 240].map((size, i) => (
-      <motion.div key={i} className="absolute border border-indigo-500/30 rounded-full" style={{ width: size, height: size }} animate={{ rotate: 360 }} transition={{ duration: 15 + i * 5, repeat: Infinity, ease: "linear" }}>
+      <motion.div key={i} className="absolute border border-indigo-500/30 rounded-full motion-reduce:animate-none" style={{ width: size, height: size }} animate={{ rotate: 360 }} transition={{ duration: 15 + i * 5, repeat: Infinity, ease: "linear" }}>
         <div className="absolute w-4 h-4 bg-cyan-400 rounded-full shadow-[0_0_10px_rgba(34,211,238,1)] top-1/2 -translate-y-1/2 -left-2" />
       </motion.div>
     ))}
@@ -311,6 +329,9 @@ const NeuralNexus = () => (
 const ClickSpark = () => {
   const [sparks, setSparks] = useState<Spark[]>([]);
   useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (mediaQuery.matches) return;
+
     const handleClick = (e: MouseEvent) => {
       const target = e.target;
       if (target instanceof Element && (target.closest('button') || target.closest('a'))) return;
@@ -322,7 +343,7 @@ const ClickSpark = () => {
     return () => window.removeEventListener('click', handleClick);
   }, []);
   return (
-    <div className="fixed inset-0 pointer-events-none z-[101]">
+    <div className="fixed inset-0 pointer-events-none z-[101] motion-reduce:hidden">
       <AnimatePresence>{sparks.map(s => (<div key={s.id} className="absolute top-0 left-0" style={{ transform: `translate(${s.x}px, ${s.y}px)` }}>{[...Array(8)].map((_, i) => (<motion.div key={i} initial={{ opacity: 1, x: 0, y: 0, scale: 1 }} animate={{ opacity: 0, x: Math.cos(i * (Math.PI / 4)) * 60, y: Math.sin(i * (Math.PI / 4)) * 60, scale: 0 }} transition={{ duration: 0.5, ease: "easeOut" }} className="absolute w-1 h-1 bg-cyan-400 rounded-full shadow-[0_0_15px_rgba(34,211,238,1)]" />))}</div>))}</AnimatePresence>
     </div>
   );
@@ -332,6 +353,9 @@ const ScrambleHover = ({ text, className }: ScrambleHoverProps) => {
   const [displayText, setDisplayText] = useState(text);
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";
   const scramble = () => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (mediaQuery.matches) return;
+
     let iteration = 0;
     const interval = setInterval(() => {
       setDisplayText(text.split("").map((char, i) => i < iteration ? text[i] : chars[Math.floor(Math.random() * chars.length)]).join(""));
@@ -347,6 +371,12 @@ const DecryptedText = ({ text, className, speed = 25, trigger = true }: Decrypte
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";
   useEffect(() => {
     if (!trigger) return;
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (mediaQuery.matches) {
+        setDisplayText(text);
+        return;
+    }
+
     let iteration = 0;
     const interval = setInterval(() => {
       setDisplayText(text.split("").map((char, i) => i < iteration ? text[i] : chars[Math.floor(Math.random() * chars.length)]).join(""));
@@ -362,6 +392,9 @@ const AutoGlitchText = ({ text, className }: AutoGlitchTextProps) => {
   const [displayText, setDisplayText] = useState(text);
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";
   useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (mediaQuery.matches) return;
+
     const triggerGlitch = () => {
       let iteration = 0;
       const interval = setInterval(() => {
@@ -406,7 +439,7 @@ const ParallaxText = ({ children, baseVelocity = 100 }: ParallaxTextProps) => {
     baseX.set(baseX.get() + moveBy);
   });
   return (
-    <div className="overflow-hidden whitespace-nowrap flex flex-nowrap mb-12 opacity-30 select-none pointer-events-none" aria-hidden="true">
+    <div className="overflow-hidden whitespace-nowrap flex flex-nowrap mb-12 opacity-30 select-none pointer-events-none motion-reduce:hidden" aria-hidden="true">
       <motion.div className="flex whitespace-nowrap text-4xl md:text-6xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-r from-indigo-500/20 to-cyan-500/20" style={{ x }}>
         {[...Array(4)].map((_, i) => <span key={i} className="block mr-12">{children}</span>)}
       </motion.div>
@@ -418,6 +451,9 @@ const GlitchText = ({ text }: GlitchTextProps) => {
   const [displayText, setDisplayText] = useState(text);
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";
   const scramble = () => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (mediaQuery.matches) return;
+
     let iteration = 0;
     const interval = setInterval(() => {
       setDisplayText(text.split("").map((char, i) => i < iteration ? text[i] : chars[Math.floor(Math.random() * chars.length)]).join(""));
@@ -437,7 +473,7 @@ const CursorFollower = () => {
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
-  return <motion.div className="fixed top-0 left-0 w-8 h-8 border border-indigo-500/50 rounded-full pointer-events-none z-[100] hidden md:flex items-center justify-center mix-blend-screen" animate={{ x: mousePos.x - 16, y: mousePos.y - 16 }} transition={{ type: "spring", stiffness: 300, damping: 25, mass: 0.5 }}><div className="w-1 h-1 bg-indigo-400 rounded-full opacity-50" /></motion.div>;
+  return <motion.div className="fixed top-0 left-0 w-8 h-8 border border-indigo-500/50 rounded-full pointer-events-none z-[100] hidden md:flex items-center justify-center mix-blend-screen motion-reduce:hidden" animate={{ x: mousePos.x - 16, y: mousePos.y - 16 }} transition={{ type: "spring", stiffness: 300, damping: 25, mass: 0.5 }}><div className="w-1 h-1 bg-indigo-400 rounded-full opacity-50" /></motion.div>;
 };
 
 const SystemHUD = () => {
@@ -451,7 +487,7 @@ const SystemHUD = () => {
   useEffect(() => scrollY.onChange((v: number) => setScrollVel(Math.abs(v - (scrollY.getPrevious() || 0)))), [scrollY]);
   return (
     <div className="fixed bottom-6 right-6 z-50 hidden md:flex flex-col gap-2 font-mono text-[10px] text-indigo-400/60 pointer-events-none select-none mix-blend-plus-lighter">
-      <div className="flex items-center gap-2 border-b border-indigo-500/20 pb-1 mb-1 justify-between"><div className="flex items-center gap-2"><Activity size={12} className="animate-pulse" /><span>SYS.MONITOR // v15.0</span></div><div className="relative w-4 h-4 rounded-full border border-indigo-500/50 overflow-hidden"><div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0_deg,rgba(99,102,241,0.5)_360deg)] animate-[spin_2s_linear_infinite]" /></div></div>
+      <div className="flex items-center gap-2 border-b border-indigo-500/20 pb-1 mb-1 justify-between"><div className="flex items-center gap-2"><Activity size={12} className="animate-pulse motion-reduce:animate-none" /><span>SYS.MONITOR // v15.0</span></div><div className="relative w-4 h-4 rounded-full border border-indigo-500/50 overflow-hidden"><div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0_deg,rgba(99,102,241,0.5)_360deg)] animate-[spin_2s_linear_infinite] motion-reduce:animate-none" /></div></div>
       <div className="grid grid-cols-2 gap-x-4"><span>VEL.S: {scrollVel.toFixed(0)} px/f</span><span>TIME: {time}</span><span>CORE: STABLE</span><span>ONLINE: TRUE</span></div>
     </div>
   );
@@ -466,7 +502,7 @@ const MagneticLink = ({ children, onClick, href, className = "" }: MagneticLinkP
     const r = node.getBoundingClientRect();
     setPos({ x: (e.clientX - (r.left + r.width / 2)) * 0.3, y: (e.clientY - (r.top + r.height / 2)) * 0.3 });
   };
-  return <motion.a href={href} ref={ref} onClick={onClick} className={`${className} interactive inline-block`} animate={{ x: pos.x, y: pos.y }} transition={{ type: "spring", stiffness: 200, damping: 10 }} onMouseMove={handleMouse} onMouseLeave={() => setPos({ x: 0, y: 0 })}>{children}</motion.a>;
+  return <motion.a href={href} ref={ref} onClick={onClick} className={`${className} interactive inline-block focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 focus-visible:outline-offset-4 rounded`} animate={{ x: pos.x, y: pos.y }} transition={{ type: "spring", stiffness: 200, damping: 10 }} onMouseMove={handleMouse} onMouseLeave={() => setPos({ x: 0, y: 0 })}>{children}</motion.a>;
 };
 
 const MagneticButton = ({ children, className = "", onClick }: MagneticButtonProps) => {
@@ -478,7 +514,7 @@ const MagneticButton = ({ children, className = "", onClick }: MagneticButtonPro
     const r = node.getBoundingClientRect();
     setPos({ x: (e.clientX - (r.left + r.width / 2)) * 0.2, y: (e.clientY - (r.top + r.height / 2)) * 0.2 });
   };
-  return <motion.button ref={ref} className={`${className} interactive`} animate={{ x: pos.x, y: pos.y }} transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }} onMouseMove={handleMouse} onMouseLeave={() => setPos({ x: 0, y: 0 })} onClick={onClick}>{children}</motion.button>;
+  return <motion.button ref={ref} className={`${className} interactive focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 focus-visible:outline-offset-4 rounded`} animate={{ x: pos.x, y: pos.y }} transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }} onMouseMove={handleMouse} onMouseLeave={() => setPos({ x: 0, y: 0 })} onClick={onClick}>{children}</motion.button>;
 };
 
 const ScrollProgress = () => {
@@ -491,11 +527,66 @@ const BootSequence = ({ onComplete }: BootSequenceProps) => {
   const [lines, setLines] = useState<string[]>([]);
   const bootText = ["INITIALIZING KERNEL...", "LOADING MEMORY MODULES... [OK]", "VERIFYING KEYS... [OK]", "ESTABLISHING SECURE CONNECTION...", "MOUNTING FILE SYSTEM...", "STARTING RICHARD.OS v15.0", "ACCESS GRANTED"];
   useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (mediaQuery.matches) {
+       onComplete();
+       return;
+    }
+
     let currentLines: string[] = [];
     bootText.forEach((text, index) => { setTimeout(() => { currentLines.push(text); setLines([...currentLines]); if (index === bootText.length - 1) setTimeout(onComplete, 500); }, (index + 1) * 200); });
   }, []);
   return <motion.div initial={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black z-[200] flex items-center justify-center font-mono text-indigo-500 text-sm p-8"><div className="w-full max-w-md">{lines.map((l, i) => <div key={i} className="mb-1">{`> ${l}`}</div>)}<div className="animate-pulse mt-2">_</div></div></motion.div>;
 };
+
+// --- ACCESSIBILITY WIDGET ---
+const AccessibilityWidget = ({ a11y, setA11y }: { a11y: A11yState, setA11y: React.Dispatch<React.SetStateAction<A11yState>> }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="fixed bottom-6 left-6 z-[100]">
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: 10, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.9 }}
+            className="absolute bottom-14 left-0 bg-slate-900 border border-white/10 p-4 rounded-2xl flex flex-col gap-3 shadow-xl mb-2 w-48"
+          >
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-1 border-b border-white/10 pb-2">Accessibility</h4>
+            <button 
+              onClick={() => setA11y(p => ({...p, highContrast: !p.highContrast}))} 
+              className={`flex items-center gap-3 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded ${a11y.highContrast ? 'text-indigo-400 font-bold' : 'text-slate-400 hover:text-white'}`}
+            >
+              <Eye size={16}/> High Contrast
+            </button>
+            <button 
+              onClick={() => setA11y(p => ({...p, largeText: !p.largeText}))} 
+              className={`flex items-center gap-3 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded ${a11y.largeText ? 'text-indigo-400 font-bold' : 'text-slate-400 hover:text-white'}`}
+            >
+              <Type size={16}/> Large Text
+            </button>
+            <button 
+              onClick={() => setA11y(p => ({...p, reduceMotion: !p.reduceMotion}))} 
+              className={`flex items-center gap-3 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded ${a11y.reduceMotion ? 'text-indigo-400 font-bold' : 'text-slate-400 hover:text-white'}`}
+            >
+              <VideoOff size={16}/> Reduce Motion
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <button 
+        onClick={() => setIsOpen(!isOpen)} 
+        aria-label="Toggle Accessibility Menu" 
+        aria-expanded={isOpen}
+        className={`w-12 h-12 rounded-full flex items-center justify-center transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 ${isOpen ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/50' : 'bg-slate-900 border border-indigo-500/50 text-indigo-400 hover:bg-indigo-600 hover:text-white'}`}
+      >
+        <Accessibility size={24} />
+      </button>
+    </div>
+  );
+};
+
 
 // --- 4. PAGE SECTIONS & CONTENT COMPONENTS ---
 
@@ -549,7 +640,7 @@ const DraggableTerminal = () => {
         <div className="bg-slate-900 px-4 py-2 border-b border-slate-800 flex items-center justify-between cursor-move interactive"><div className="flex gap-1.5"><div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50" /><div className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50" /><div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50" /></div><span className="text-slate-500 ml-2">guest@richard-pu-portfolio:~</span><Move size={14} className="text-slate-600" /></div>
         <div ref={containerRef} className="p-4 h-64 overflow-y-auto space-y-2 custom-scrollbar cursor-text interactive">
           {history.map((entry, i) => <div key={i} className={entry.type === 'input' ? 'text-indigo-400' : 'text-slate-300'}>{entry.type === 'input' ? '> ' : ''}{entry.content}</div>)}
-          <div className="flex items-center text-indigo-400"><span className="mr-2">{'>'}</span><input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleCommand} className="bg-transparent border-none outline-none flex-1 interactive" placeholder="enter command..." autoFocus /></div>
+          <div className="flex items-center text-indigo-400"><span className="mr-2">{'>'}</span><input type="text" value={input} aria-label="Terminal input" onChange={(e) => setInput(e.target.value)} onKeyDown={handleCommand} className="bg-transparent border-none outline-none flex-1 interactive focus-visible:ring-1 focus-visible:ring-indigo-500 rounded px-1" placeholder="enter command..." autoFocus /></div>
           <div ref={bottomRef} />
         </div>
       </motion.div>
@@ -570,7 +661,7 @@ const ProjectCard = ({ project, index, onClick }: ProjectCardProps) => {
   
   return (
     <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className={project.size === 'large' ? 'md:col-span-2 md:row-span-2' : 'col-span-1'}>
-      <div onClick={onClick} className="block h-full cursor-pointer">
+      <button onClick={onClick} className="block h-full w-full cursor-pointer text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded-3xl" aria-label={`View details for ${project.title}`}>
         <motion.div ref={ref} onMouseMove={(e: React.MouseEvent<HTMLDivElement>) => { const node = ref.current; if (!node) return; const r = node.getBoundingClientRect(); x.set((e.clientX - r.left - r.width / 2) / r.width); y.set((e.clientY - r.top - r.height / 2) / r.height); }} onMouseLeave={() => { x.set(0); y.set(0); }} style={{ rotateY, rotateX, transformStyle: "preserve-3d" }} className="group relative h-full w-full overflow-hidden rounded-3xl border border-white/5 bg-slate-900/50 p-1 hover:border-indigo-500/50 interactive">
           <motion.div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" style={{ maskImage, WebkitMaskImage: maskImage }} />
           <div className="relative h-full w-full overflow-hidden rounded-[calc(1.5rem-1px)] bg-slate-950 p-6 flex flex-col justify-between">
@@ -583,7 +674,7 @@ const ProjectCard = ({ project, index, onClick }: ProjectCardProps) => {
              <div className="flex flex-wrap gap-2 mt-auto">{project.tech.map(t => <span key={t} className="text-[10px] font-mono text-slate-500 bg-slate-900 px-2 py-1 rounded border border-white/5">{t}</span>)}</div>
           </div>
         </motion.div>
-      </div>
+      </button>
     </motion.div>
   );
 };
@@ -605,90 +696,92 @@ const ProjectModal = ({ selectedProject, onClose }: ProjectModalProps) => {
         className="relative bg-slate-900 rounded-3xl overflow-hidden max-w-2xl w-full border border-indigo-500/30 shadow-2xl flex flex-col max-h-[85vh]" 
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close Button */}
-        <button onClick={onClose} className="absolute top-4 right-4 p-2 bg-black/50 rounded-full text-white hover:bg-white/20 transition-colors z-30">
+        {/* Close Button - Stays fixed in the corner */}
+        <button aria-label="Close Project Modal" onClick={onClose} className="absolute top-4 right-4 p-2 bg-black/50 rounded-full text-white hover:bg-white/20 transition-colors z-30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white">
           <X size={20} />
         </button>
 
-        {/* Media Section (Top) */}
-        <div className="w-full aspect-video bg-black relative flex items-center justify-center overflow-hidden shrink-0">
-          {selectedProject.mediaType === 'video' ? (
-             <video 
-               src={selectedProject.mediaSrc} 
-               controls 
-               autoPlay 
-               loop
-               muted
-               className="w-full h-full object-cover"
-             >
-               Your browser does not support video.
-             </video>
-          ) : (
-             <img 
-               src={selectedProject.mediaSrc} 
-               alt={selectedProject.title} 
-               className="w-full h-full object-cover" 
-             />
-          )}
-        </div>
+        {/* Scrollable Container covering both Image and Content */}
+        <div className="overflow-y-auto custom-scrollbar flex-1 w-full flex flex-col">
+          {/* Media Section */}
+          <div className="w-full aspect-video bg-black relative flex items-center justify-center overflow-hidden shrink-0">
+            {selectedProject.mediaType === 'video' ? (
+               <video 
+                 src={selectedProject.mediaSrc} 
+                 controls 
+                 autoPlay 
+                 loop
+                 muted
+                 className="w-full h-full object-cover"
+               >
+                 Your browser does not support video.
+               </video>
+            ) : (
+               <img 
+                 src={selectedProject.mediaSrc} 
+                 alt={selectedProject.title} 
+                 className="w-full h-full object-cover" 
+               />
+            )}
+          </div>
 
-        {/* Content Section (Scrollable) */}
-        <div className="p-8 overflow-y-auto custom-scrollbar flex-1">
-          <div className="mb-6">
-            <h2 className="text-3xl font-bold text-white mb-2">{selectedProject.title}</h2>
-            <div className="flex flex-wrap gap-2">
-              {selectedProject.tech.map(t => (
-                <span key={t} className="text-xs font-mono text-indigo-400 bg-indigo-900/20 px-2 py-1 rounded border border-indigo-500/20">
-                  {t}
-                </span>
-              ))}
+          {/* Text Content Section */}
+          <div className="p-8 flex-1 flex flex-col">
+            <div className="mb-6">
+              <h2 className="text-3xl font-bold text-white mb-2">{selectedProject.title}</h2>
+              <div className="flex flex-wrap gap-2">
+                {selectedProject.tech.map(t => (
+                  <span key={t} className="text-xs font-mono text-indigo-400 bg-indigo-900/20 px-2 py-1 rounded border border-indigo-500/20">
+                    {t}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div className="prose prose-invert prose-sm max-w-none text-slate-300 mb-8">
-            <p className="leading-relaxed">{selectedProject.description}</p>
-          </div>
+            <div className="prose prose-invert prose-sm max-w-none text-slate-300 mb-8">
+              <p className="leading-relaxed">{selectedProject.description}</p>
+            </div>
 
-          {/* Action Buttons (Bottom) */}
-          <div className="flex flex-wrap items-center gap-4 mt-auto pt-6 border-t border-white/10">
-            {selectedProject.github && (
-              <a 
-                href={selectedProject.github} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-6 py-3 rounded-full bg-white text-slate-950 font-bold hover:bg-indigo-50 transition-colors"
-              >
-                <Github size={20} /> View Source
-              </a>
-            )}
-            
-            {selectedProject.downloadLink && (
-              <a 
-                href={selectedProject.downloadLink} 
-                download
-                className="flex items-center gap-2 px-6 py-3 rounded-full bg-indigo-600/20 text-indigo-400 border border-indigo-500/50 font-bold hover:bg-indigo-600 hover:text-white transition-all"
-              >
-                <Download size={20} /> Download .JAR
-              </a>
-            )}
+            {/* Action Buttons (Bottom) */}
+            <div className="flex flex-wrap items-center gap-4 mt-auto pt-6 border-t border-white/10">
+              {selectedProject.github && (
+                <a 
+                  href={selectedProject.github} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-6 py-3 rounded-full bg-white text-slate-950 font-bold hover:bg-indigo-50 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400"
+                >
+                  <Github size={20} /> View Source
+                </a>
+              )}
+              
+              {selectedProject.downloadLink && (
+                <a 
+                  href={selectedProject.downloadLink} 
+                  download
+                  className="flex items-center gap-2 px-6 py-3 rounded-full bg-indigo-600/20 text-indigo-400 border border-indigo-500/50 font-bold hover:bg-indigo-600 hover:text-white transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400"
+                >
+                  <Download size={20} /> Download .JAR
+                </a>
+              )}
 
-            {/* NEW SCHEMATIC BUTTON */}
-            {selectedProject.schematic && (
-              <a 
-                href={selectedProject.schematic} 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-6 py-3 rounded-full bg-indigo-600/20 text-indigo-400 border border-indigo-500/50 font-bold hover:bg-indigo-600 hover:text-white transition-all"
-              >
-                <FileText size={20} /> View Schematic
-              </a>
-            )}
+              {selectedProject.schematic && (
+                <a 
+                  href={selectedProject.schematic} 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-6 py-3 rounded-full bg-indigo-600/20 text-indigo-400 border border-indigo-500/50 font-bold hover:bg-indigo-600 hover:text-white transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400"
+                >
+                  <FileText size={20} /> View Schematic
+                </a>
+              )}
 
-            {!selectedProject.github && !selectedProject.downloadLink && !selectedProject.schematic && (
-               <div className="text-slate-500 text-sm italic flex items-center gap-2">
-                 <ShieldCheck size={16} /> Proprietary / Source Unavailable
-               </div>
-            )}
+              {!selectedProject.github && !selectedProject.downloadLink && !selectedProject.schematic && (
+                 <div className="text-slate-500 text-sm italic flex items-center gap-2">
+                   <ShieldCheck size={16} /> Proprietary / Source Unavailable
+                 </div>
+              )}
+            </div>
           </div>
         </div>
       </motion.div>
@@ -715,7 +808,6 @@ const ImageModal = ({ selectedImage, onClose }: ImageModalProps) => {
           className="relative max-w-5xl w-full flex flex-col items-center justify-center pointer-events-auto"
           onClick={(e) => e.stopPropagation()}
         >
-           {/* Image Container */}
            <div className="relative w-full max-h-[85vh] flex justify-center overflow-hidden rounded-lg bg-slate-900 border border-indigo-500/30 shadow-2xl">
              {selectedImage.src ? (
                <img 
@@ -727,16 +819,15 @@ const ImageModal = ({ selectedImage, onClose }: ImageModalProps) => {
                <div className="w-full aspect-video bg-gradient-to-br from-indigo-900/20 to-slate-900/20" />
              )}
              
-             {/* TEXT OVERLAY */}
              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-12 text-left">
                <h3 className="text-2xl font-bold text-white">{selectedImage.label}</h3>
                <p className="text-indigo-400 font-mono mt-1">{selectedImage.date}</p>
              </div>
 
-             {/* Close button inside the frame, top right */}
              <button 
                onClick={onClose} 
-               className="absolute top-4 right-4 p-2 bg-black/50 rounded-full text-white hover:bg-red-500/80 transition-colors z-30 border border-white/10"
+               aria-label="Close Image Modal"
+               className="absolute top-4 right-4 p-2 bg-black/50 rounded-full text-white hover:bg-red-500/80 transition-colors z-30 border border-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
              >
                <X size={24} />
              </button>
@@ -748,7 +839,7 @@ const ImageModal = ({ selectedImage, onClose }: ImageModalProps) => {
 };
 
 const HoloImage = ({ label, date, src, onClick }: HoloImageProps) => (
-  <div className="group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900 interactive cursor-zoom-in" onClick={onClick}>
+  <button aria-label={`View full image for ${label}`} className="w-full group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900 interactive cursor-zoom-in focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400" onClick={onClick}>
     <div className="absolute inset-0 bg-indigo-500/20 opacity-0 group-hover:opacity-100 mix-blend-color-dodge transition-opacity z-10 pointer-events-none" />
     <div className="absolute inset-0 z-20 opacity-0 group-hover:opacity-30 pointer-events-none bg-[linear-gradient(to_bottom,transparent_50%,rgba(0,0,0,0.5)_50%)] bg-[size:100%_4px]" />
     <div className="aspect-video bg-slate-800 flex items-center justify-center relative overflow-hidden">
@@ -760,12 +851,12 @@ const HoloImage = ({ label, date, src, onClick }: HoloImageProps) => (
       {!src && <Camera size={48} className="text-white/20 group-hover:scale-110 transition-transform duration-500 relative z-10" />}
       <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-slate-900 to-transparent z-20">
         <div className="flex justify-between items-end">
-           <div><p className="text-[10px] font-mono text-indigo-400 mb-1">{date}</p><p className="text-sm font-bold text-white">{label}</p></div>
+           <div className="text-left"><p className="text-[10px] font-mono text-indigo-400 mb-1">{date}</p><p className="text-sm font-bold text-white">{label}</p></div>
            <Maximize size={16} className="text-white/40 group-hover:text-white transition-colors" />
         </div>
       </div>
     </div>
-  </div>
+  </button>
 );
 
 // LIFEGALLERY
@@ -782,9 +873,12 @@ const Navbar = ({ setView, socials }: NavbarProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navLinks = [{ name: 'Projects', href: '#projects' }, { name: 'About', href: '#about' }, { name: 'Records', href: '#records' }, { name: 'Contact', href: '#contact' }];
   return (
-    <nav className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4">
+    <nav className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4" aria-label="Main Navigation">
       <motion.div initial={{ y: -100 }} animate={{ y: 0 }} className="flex items-center justify-between w-full max-w-4xl px-6 py-3 rounded-full border border-white/10 backdrop-blur-xl bg-slate-950/80 shadow-2xl">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => setView('main')}><div className="w-8 h-8 rounded-full overflow-hidden border border-indigo-500/50"><ProfileImage className="w-full h-full" /></div><span className="font-bold tracking-tighter text-white hidden sm:block">RICHARD PU</span></div>
+        <button className="flex items-center gap-3 cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded-full" onClick={() => setView('main')} aria-label="Return to Home">
+          <div className="w-8 h-8 rounded-full overflow-hidden border border-indigo-500/50"><ProfileImage className="w-full h-full" /></div>
+          <span className="font-bold tracking-tighter text-white hidden sm:block">RICHARD PU</span>
+        </button>
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
             <MagneticLink key={link.name} href={link.href} onClick={() => setView('main')}>
@@ -793,23 +887,23 @@ const Navbar = ({ setView, socials }: NavbarProps) => {
           ))}
           <div className="h-4 w-[1px] bg-white/10" />
           <div className="flex items-center gap-4">
-            <a href={CONFIG.RESUME} target="_blank" rel="noopener noreferrer">
+            <a href={CONFIG.RESUME} target="_blank" rel="noopener noreferrer" className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded-full">
               <MagneticButton className="flex items-center gap-2 text-xs font-medium bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white px-3 py-1.5 rounded-full transition-all">
                 <FileText size={14} /> RESUME
               </MagneticButton>
             </a>
-            <MagneticLink href={socials.GITHUB}><Github size={18} className="text-slate-400 hover:text-white" /></MagneticLink>
-            <MagneticLink href={socials.LINKEDIN}><Linkedin size={18} className="text-slate-400 hover:text-white" /></MagneticLink>
+            <MagneticLink aria-label="GitHub Profile" href={socials.GITHUB}><Github size={18} className="text-slate-400 hover:text-white" /></MagneticLink>
+            <MagneticLink aria-label="LinkedIn Profile" href={socials.LINKEDIN}><Linkedin size={18} className="text-slate-400 hover:text-white" /></MagneticLink>
           </div>
         </div>
-        <button className="md:hidden text-white" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>{mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}</button>
+        <button aria-label={mobileMenuOpen ? "Close mobile menu" : "Open mobile menu"} aria-expanded={mobileMenuOpen} className="md:hidden text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>{mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}</button>
       </motion.div>
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="absolute top-24 left-4 right-4 bg-slate-900/95 border border-white/10 backdrop-blur-2xl rounded-3xl p-8 md:hidden z-50 max-h-[80vh] overflow-y-auto custom-scrollbar">
             <div className="flex flex-col gap-6 items-center">
               {navLinks.map((link) => <a key={link.name} href={link.href} onClick={() => { setView('main'); setMobileMenuOpen(false); }} className="text-xl font-medium text-white">{link.name}</a>)}
-              <div className="flex gap-8 pt-4"><Github size={24} className="text-slate-400" /><Linkedin size={24} className="text-slate-400" /></div>
+              <div className="flex gap-8 pt-4"><a href={socials.GITHUB} aria-label="Github"><Github size={24} className="text-slate-400" /></a><a href={socials.LINKEDIN} aria-label="LinkedIn"><Linkedin size={24} className="text-slate-400" /></a></div>
             </div>
           </motion.div>
         )}
@@ -824,12 +918,12 @@ const Footer = ({ setView, socials, email }: FooterProps) => (
       <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
         <div className="col-span-1 md:col-span-2"><h3 className="text-2xl font-bold text-white mb-4 tracking-tighter">RICHARD PU</h3><p className="text-slate-400 text-sm max-w-md leading-relaxed">Engineering the interface between hardware and software. Specialized in embedded control, circuit restoration, and custom Java software architecture.</p></div>
         <div><h4 className="text-white font-bold mb-4">Connect</h4><ul className="space-y-3 text-sm text-slate-400">
-          <li><a href={socials.LINKEDIN} className="hover:text-indigo-400 transition-colors flex items-center gap-2"><Linkedin size={14}/> LinkedIn</a></li>
-          <li><a href={socials.GITHUB} className="hover:text-indigo-400 transition-colors flex items-center gap-2"><Github size={14}/> GitHub</a></li>
-          <li><a href={socials.INSTAGRAM} className="hover:text-indigo-400 transition-colors flex items-center gap-2"><Instagram size={14}/> Instagram</a></li>
-          <li><a href={socials.DISCORD} className="hover:text-indigo-400 transition-colors flex items-center gap-2"><Disc size={14}/> Discord</a></li>
+          <li><a href={socials.LINKEDIN} className="hover:text-indigo-400 transition-colors flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded"><Linkedin size={14}/> LinkedIn</a></li>
+          <li><a href={socials.GITHUB} className="hover:text-indigo-400 transition-colors flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded"><Github size={14}/> GitHub</a></li>
+          <li><a href={socials.INSTAGRAM} className="hover:text-indigo-400 transition-colors flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded"><Instagram size={14}/> Instagram</a></li>
+          <li><a href={socials.DISCORD} className="hover:text-indigo-400 transition-colors flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded"><Disc size={14}/> Discord</a></li>
         </ul></div>
-        <div><h4 className="text-white font-bold mb-4">Legal</h4><ul className="space-y-3 text-sm text-slate-400"><li><button onClick={() => setView('privacy')} className="hover:text-indigo-400 transition-colors flex items-center gap-2"><ShieldCheck size={14}/> Privacy Policy</button></li><li><button onClick={() => setView('terms')} className="hover:text-indigo-400 transition-colors flex items-center gap-2"><Scale size={14}/> Terms of Service</button></li><li className="flex items-center gap-2 pt-2 opacity-60"><FileText size={14} /> CC BY-NC-SA 4.0</li></ul></div>
+        <div><h4 className="text-white font-bold mb-4">Legal</h4><ul className="space-y-3 text-sm text-slate-400"><li><button onClick={() => setView('privacy')} className="hover:text-indigo-400 transition-colors flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded"><ShieldCheck size={14}/> Privacy Policy</button></li><li><button onClick={() => setView('terms')} className="hover:text-indigo-400 transition-colors flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded"><Scale size={14}/> Terms of Service</button></li><li className="flex items-center gap-2 pt-2 opacity-60"><FileText size={14} /> CC BY-NC-SA 4.0</li></ul></div>
       </div>
       <div className="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-white/5 text-xs text-slate-500"><p>© 2026 Richard Pu. All hardware synchronized.</p><p>Designed & Engineered in Canada</p></div>
     </div>
@@ -838,15 +932,15 @@ const Footer = ({ setView, socials, email }: FooterProps) => (
 
 const Contact = ({ email, socials }: ContactProps) => (
   <section id="contact" className="py-24 px-6 max-w-7xl mx-auto relative z-10 overflow-hidden">
-    <div className="absolute inset-0 pointer-events-none opacity-20">{[...Array(20)].map((_, i) => <motion.div key={i} className="absolute top-0 w-px bg-gradient-to-b from-transparent via-indigo-500 to-transparent" style={{ left: `${Math.random() * 100}%`, height: `${Math.random() * 50 + 20}%` }} animate={{ top: ['-100%', '100%'] }} transition={{ duration: Math.random() * 3 + 2, repeat: Infinity, ease: "linear", delay: Math.random() * 2 }} />)}</div>
+    <div className="absolute inset-0 pointer-events-none opacity-20 motion-reduce:hidden">{[...Array(20)].map((_, i) => <motion.div key={i} className="absolute top-0 w-px bg-gradient-to-b from-transparent via-indigo-500 to-transparent" style={{ left: `${Math.random() * 100}%`, height: `${Math.random() * 50 + 20}%` }} animate={{ top: ['-100%', '100%'] }} transition={{ duration: Math.random() * 3 + 2, repeat: Infinity, ease: "linear", delay: Math.random() * 2 }} />)}</div>
     <div className="bg-gradient-to-br from-indigo-600 to-indigo-900 rounded-[3rem] p-12 md:p-20 relative overflow-hidden text-center">
       <div className="absolute top-0 right-0 h-full w-full opacity-10 pointer-events-none"><CircuitBoard size={400} className="absolute -right-20 -top-20" /></div>
       <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
         <ScrollRevealHeader text="Let's build something revolutionary." className="text-4xl md:text-6xl font-black text-white mb-6 block" />
         <p className="text-indigo-100 text-lg mb-12 max-w-xl mx-auto opacity-80">Currently looking for co-op opportunities and project collaborations. Let's talk about hardware, games, or high-performance systems.</p>
-        <a href={`mailto:${email}`} className="inline-flex items-center gap-4 text-3xl md:text-5xl font-bold text-white hover:text-indigo-200 transition-all border-b-4 border-white/30 pb-2 mb-16 interactive">{email} <ExternalLink size={32} /></a>
+        <a href={`mailto:${email}`} className="inline-flex items-center gap-4 text-3xl md:text-5xl font-bold text-white hover:text-indigo-200 transition-all border-b-4 border-white/30 pb-2 mb-16 interactive focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-200 rounded">{email} <ExternalLink size={32} /></a>
         <div className="flex flex-col md:flex-row items-center justify-between pt-12 border-t border-white/20 gap-8">
-          <div className="flex items-center gap-8"><a href={socials.GITHUB} className="text-white opacity-60 hover:opacity-100 transition-opacity flex items-center gap-2 interactive"><Github size={20} /> GitHub</a><a href={socials.LINKEDIN} className="text-white opacity-60 hover:opacity-100 transition-opacity flex items-center gap-2 interactive"><Linkedin size={20} /> LinkedIn</a></div>
+          <div className="flex items-center gap-8"><a href={socials.GITHUB} className="text-white opacity-60 hover:opacity-100 transition-opacity flex items-center gap-2 interactive focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-200 rounded p-1"><Github size={20} /> GitHub</a><a href={socials.LINKEDIN} className="text-white opacity-60 hover:opacity-100 transition-opacity flex items-center gap-2 interactive focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-200 rounded p-1"><Linkedin size={20} /> LinkedIn</a></div>
           <p className="text-white/40 font-mono text-sm">© 2026 RICHARD PU — COMPUTER ENGINEERING</p>
         </div>
       </motion.div>
@@ -918,7 +1012,7 @@ const LegalPage = ({ type, setView }: LegalPageProps) => {
   };
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen pt-32 px-6 max-w-3xl mx-auto pb-24">
-      <button onClick={() => setView('main')} className="flex items-center gap-2 text-indigo-400 hover:text-white mb-8 transition-colors">
+      <button onClick={() => setView('main')} className="flex items-center gap-2 text-indigo-400 hover:text-white mb-8 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded p-1">
         <ChevronRight size={18} className="rotate-180" /> Back to Portfolio
       </button>
       <h1 className="text-4xl font-bold text-white mb-8">{content.title}</h1>
@@ -938,6 +1032,7 @@ export default function App() {
   const [view, setView] = useState<ViewState>('main'); 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
+  const [a11y, setA11y] = useState<A11yState>({ highContrast: false, largeText: false, reduceMotion: false });
 
   useEffect(() => {
     if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
@@ -951,10 +1046,12 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 selection:bg-indigo-500 selection:text-white font-sans overflow-x-hidden relative">
+    <div className={`min-h-screen bg-slate-950 text-slate-200 selection:bg-indigo-500 selection:text-white font-sans overflow-x-hidden relative ${a11y.highContrast ? 'a11y-high-contrast' : ''} ${a11y.largeText ? 'a11y-large-text' : ''} ${a11y.reduceMotion ? 'a11y-reduce-motion' : ''}`}>
       <AnimatePresence>{!booted && <BootSequence onComplete={() => setBooted(true)} />}</AnimatePresence>
       <div className={`transition-opacity duration-1000 ${booted ? 'opacity-100' : 'opacity-0'}`}>
         <GrainOverlay /><ClickSpark /><CursorFollower /><ScanlineOverlay /><SystemHUD /><ScrollProgress />
+        
+        <AccessibilityWidget a11y={a11y} setA11y={setA11y} />
         <Navbar setView={setView} socials={CONFIG.SOCIALS} />
         
         {/* Main Content Area */}
@@ -966,9 +1063,9 @@ export default function App() {
                 <motion.div initial={{ scale: 2, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 1.5, ease: "circOut", delay: 0.5 }} className="relative z-10 text-center max-w-4xl pointer-events-none">
                   <h1 className="text-5xl md:text-8xl font-black text-white tracking-tight mb-6 pointer-events-auto"><AutoGlitchText text="RICHARD PU" className="block" /><span className="text-2xl md:text-4xl font-normal text-slate-400 block mt-2">Engineering the <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 font-bold">Interface</span> Between Worlds.</span></h1>
                   <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed pointer-events-auto">Computer Engineering Candidate specializing in custom hardware, low-level embedded software, and full-stack interactive design.</p>
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto"><a href="#projects" className="px-8 py-4 rounded-full bg-white text-slate-950 font-bold flex items-center justify-center gap-2 hover:bg-indigo-50 transition-colors w-full sm:w-auto">Explore Works <ChevronRight size={18} /></a><a href="#about" className="px-8 py-4 rounded-full bg-white/5 border border-white/10 text-white font-bold backdrop-blur-sm hover:bg-white/10 transition-colors w-full sm:w-auto flex items-center justify-center">About Me</a></div>
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto"><a href="#projects" className="px-8 py-4 rounded-full bg-white text-slate-950 font-bold flex items-center justify-center gap-2 hover:bg-indigo-50 transition-colors w-full sm:w-auto focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400">Explore Works <ChevronRight size={18} /></a><a href="#about" className="px-8 py-4 rounded-full bg-white/5 border border-white/10 text-white font-bold backdrop-blur-sm hover:bg-white/10 transition-colors w-full sm:w-auto flex items-center justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400">About Me</a></div>
                 </motion.div>
-                <motion.div animate={{ y: [0, 10, 0] }} transition={{ duration: 2, repeat: Infinity }} className="absolute bottom-10 left-1/2 -translate-x-1/2 text-slate-600"><div className="w-6 h-10 border-2 border-slate-700 rounded-full flex justify-center p-1"><div className="w-1 h-2 bg-slate-700 rounded-full" /></div></motion.div>
+                <motion.div animate={{ y: [0, 10, 0] }} transition={{ duration: 2, repeat: Infinity }} className="absolute bottom-10 left-1/2 -translate-x-1/2 text-slate-600 motion-reduce:animate-none"><div className="w-6 h-10 border-2 border-slate-700 rounded-full flex justify-center p-1"><div className="w-1 h-2 bg-slate-700 rounded-full" /></div></motion.div>
               </section>
 
               <ParallaxText baseVelocity={2}>JAVA • PYTHON • C++ • ARDUINO • </ParallaxText>
@@ -996,7 +1093,24 @@ export default function App() {
               {/* Pass state setter to LifeGallery */}
               <LifeGallery images={CONFIG.GALLERY} onSelect={setSelectedImage} />
               
-              <section id="extras" className="py-24 px-6 max-w-7xl mx-auto relative z-10"><div className="mb-16"><h2 className="text-sm font-mono text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2"><Activity size={16} /> Operations & Leadership</h2><ScrollRevealHeader text="Beyond the IDE." className="text-4xl md:text-5xl font-bold text-white tracking-tight block" /></div><div className="grid grid-cols-1 md:grid-cols-2 gap-6">{CONFIG.EXTRACURRICULARS.map((item, idx) => (<motion.div key={idx} initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1 }} className="group flex items-start gap-4 p-6 rounded-2xl bg-white/5 border border-white/5 hover:border-indigo-500/30 transition-all interactive h-full"><div className="p-3 rounded-xl bg-slate-900 text-indigo-400 group-hover:text-indigo-300 transition-all">{item.icon}</div><div><h4 className="text-xl font-bold text-white mb-1 group-hover:text-indigo-200 transition-colors">{item.title}</h4><p className="text-xs font-mono text-indigo-400 mb-2 uppercase tracking-wide">{item.role}</p><p className="text-sm text-slate-400 leading-relaxed">{item.desc}</p></div></motion.div>))}</div></section>
+              <section id="extras" className="py-24 px-6 max-w-7xl mx-auto relative z-10">
+                <div className="mb-16"><h2 className="text-sm font-mono text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2"><Activity size={16} /> Operations & Leadership</h2><ScrollRevealHeader text="Beyond the IDE." className="text-4xl md:text-5xl font-bold text-white tracking-tight block" /></div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {CONFIG.EXTRACURRICULARS.map((item, idx) => (
+                    <motion.a key={idx} href={item.link} target="_blank" rel="noopener noreferrer" initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1 }} className="group flex items-start gap-4 p-6 rounded-2xl bg-white/5 border border-white/5 hover:border-indigo-500/30 transition-all interactive h-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400">
+                      <div className="p-3 rounded-xl bg-slate-900 text-indigo-400 group-hover:text-indigo-300 transition-all shrink-0">{item.icon}</div>
+                      <div className="w-full">
+                        <div className="flex items-center justify-between">
+                           <h4 className="text-xl font-bold text-white mb-1 group-hover:text-indigo-200 transition-colors">{item.title}</h4>
+                           {item.link && <ArrowUpRight size={16} className="text-slate-600 group-hover:text-white transition-colors" />}
+                        </div>
+                        <p className="text-xs font-mono text-indigo-400 mb-2 uppercase tracking-wide">{item.role}</p>
+                        <p className="text-sm text-slate-400 leading-relaxed">{item.desc}</p>
+                      </div>
+                    </motion.a>
+                  ))}
+                </div>
+              </section>
               
               <Contact email={CONFIG.EMAIL} socials={CONFIG.SOCIALS} />
             </>
@@ -1027,6 +1141,17 @@ export default function App() {
       <style dangerouslySetInnerHTML={{ __html: `
         html { scroll-behavior: smooth; }
         body { scrollbar-width: thin; scrollbar-color: #4f46e5 #020617; }
+        
+        /* Custom Accessibility Overrides */
+        .a11y-high-contrast { filter: contrast(1.15) saturate(1.2); }
+        .a11y-large-text { font-size: 110%; }
+        .a11y-reduce-motion *, .a11y-reduce-motion ::before, .a11y-reduce-motion ::after {
+           animation-duration: 0.01ms !important;
+           animation-iteration-count: 1 !important;
+           transition-duration: 0.01ms !important;
+           scroll-behavior: auto !important;
+        }
+
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #020617; }
         ::-webkit-scrollbar-thumb { background: #1e1b4b; border-radius: 10px; }
