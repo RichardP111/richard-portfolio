@@ -81,7 +81,7 @@ const CONFIG = {
   } as Socials,
   EDUCATION: {
     school: 'University of Waterloo',
-    program: 'Computer Engineering',
+    program: 'Computer Engineering (BASc Co-op)',
     note: 'Edit the timeframe/year in the EDUCATION block in page.tsx.',
   },
   PROJECTS: [
@@ -672,13 +672,13 @@ const Contact = ({ reduceMotion }: { reduceMotion?: boolean }) => (
 const Footer = ({ setView }: { setView: React.Dispatch<React.SetStateAction<ViewState>> }) => (
   <footer className="px-6 py-10" style={{ background: 'var(--bg)', borderTop: '1px solid var(--line)' }}>
     <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono text-center md:text-left" style={{ color: 'var(--text-faint)' }}>
-      <p>© 2026 {CONFIG.NAME}.</p>
+      <p>© 2026 {CONFIG.NAME}. All rights reserved.</p>
       <div className="flex items-center gap-6">
         <button onClick={() => setView('privacy')} className="hover:opacity-80 inline-flex items-center gap-1.5">
-          <ShieldCheck size={13} /> Privacy
+          <ShieldCheck size={13} /> Privacy Policy
         </button>
         <button onClick={() => setView('terms')} className="hover:opacity-80 inline-flex items-center gap-1.5">
-          <Scale size={13} /> Terms
+          <Scale size={13} /> Terms of Use
         </button>
       </div>
     </div>
