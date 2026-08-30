@@ -3,6 +3,8 @@ import { IBM_Plex_Sans, Inter, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://localhost:3000";
+
 const ibmPlexSans = IBM_Plex_Sans({
   variable: "--font-display",
   subsets: ["latin"],
@@ -22,11 +24,36 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Richard Pu",
   description:
     "Richard Pu is a Computer Engineering student at the University of Waterloo, working across embedded hardware, low-level software, and full-stack interactive design. Selected projects, background, and contact.",
   icons: {
     icon: "/icon",
+  },
+  openGraph: {
+    title: "Richard Pu",
+    description:
+      "Computer Engineering student at the University of Waterloo building embedded systems, software, and interactive design projects.",
+    url: "/",
+    siteName: "Richard Pu",
+    images: [
+      {
+        url: "/preview.png",
+        width: 1200,
+        height: 630,
+        alt: "Richard Pu portfolio preview",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Richard Pu",
+    description:
+      "Computer Engineering student at the University of Waterloo building embedded systems, software, and interactive design projects.",
+    images: ["/preview.png"],
   },
 };
 

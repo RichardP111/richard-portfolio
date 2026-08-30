@@ -67,7 +67,8 @@ type A11yState = {
 const CONFIG = {
   NAME: 'Richard Pu',
   EMAIL: 'r3pu@uwaterloo.ca',
-  RESUME: '/resume.pdf',
+  RESUME: '/resume',
+  RESUME_FILE: '/resume.pdf',
   LOCATION: 'Ontario, Canada',
   ROLE: 'Computer Engineering',
   PROFILE_IMAGE_SRC:
@@ -127,7 +128,7 @@ const CONFIG = {
       mediaType: 'video' as const,
       mediaSrc: '/videos/truckGameVideo.mp4',
       github: 'https://github.com/RichardPu/arduino-truck-game',
-      schematic: '/truckGameSchematic.pdf',
+      schematic: '/schematic?file=/truckGameSchematic.pdf&title=Truck%20Game%20Schematic',
     },
     {
       title: 'Memory Matrix',
@@ -138,7 +139,7 @@ const CONFIG = {
       mediaType: 'video' as const,
       mediaSrc: '/videos/memoryGameVideo.mp4',
       github: 'https://github.com/RichardPu/arduino-memory-game',
-      schematic: '/memoryGameSchematic.pdf',
+      schematic: '/schematic?file=/memoryGameSchematic.pdf&title=Memory%20Matrix%20Schematic',
     },
   ] as Project[],
   SKILLS: [
@@ -306,7 +307,13 @@ const Navbar = ({ setView }: { setView: React.Dispatch<React.SetStateAction<View
                   {l.name}
                 </a>
               ))}
-              <a href={CONFIG.RESUME} className="text-sm uppercase tracking-widest font-mono" style={{ color: 'var(--mint)' }}>
+              <a
+                href={CONFIG.RESUME}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm uppercase tracking-widest font-mono"
+                style={{ color: 'var(--mint)' }}
+              >
                 Resume ↗
               </a>
               <div className="flex gap-6 pt-2">
