@@ -253,8 +253,6 @@ const Navbar = ({ setView }: { setView: React.Dispatch<React.SetStateAction<View
           <span className="h-4 w-px" style={{ background: 'var(--line-strong)' }} />
           <a
             href={CONFIG.RESUME}
-            target="_blank"
-            rel="noopener noreferrer"
             className="text-[13px] uppercase tracking-[0.14em] font-medium px-4 py-2 rounded-full border transition-colors"
             style={{ borderColor: 'var(--line-strong)', color: 'var(--text)' }}
             onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--accent-tint)')}
@@ -503,8 +501,6 @@ const ProjectRow = ({
                 {project.schematic && (
                   <a
                     href={project.schematic}
-                    target="_blank"
-                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 text-sm font-medium underline underline-offset-4"
                     style={{ color: 'var(--text)' }}
                   >

@@ -3,7 +3,8 @@ import { IBM_Plex_Sans, Inter, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://localhost:3000";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://richardpu.ca";
+const previewImageUrl = new URL("/preview.png", siteUrl).toString();
 
 const ibmPlexSans = IBM_Plex_Sans({
   variable: "--font-display",
@@ -25,21 +26,21 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Richard Pu",
+  title: "Richard Pu | Computer Engineering Portfolio",
   description:
-    "Richard Pu is a Computer Engineering student at the University of Waterloo, working across embedded hardware, low-level software, and full-stack interactive design. Selected projects, background, and contact.",
+    "Computer Engineering student at Waterloo building embedded systems, software, and interactive hardware projects. View my work, resume, and contact details.",
   icons: {
     icon: "/icon",
   },
   openGraph: {
-    title: "Richard Pu",
+    title: "Richard Pu | Computer Engineering Portfolio",
     description:
-      "Computer Engineering student at the University of Waterloo building embedded systems, software, and interactive design projects.",
-    url: "/",
+      "Computer Engineering student at Waterloo building embedded systems, software, and interactive hardware projects.",
+    url: siteUrl,
     siteName: "Richard Pu",
     images: [
       {
-        url: "/preview.png",
+        url: previewImageUrl,
         width: 1200,
         height: 630,
         alt: "Richard Pu portfolio preview",
@@ -50,10 +51,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Richard Pu",
+    title: "Richard Pu | Computer Engineering Portfolio",
     description:
-      "Computer Engineering student at the University of Waterloo building embedded systems, software, and interactive design projects.",
-    images: ["/preview.png"],
+      "Computer Engineering student at Waterloo building embedded systems, software, and interactive hardware projects.",
+    images: [previewImageUrl],
   },
 };
 

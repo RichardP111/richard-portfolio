@@ -33,8 +33,7 @@ export default function ResumePage() {
           <div className="flex justify-start sm:justify-end">
             <a
               href={pdfUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+              download
               className="inline-flex items-center justify-center rounded-full border px-4 py-2 text-[10px] uppercase tracking-[0.14em] transition-colors"
               style={{ borderColor: 'var(--line-strong)', color: 'var(--text)' }}
             >
