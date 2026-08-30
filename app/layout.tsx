@@ -1,21 +1,33 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { IBM_Plex_Sans, Inter, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const ibmPlexSans = IBM_Plex_Sans({
+  variable: "--font-display",
   subsets: ["latin"],
+  weight: ["500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-body",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
-  title: "Richard Pu - Portfolio",
-  description: "Welcome to the digital portfolio of Richard Pu, a passionate computer engineer and creative technologist. Explore a curated collection of projects that showcase expertise in full-stack development, game design, and innovative hardware solutions. From dynamic web applications to interactive games, each project reflects a commitment to craftsmanship and a drive to push the boundaries of technology. Dive in to discover the journey, skills, and vision that define Richard's approach to building impactful digital experiences.",
+  title: "Richard Pu",
+  description:
+    "Richard Pu is a Computer Engineering student at the University of Waterloo, working across embedded hardware, low-level software, and full-stack interactive design. Selected projects, background, and contact.",
+  icons: {
+    icon: "/icon",
+  },
 };
 
 export default function RootLayout({
@@ -26,7 +38,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${ibmPlexSans.variable} ${inter.variable} ${jetbrainsMono.variable} antialiased`}
       >
         {children}
         <Analytics />

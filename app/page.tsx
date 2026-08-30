@@ -1,85 +1,52 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValue, useVelocity, useAnimationFrame, useMotionTemplate } from 'framer-motion';
-import { 
-  Github, 
-  Linkedin, 
-  Cpu, 
-  ExternalLink, 
-  ChevronRight, 
-  X,
-  CircuitBoard, 
-  ArrowUpRight,
-  Activity,
-  Move,
-  FileText,
-  Zap,
-  Camera,
-  Aperture,
-  Maximize,
-  Recycle,
-  School,
-  Menu,
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
+import {
+  Github,
+  Linkedin,
   Instagram,
-  Disc,
+  ArrowUpRight,
+  ChevronDown,
+  Menu,
+  X,
+  FileText,
   ShieldCheck,
   Scale,
-  Download,
   Accessibility,
   Eye,
   Type,
   VideoOff,
   ALargeSmall,
   Link2,
+  TextSelect,
   RefreshCcw,
-  TextSelect
+  Github as GithubIcon,
 } from 'lucide-react';
 
-// --- TYPE DEFINITIONS ---
+/* ------------------------------------------------------------------ */
+/*  Types                                                              */
+/* ------------------------------------------------------------------ */
+
 type Socials = {
   GITHUB: string;
   LINKEDIN: string;
   INSTAGRAM: string;
-  DISCORD: string;
 };
 
 type Project = {
   title: string;
   description: string;
-  tag?: string;
+  tag: string;
   tech: string[];
-  size: string;
   mediaType: 'video' | 'image';
-  mediaSrc: string; 
-  github?: string; 
+  mediaSrc: string;
+  github?: string;
   downloadLink?: string;
   schematic?: string;
-};
-
-type Extracurricular = {
-  title: string;
-  role: string;
-  desc: string;
-  icon: React.ReactNode;
-  link?: string;
-};
-
-type GalleryImage = {
-  label: string;
-  date: string;
-  src: string;
-};
-
-type Spark = {
-  id: number;
-  x: number;
-  y: number;
-};
-
-type TerminalEntry = {
-  type: 'input' | 'output';
-  content: string;
+  designFile?: string;
+  mediaAspect?: 'portrait';
 };
 
 type ViewState = 'main' | 'privacy' | 'terms';
@@ -89,1208 +56,939 @@ type A11yState = {
   largeText: boolean;
   reduceMotion: boolean;
   textSpacing: boolean;
-  dyslexiaFont: boolean;
+  readingMode: boolean;
   highlightLinks: boolean;
 };
 
-// Props
-type ProfileImageProps = { className?: string };
-type ScrambleHoverProps = { text: string; className?: string; reduceMotion?: boolean };
-type DecryptedTextProps = { text: string; className?: string; speed?: number; trigger?: boolean; reduceMotion?: boolean };
-type AutoGlitchTextProps = { text: string; className?: string; reduceMotion?: boolean };
-type ScrollRevealHeaderProps = { text: string; className?: string; reduceMotion?: boolean };
-type RevealTextProps = { children: React.ReactNode; delay?: number };
-type ParallaxTextProps = { children: React.ReactNode; baseVelocity?: number; reduceMotion?: boolean };
-type GlitchTextProps = { text: string; reduceMotion?: boolean };
-type MagneticLinkProps = { children: React.ReactNode; href: string; onClick?: React.MouseEventHandler<HTMLAnchorElement>; className?: string };
-type MagneticButtonProps = { children: React.ReactNode; className?: string; onClick?: React.MouseEventHandler<HTMLButtonElement> };
-type BootSequenceProps = { onComplete: () => void; reduceMotion?: boolean };
-type ProjectCardProps = { project: Project; index: number; onClick: () => void; reduceMotion?: boolean }; 
-type HoloImageProps = { label: string; date: string; src: string; onClick?: () => void };
-type ImageModalProps = { selectedImage: GalleryImage | null; onClose: () => void };
-type ProjectModalProps = { selectedProject: Project | null; onClose: () => void }; 
-type LifeGalleryProps = { images: GalleryImage[]; onSelect: (img: GalleryImage) => void };
-type NavbarProps = { setView: React.Dispatch<React.SetStateAction<ViewState>>; socials: Socials; reduceMotion?: boolean };
-type FooterProps = { setView: React.Dispatch<React.SetStateAction<ViewState>>; socials: Socials; email: string };
-type ContactProps = { email: string; socials: Socials; reduceMotion?: boolean };
-type LegalPageProps = { type: Exclude<ViewState, 'main'>; setView: React.Dispatch<React.SetStateAction<ViewState>> };
+/* ------------------------------------------------------------------ */
+/*  Content                                              */
+/* ------------------------------------------------------------------ */
 
-// --- 0. CENTRAL CONFIGURATION ---
 const CONFIG = {
-  EMAIL: "richardpu6@gmail.com",
-  RESUME: "/resume.pdf",
-  PROFILE_IMAGE_SRC: "https://lh3.googleusercontent.com/ogw/AF2bZyjYvPrbBzBEso1zBrRqnjS1KebQ_jxX5FWnn9-xtnkcrdQ=s64-c-mo",
+  NAME: 'Richard Pu',
+  EMAIL: 'r3pu@uwaterloo.ca',
+  RESUME: '/resume.pdf',
+  LOCATION: 'Ontario, Canada',
+  ROLE: 'Computer Engineering',
+  PROFILE_IMAGE_SRC:
+    'https://lh3.googleusercontent.com/ogw/AF2bZyjYvPrbBzBEso1zBrRqnjS1KebQ_jxX5FWnn9-xtnkcrdQ=s600-c-mo',
+  HERO_IMAGE_SRC: '/profile-hero.jpg',
   SOCIALS: {
-    GITHUB: "https://github.com/RichardP111",       
-    LINKEDIN: "https://www.linkedin.com/in/richard-p-662a87297/",  
-    INSTAGRAM: "https://www.instagram.com/_._.richard/", 
-    DISCORD: "https://discordapp.com/users/726468579037544448",                      
+    GITHUB: 'https://github.com/RichardPu',
+    LINKEDIN: 'https://www.linkedin.com/in/purichard/',
+    INSTAGRAM: 'https://www.instagram.com/_._.richard/',
+  } as Socials,
+  EDUCATION: {
+    school: 'University of Waterloo',
+    program: 'Computer Engineering',
+    note: 'Edit the timeframe/year in the EDUCATION block in page.tsx.',
   },
   PROJECTS: [
-    { 
-      title: "Smart Chess Board", 
-      description: "Inherited and successfully remediated a legacy hardware system. Resolved critical inter-processor communication failures by migrating from unstable GPIO-based signaling to a robust Serial (UART) protocol. Refactored source code on both Raspberry Pi and Arduino platforms to synchronize logic and re-engineered the LED lighting array by correcting hardware polarities and re-soldering connections.", 
-      tag: "Hardware Engineering", 
-      tech: ["Arduino Uno", "Raspberry Pi", "Neopixels", "OLED Display"], 
-      size: "large",
-      mediaType: 'video' as const,
-      mediaSrc: "/videos/chessBoardVideo.mp4",
-      schematic: "/chessSchematic.pdf"
-    },
-    { 
-      title: "Classroom Sentinel", 
-      description: "Discord Server Automation. Engineered a robust Python bot to manage server operations. Implemented asynchronous moderation filters, automated role hierarchies, and developed interactive engagement modules to foster community activity.", 
-      tag: "Software Dev", 
-      tech: ["Python", "Discord.py"], 
-      size: "small",
+    {
+      title: 'Smart Chess Board',
+      description:
+        'A smart chess board powered by an NVIDIA Jetson Orin Nano. The project combines computer vision, embedded control, and a physical LED board into one interactive system.',
+      tag: 'Hardware Engineering',
+      tech: ['Jetson Orin Nano', 'Neopixels', 'OLED Display'],
       mediaType: 'image' as const,
-      mediaSrc: "/images/discordBot.png",
-      github: "https://github.com/RichardP111/Discord_Bot" 
+      mediaSrc: '/images/chessBoard.jpg',
+      github: 'https://github.com/RichardPu/jetson-chess',
+      designFile: 'https://github.com/RichardPu/jetson-chess/tree/main/3D%20models',
     },
-    { 
-      title: "BenumTD", 
-      description: "A LibGDX-based Tower Defense game featuring custom vector physics and optimized pathfinding. Built from the ground up to handle complex wave logic and dynamic routing, the game translates classic 'TD' mechanics into a personalized school-themed experience featuring my teacher and peers.", 
-      tag: "Java Game", 
-      tech: ["Java", "LibGDX", "OOP"], 
-      size: "small",
+    {
+      title: 'Red Light, Green Light',
+      description:
+        'An AI-powered Red Light, Green Light game inspired by Squid Game, running on an NVIDIA Jetson Orin Nano. The system uses vision-based movement detection to decide when players move.',
+      tag: 'AI & Hardware',
+      tech: ['Jetson Orin Nano', 'Python', 'Computer Vision', 'Ultralytics YOLO'],
       mediaType: 'image' as const,
-      mediaSrc: "/images/benumTD.png",
-      github: "https://github.com/RichardP111/BenumTD",
-      downloadLink: "/jar/benumTD.jar"
+      mediaSrc: '/images/rlgl.jpg',
+      github: 'https://github.com/RichardPu/jetson-rlgl',
+      designFile: 'https://github.com/RichardPu/jetson-rlgl/tree/main/3D_files',
+      mediaAspect: 'portrait',
     },
-    { 
-      title: "Truck Game", 
-      description: "Developed a high-speed object avoidance game on an Arduino Uno utilizing the LiquidCrystal library for dynamic 16x2 display updates. Engineered a low-latency coordinate system to handle real-time physics and analog joystick inputs for precise player movement.",
-      tag: "Circuit Design", 
-      tech: ["Arduino Uno", "Joystick", "LCD 16x2"], 
-      size: "small",
-      mediaType: 'video' as const,
-      mediaSrc: "/videos/truckGameVideo.mp4",
-      github: "https://github.com/RichardP111/truck_game/blob/main/UNIT_PROJECT_TRUCK.ino",
-      schematic: "/truckGameSchematic.pdf"
-    },
-    { 
-      title: "Memory Matrix", 
-      description: "Engineered a reaction-time assessment tool using an Arduino-based I2C architecture to synchronize LED matrices with user inputs. Optimized interrupt service routines to achieve millisecond-precision in measuring pattern retention and cognitive processing speeds.", 
-      tag: "Circuit Design", 
-      tech: ["Arduino", "I2C", "LED"], 
-      size: "small",
-      mediaType: 'video' as const,
-      mediaSrc: "/videos/memoryGameVideo.mp4",
-      github: "https://github.com/RichardP111/memory_game/blob/main/UNIT_PROJECT.ino",
-      schematic: "/memoryGameSchematic.pdf"
-    },
-    { 
-      title: "BenumZombs", 
-      description: "A scratch-built 2D survival shooter leveraging Java Graphics2D and OOP principles to deliver a high-performance gaming experience. Features custom-engineered vector physics, object-pooling for entity management, and a personalized school-themed asset library.", 
-      tag: "Java Game", 
-      tech: ["Java", "Graphics2D", "OOP"], 
-      size: "small",
+    {
+      title: 'BenumZombs',
+      description:
+        'A scratch-built 2D survival shooter using Java Graphics2D and OOP principles. Features custom vector physics, object-pooling for entity management, and a personalized asset library.',
+      tag: 'Java Game',
+      tech: ['Java', 'Graphics2D', 'OOP'],
       mediaType: 'image' as const,
-      mediaSrc: "/images/benumZombsGame.png", 
-      github: "https://github.com/RichardP111/BenumZombs",
-      downloadLink: "/jar/BenumZombs.jar"
-    }
+      mediaSrc: '/images/benumZombsGame.png',
+      github: 'https://github.com/RichardPu/BenumZombs',
+      downloadLink: '/jar/BenumZombs.jar',
+    },
+    {
+      title: 'Truck Game',
+      description:
+        'A high-speed object-avoidance game on an Arduino Uno, using the LiquidCrystal library for dynamic 16x2 display updates and a low-latency coordinate system for real-time physics and analog joystick input.',
+      tag: 'Circuit Design',
+      tech: ['Arduino Uno', 'Joystick', 'LCD 16x2'],
+      mediaType: 'video' as const,
+      mediaSrc: '/videos/truckGameVideo.mp4',
+      github: 'https://github.com/RichardPu/arduino-truck-game',
+      schematic: '/truckGameSchematic.pdf',
+    },
+    {
+      title: 'Memory Matrix',
+      description:
+        'A reaction-time assessment tool built on an Arduino I2C architecture, synchronizing LED matrices with user input. Optimized interrupt service routines achieve millisecond precision in measuring pattern retention.',
+      tag: 'Circuit Design',
+      tech: ['Arduino', 'I2C', 'LED'],
+      mediaType: 'video' as const,
+      mediaSrc: '/videos/memoryGameVideo.mp4',
+      github: 'https://github.com/RichardPu/arduino-memory-game',
+      schematic: '/memoryGameSchematic.pdf',
+    },
+  ] as Project[],
+  SKILLS: [
+    { title: 'Languages', items: ['Java', 'Python', 'C++', 'HTML / CSS'] },
+    { title: 'Hardware & Design', items: ['Arduino', 'Raspberry Pi', 'NVIDIA Jetson Orin Nano', '3D Design & Printing'] },
+    { title: 'Tools & Ecosystems', items: ['VS Code', 'Eclipse', 'Arduino IDE', 'GitHub', 'Docker'] },
   ],
-  EXTRACURRICULARS: [
-    { 
-      title: "Tech Crew", 
-      role: "Co-President", 
-      desc: "Lead the technical production for large-scale school productions. Oversee team leadership, training, and live-event troubleshooting.", 
-      icon: <Zap size={20} />,
-      link: "https://www.instagram.com/tsstechcrew/"
-    },
-    { 
-      title: "Peer Mentor", 
-      role: "Executive", 
-      desc: "Help support the transition framework for incoming Grade 9s. Design and execute orientation strategies.", 
-      icon: <School size={20} />,
-      link: "https://www.instagram.com/tss.mentors/"
-    },
-    { 
-      title: "TSS Announcements", 
-      role: "Co-President & Social Media Director", 
-      desc: "Manage the organizations primary digital communication channels. Curate and broadcast daily announcements.", 
-      icon: <Activity size={20} />,
-      link: "https://www.instagram.com/tssannouncements/"
-    },
-    { 
-      title: "YRHacks Hackathon", 
-      role: "Participant | Computer Vision", 
-      desc: "Developed 'EcoLens' with 3 others, a recycling assistant leveraging machine learning.", 
-      icon: <Recycle size={20} />,
-      link: "https://github.com/zhanglollo/EcoLens"
-    }
-  ],
-  GALLERY: [
-    { label: "BenumZombs", date: "JAN 2026", src: "/images/benumZombs.jpg" }, 
-    { label: "BenumTD", date: "JUN 2025", src: "/images/benumTD.png" },
-    { label: "Smart Chess Board", date: "JAN 2025", src: "/images/chess.png" },
-    { label: "Truck Game", date: "NOV 2024", src: "/images/truckGame.png" }
-  ]
 };
 
-// --- 1. VISUAL PRIMITIVES ---
-const ProfileImage = ({ className = "" }: ProfileImageProps) => {
-  if (CONFIG.PROFILE_IMAGE_SRC) {
-    return <img src={CONFIG.PROFILE_IMAGE_SRC} alt="Richard Pu" className={`object-cover ${className}`} />;
-  }
-  return <div className={`bg-indigo-600 flex items-center justify-center font-bold text-white ${className}`}>RP</div>;
-};
+/* ------------------------------------------------------------------ */
+/*  Small primitives                                                   */
+/* ------------------------------------------------------------------ */
 
-const GrainOverlay = () => (
-  <div className="fixed inset-0 pointer-events-none z-[40] opacity-[0.03] mix-blend-overlay">
-    <div className="w-full h-full bg-slate-900" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
-  </div>
+const Reveal = ({
+  children,
+  delay = 0,
+  reduceMotion,
+  className = '',
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  reduceMotion?: boolean;
+  className?: string;
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: reduceMotion ? 0 : 16 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: '-80px' }}
+    transition={{ duration: reduceMotion ? 0 : 0.6, delay: reduceMotion ? 0 : delay, ease: [0.22, 1, 0.36, 1] }}
+    className={className}
+  >
+    {children}
+  </motion.div>
 );
 
-const ScanlineOverlay = ({ reduceMotion }: { reduceMotion?: boolean }) => {
-  if (reduceMotion) return null;
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[50] overflow-hidden opacity-[0.03]">
-      <motion.div className="w-full h-[100px] bg-gradient-to-b from-transparent via-white to-transparent" animate={{ top: ['-10%', '110%'] }} transition={{ duration: 8, repeat: Infinity, ease: "linear" }} style={{ position: 'absolute' }} />
-    </div>
-  );
-};
-
-const CyberGrid = ({ reduceMotion }: { reduceMotion?: boolean }) => {
-  if (reduceMotion) return null;
-  return (
-    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none perspective-[500px]">
-      <div className="absolute bottom-[-100px] left-[-50%] w-[200%] h-[500px] bg-[linear-gradient(to_right,#4f46e520_1px,transparent_1px),linear-gradient(to_bottom,#4f46e520_1px,transparent_1px)] bg-[size:40px_40px] [transform:rotateX(60deg)] animate-[grid-move_20s_linear_infinite]" />
-      <style>{`@keyframes grid-move { 0% { transform: rotateX(60deg) translateY(0); } 100% { transform: rotateX(60deg) translateY(40px); } }`}</style>
-    </div>
-  );
-};
-
-const CircuitBackground = () => (
-  <div className="absolute inset-0 pointer-events-none opacity-10 overflow-hidden">
-    <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <pattern id="circuit-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-          <path d="M10 10 h80 v80 h-80 Z" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-indigo-500" />
-          <path d="M50 10 v30 M10 50 h30 M90 50 h-30 M50 90 v-30" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-indigo-500" />
-          <circle cx="50" cy="50" r="2" fill="currentColor" className="text-cyan-400" />
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#circuit-pattern)" />
-    </svg>
-  </div>
+const Kicker = ({ children, showMarker = true }: { children: React.ReactNode; showMarker?: boolean }) => (
+  <p
+    className={`font-mono text-xs uppercase tracking-[0.2em] flex items-center ${showMarker ? 'gap-2' : ''}`}
+    style={{ color: 'var(--mint)' }}
+  >
+    {showMarker && <span className="h-1.5 w-1.5 rounded-full" style={{ background: 'var(--mint)' }} />}
+    {children}
+  </p>
 );
 
-const NeuralCanvas = ({ reduceMotion }: { reduceMotion?: boolean }) => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  
+/* ------------------------------------------------------------------ */
+/*  Navbar                                                              */
+/* ------------------------------------------------------------------ */
+
+const Navbar = ({ setView }: { setView: React.Dispatch<React.SetStateAction<ViewState>> }) => {
+  const [open, setOpen] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
+  const links = [
+    { name: 'About', href: '#about' },
+    { name: 'Projects', href: '#projects' },
+    { name: 'Contact', href: '#contact' },
+  ];
+
   useEffect(() => {
-    if (reduceMotion) return;
-    
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    const context = ctx;
-    let width = 0; let height = 0; let particles: any[] = [];
-    let animationFrameId: number;
+    if (!open) return;
 
-    const resize = () => { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; };
-    class Particle {
-      x: number; y: number; vx: number; vy: number; size: number;
-      constructor() { this.x = Math.random() * width; this.y = Math.random() * height; this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5; this.size = Math.random() * 2 + 1; }
-      update() { this.x += this.vx; this.y += this.vy; if (this.x < 0 || this.x > width) this.vx *= -1; if (this.y < 0 || this.y > height) this.vy *= -1; }
-      draw() { context.fillStyle = 'rgba(99, 102, 241, 0.4)'; context.beginPath(); context.arc(this.x, this.y, this.size, 0, Math.PI * 2); context.fill(); }
-    }
-    const animate = () => {
-      context.clearRect(0, 0, width, height);
-      particles.forEach(p => { p.update(); p.draw(); });
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          let dist = Math.hypot(particles[i].x - particles[j].x, particles[i].y - particles[j].y);
-          if (dist < 150) { context.strokeStyle = `rgba(99, 102, 241, ${1 - dist / 150})`; context.lineWidth = 1; context.beginPath(); context.moveTo(particles[i].x, particles[i].y); context.lineTo(particles[j].x, particles[j].y); context.stroke(); }
-        }
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(event.target as Node)) {
+        setOpen(false);
       }
-      animationFrameId = requestAnimationFrame(animate);
     };
-    resize(); for (let i = 0; i < 50; i++) particles.push(new Particle()); animate();
-    window.addEventListener('resize', resize);
-    return () => {
-      window.removeEventListener('resize', resize);
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, [reduceMotion]);
 
-  if (reduceMotion) return null;
-  return <canvas ref={canvasRef} className="absolute inset-0 z-0 pointer-events-none opacity-40" />;
-};
-
-const NeuralNexus = ({ reduceMotion }: { reduceMotion?: boolean }) => (
-  <div className="relative w-full h-full flex items-center justify-center">
-    {!reduceMotion && <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="absolute w-24 h-24 bg-indigo-500/20 rounded-full blur-xl z-0" />}
-    <div className="relative z-10 w-16 h-16 bg-gradient-to-br from-indigo-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg shadow-indigo-500/50"><Cpu size={32} className="text-white" /></div>
-    {!reduceMotion && [80, 160, 240].map((size, i) => (
-      <motion.div key={i} className="absolute border border-indigo-500/30 rounded-full" style={{ width: size, height: size }} animate={{ rotate: 360 }} transition={{ duration: 15 + i * 5, repeat: Infinity, ease: "linear" }}>
-        <div className="absolute w-4 h-4 bg-cyan-400 rounded-full shadow-[0_0_10px_rgba(34,211,238,1)] top-1/2 -translate-y-1/2 -left-2" />
-      </motion.div>
-    ))}
-  </div>
-);
-
-// --- 2. INTERACTION & TEXT COMPONENTS ---
-
-const ClickSpark = ({ reduceMotion }: { reduceMotion?: boolean }) => {
-  const [sparks, setSparks] = useState<Spark[]>([]);
-  useEffect(() => {
-    if (reduceMotion) return;
-    const handleClick = (e: MouseEvent) => {
-      const target = e.target;
-      if (target instanceof Element && (target.closest('button') || target.closest('a'))) return;
-      const newSpark = { id: Date.now(), x: e.clientX, y: e.clientY };
-      setSparks(prev => [...prev, newSpark]);
-      setTimeout(() => setSparks(prev => prev.filter(s => s.id !== newSpark.id)), 1000);
-    };
-    window.addEventListener('click', handleClick);
-    return () => window.removeEventListener('click', handleClick);
-  }, [reduceMotion]);
-
-  if (reduceMotion) return null;
-  return (
-    <div className="fixed inset-0 pointer-events-none z-[101]">
-      <AnimatePresence>{sparks.map(s => (<div key={s.id} className="absolute top-0 left-0" style={{ transform: `translate(${s.x}px, ${s.y}px)` }}>{[...Array(8)].map((_, i) => (<motion.div key={i} initial={{ opacity: 1, x: 0, y: 0, scale: 1 }} animate={{ opacity: 0, x: Math.cos(i * (Math.PI / 4)) * 60, y: Math.sin(i * (Math.PI / 4)) * 60, scale: 0 }} transition={{ duration: 0.5, ease: "easeOut" }} className="absolute w-1 h-1 bg-cyan-400 rounded-full shadow-[0_0_15px_rgba(34,211,238,1)]" />))}</div>))}</AnimatePresence>
-    </div>
-  );
-};
-
-const ScrambleHover = ({ text, className, reduceMotion }: ScrambleHoverProps) => {
-  const [displayText, setDisplayText] = useState(text);
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";
-  const scramble = () => {
-    if (reduceMotion) return;
-    let iteration = 0;
-    const interval = setInterval(() => {
-      setDisplayText(text.split("").map((char, i) => i < iteration ? text[i] : chars[Math.floor(Math.random() * chars.length)]).join(""));
-      if (iteration >= text.length) clearInterval(interval);
-      iteration += 1 / 3;
-    }, 30);
-  };
-  return <span onMouseEnter={scramble} className={`${className} cursor-pointer`}>{displayText}</span>;
-};
-
-const DecryptedText = ({ text, className, speed = 25, trigger = true, reduceMotion }: DecryptedTextProps) => {
-  const [displayText, setDisplayText] = useState("");
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";
-  useEffect(() => {
-    if (!trigger) return;
-    if (reduceMotion) {
-        setDisplayText(text);
-        return;
-    }
-    let iteration = 0;
-    const interval = setInterval(() => {
-      setDisplayText(text.split("").map((char, i) => i < iteration ? text[i] : chars[Math.floor(Math.random() * chars.length)]).join(""));
-      if (iteration >= text.length) clearInterval(interval);
-      iteration += 1 / 2;
-    }, speed);
-    return () => clearInterval(interval);
-  }, [text, speed, trigger, reduceMotion]);
-  return <span className={className}>{displayText}</span>;
-};
-
-const AutoGlitchText = ({ text, className, reduceMotion }: AutoGlitchTextProps) => {
-  const [displayText, setDisplayText] = useState(text);
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";
-  useEffect(() => {
-    if (reduceMotion) return;
-    const triggerGlitch = () => {
-      let iteration = 0;
-      const interval = setInterval(() => {
-        setDisplayText(text.split("").map((char, i) => i < iteration ? text[i] : chars[Math.floor(Math.random() * chars.length)]).join(""));
-        if (iteration >= text.length) clearInterval(interval);
-        iteration += 1 / 3;
-      }, 30);
-    };
-    const loop = setInterval(() => { if (Math.random() > 0.8) triggerGlitch(); }, 4000);
-    return () => clearInterval(loop);
-  }, [text, reduceMotion]);
-  return <span className={className}>{displayText}</span>;
-};
-
-const ScrollRevealHeader = ({ text, className, reduceMotion }: ScrollRevealHeaderProps) => {
-  const [hasViewed, setHasViewed] = useState(false);
-  return <motion.div onViewportEnter={() => setHasViewed(true)} viewport={{ once: true, margin: "-100px" }}><DecryptedText text={text} className={className} trigger={hasViewed} reduceMotion={reduceMotion} /></motion.div>;
-};
-
-const RevealText = ({ children, delay = 0 }: RevealTextProps) => (
-  <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay }}>{children}</motion.div>
-);
-
-const wrap = (min: number, max: number, v: number) => {
-  const rangeSize = max - min;
-  return ((((v - min) % rangeSize) + rangeSize) % rangeSize) + min;
-};
-
-const ParallaxText = ({ children, baseVelocity = 100, reduceMotion }: ParallaxTextProps) => {
-  const baseX = useMotionValue(0);
-  const { scrollY } = useScroll();
-  const scrollVelocity = useVelocity(scrollY);
-  const smoothVelocity = useSpring(scrollVelocity, { damping: 50, stiffness: 400 });
-  const velocityFactor = useTransform(smoothVelocity, [0, 1000], [0, 5], { clamp: false });
-  const x = useTransform(baseX, (v: number) => `${wrap(-20, -45, v)}%`);
-  const directionFactor = useRef<number>(1);
-  
-  useAnimationFrame((t, delta) => {
-    if (reduceMotion) return;
-    let moveBy = directionFactor.current * baseVelocity * (delta / 1000);
-    if (velocityFactor.get() < 0) directionFactor.current = -1;
-    else if (velocityFactor.get() > 0) directionFactor.current = 1;
-    moveBy += directionFactor.current * moveBy * velocityFactor.get();
-    baseX.set(baseX.get() + moveBy);
-  });
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [open]);
 
   return (
-    <div className="overflow-hidden whitespace-nowrap flex flex-nowrap mb-12 opacity-30 select-none pointer-events-none" aria-hidden="true">
-      <motion.div className="flex whitespace-nowrap text-4xl md:text-6xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-r from-indigo-500/20 to-cyan-500/20" style={reduceMotion ? {} : { x }}>
-        {[...Array(4)].map((_, i) => <span key={i} className="block mr-12">{children}</span>)}
-      </motion.div>
-    </div>
-  );
-};
-
-const GlitchText = ({ text, reduceMotion }: GlitchTextProps) => {
-  const [displayText, setDisplayText] = useState(text);
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";
-  const scramble = () => {
-    if (reduceMotion) return;
-    let iteration = 0;
-    const interval = setInterval(() => {
-      setDisplayText(text.split("").map((char, i) => i < iteration ? text[i] : chars[Math.floor(Math.random() * chars.length)]).join(""));
-      if (iteration >= text.length) clearInterval(interval);
-      iteration += 1 / 3;
-    }, 30);
-  };
-  return <span onMouseEnter={scramble} className="cursor-default hover:text-indigo-400 transition-colors interactive">{displayText}</span>;
-};
-
-// --- 3. UI COMPONENTS ---
-
-const CursorFollower = ({ reduceMotion }: { reduceMotion?: boolean }) => {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  useEffect(() => {
-    if (reduceMotion) return;
-    const handleMouseMove = (e: MouseEvent) => setMousePos({ x: e.clientX, y: e.clientY });
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [reduceMotion]);
-
-  if (reduceMotion) return null;
-  return <motion.div className="fixed top-0 left-0 w-8 h-8 border border-indigo-500/50 rounded-full pointer-events-none z-[100] hidden md:flex items-center justify-center mix-blend-screen" animate={{ x: mousePos.x - 16, y: mousePos.y - 16 }} transition={{ type: "spring", stiffness: 300, damping: 25, mass: 0.5 }}><div className="w-1 h-1 bg-indigo-400 rounded-full opacity-50" /></motion.div>;
-};
-
-const SystemHUD = ({ reduceMotion }: { reduceMotion?: boolean }) => {
-  const [time, setTime] = useState("");
-  const { scrollY } = useScroll();
-  const [scrollVel, setScrollVel] = useState(0);
-  useEffect(() => {
-    const t = setInterval(() => setTime(new Date().toLocaleTimeString([], { hour12: false })), 1000);
-    return () => clearInterval(t);
-  }, []);
-  useEffect(() => scrollY.onChange((v: number) => setScrollVel(Math.abs(v - (scrollY.getPrevious() || 0)))), [scrollY]);
-  return (
-    <div className="fixed bottom-6 right-6 z-50 hidden md:flex flex-col gap-2 font-mono text-[10px] text-indigo-400/60 pointer-events-none select-none mix-blend-plus-lighter">
-      <div className="flex items-center gap-2 border-b border-indigo-500/20 pb-1 mb-1 justify-between">
-        <div className="flex items-center gap-2">
-           <Activity size={12} className={reduceMotion ? "" : "animate-pulse"} />
-           <span>SYS.MONITOR // v15.0</span>
-        </div>
-        <div className="relative w-4 h-4 rounded-full border border-indigo-500/50 overflow-hidden">
-           {!reduceMotion && <div className="absolute inset-0 bg-[conic-gradient(from_0deg,transparent_0_deg,rgba(99,102,241,0.5)_360deg)] animate-[spin_2s_linear_infinite]" />}
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-x-4"><span>VEL.S: {scrollVel.toFixed(0)} px/f</span><span>TIME: {time}</span><span>CORE: STABLE</span><span>ONLINE: TRUE</span></div>
-    </div>
-  );
-};
-
-const MagneticLink = ({ children, onClick, href, className = "" }: MagneticLinkProps) => {
-  const ref = useRef<HTMLAnchorElement | null>(null);
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const handleMouse = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    const node = ref.current;
-    if (!node) return;
-    const r = node.getBoundingClientRect();
-    setPos({ x: (e.clientX - (r.left + r.width / 2)) * 0.3, y: (e.clientY - (r.top + r.height / 2)) * 0.3 });
-  };
-  return <motion.a href={href} ref={ref} onClick={onClick} className={`${className} interactive inline-block focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 focus-visible:outline-offset-4 rounded`} animate={{ x: pos.x, y: pos.y }} transition={{ type: "spring", stiffness: 200, damping: 10 }} onMouseMove={handleMouse} onMouseLeave={() => setPos({ x: 0, y: 0 })}>{children}</motion.a>;
-};
-
-const MagneticButton = ({ children, className = "", onClick }: MagneticButtonProps) => {
-  const ref = useRef<HTMLButtonElement | null>(null);
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const handleMouse = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const node = ref.current;
-    if (!node) return;
-    const r = node.getBoundingClientRect();
-    setPos({ x: (e.clientX - (r.left + r.width / 2)) * 0.2, y: (e.clientY - (r.top + r.height / 2)) * 0.2 });
-  };
-  return <motion.button ref={ref} className={`${className} interactive focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 focus-visible:outline-offset-4 rounded`} animate={{ x: pos.x, y: pos.y }} transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }} onMouseMove={handleMouse} onMouseLeave={() => setPos({ x: 0, y: 0 })} onClick={onClick}>{children}</motion.button>;
-};
-
-const ScrollProgress = () => {
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
-  return <motion.div className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 origin-left z-[60]" style={{ scaleX }} />;
-};
-
-const BootSequence = ({ onComplete, reduceMotion }: BootSequenceProps) => {
-  const [lines, setLines] = useState<string[]>([]);
-  const bootText = ["INITIALIZING KERNEL...", "LOADING MEMORY MODULES... [OK]", "VERIFYING KEYS... [OK]", "ESTABLISHING SECURE CONNECTION...", "MOUNTING FILE SYSTEM...", "STARTING RICHARD.OS v15.0", "ACCESS GRANTED"];
-  
-  useEffect(() => {
-    if (reduceMotion) {
-       onComplete();
-       return;
-    }
-    let currentLines: string[] = [];
-    bootText.forEach((text, index) => { setTimeout(() => { currentLines.push(text); setLines([...currentLines]); if (index === bootText.length - 1) setTimeout(onComplete, 500); }, (index + 1) * 200); });
-  }, [reduceMotion]);
-  
-  return <motion.div initial={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black z-[200] flex items-center justify-center font-mono text-indigo-500 text-sm p-8"><div className="w-full max-w-md">{lines.map((l, i) => <div key={i} className="mb-1">{`> ${l}`}</div>)}<div className="animate-pulse mt-2">_</div></div></motion.div>;
-};
-
-// --- ACCESSIBILITY WIDGET ---
-const AccessibilityWidget = ({ a11y, setA11y }: { a11y: A11yState, setA11y: React.Dispatch<React.SetStateAction<A11yState>> }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const resetAll = () => setA11y({ highContrast: false, largeText: false, reduceMotion: false, textSpacing: false, dyslexiaFont: false, highlightLinks: false });
-
-  return (
-    <div className="fixed bottom-6 left-6 z-[9999]">
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div 
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="absolute bottom-16 left-0 bg-slate-900 border border-indigo-500/30 p-5 rounded-2xl flex flex-col shadow-2xl shadow-black mb-2 w-80"
-          >
-            <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
-              <h4 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2"><Accessibility size={16} className="text-indigo-400" /> Accessibility</h4>
-              <button onClick={resetAll} aria-label="Reset all settings" className="text-xs flex items-center gap-1 text-slate-400 hover:text-red-400 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded p-1"><RefreshCcw size={12}/> Reset</button>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-3">
-              <button onClick={() => setA11y(p => ({...p, highContrast: !p.highContrast}))} className={`flex flex-col items-center justify-center gap-2 p-3 text-xs text-center transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded-xl border ${a11y.highContrast ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300 font-bold' : 'bg-slate-950 border-white/5 text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                <Eye size={20}/> High Contrast
-              </button>
-              
-              <button onClick={() => setA11y(p => ({...p, largeText: !p.largeText}))} className={`flex flex-col items-center justify-center gap-2 p-3 text-xs text-center transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded-xl border ${a11y.largeText ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300 font-bold' : 'bg-slate-950 border-white/5 text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                <ALargeSmall size={20}/> Large Text
-              </button>
-
-              <button onClick={() => setA11y(p => ({...p, reduceMotion: !p.reduceMotion}))} className={`flex flex-col items-center justify-center gap-2 p-3 text-xs text-center transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded-xl border ${a11y.reduceMotion ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300 font-bold' : 'bg-slate-950 border-white/5 text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                <VideoOff size={20}/> Stop Motion
-              </button>
-
-              <button onClick={() => setA11y(p => ({...p, dyslexiaFont: !p.dyslexiaFont}))} className={`flex flex-col items-center justify-center gap-2 p-3 text-xs text-center transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded-xl border ${a11y.dyslexiaFont ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300 font-bold' : 'bg-slate-950 border-white/5 text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                <Type size={20}/> Dyslexia Font
-              </button>
-              
-              <button onClick={() => setA11y(p => ({...p, textSpacing: !p.textSpacing}))} className={`flex flex-col items-center justify-center gap-2 p-3 text-xs text-center transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded-xl border ${a11y.textSpacing ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300 font-bold' : 'bg-slate-950 border-white/5 text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                <TextSelect size={20}/> Text Spacing
-              </button>
-              
-              <button onClick={() => setA11y(p => ({...p, highlightLinks: !p.highlightLinks}))} className={`flex flex-col items-center justify-center gap-2 p-3 text-xs text-center transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded-xl border ${a11y.highlightLinks ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300 font-bold' : 'bg-slate-950 border-white/5 text-slate-400 hover:bg-slate-800 hover:text-white'}`}>
-                <Link2 size={20}/> Highlight Links
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <button 
-        onClick={() => setIsOpen(!isOpen)} 
-        aria-label="Toggle Accessibility Menu" 
-        aria-expanded={isOpen}
-        className={`w-14 h-14 rounded-full flex items-center justify-center transition-all focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-indigo-400 ${isOpen ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/50 scale-105' : 'bg-slate-900 border-2 border-indigo-500 text-indigo-400 hover:bg-indigo-600 hover:text-white hover:scale-105 shadow-xl'}`}
-      >
-        {isOpen ? <X size={24} /> : <Accessibility size={28} />}
-      </button>
-    </div>
-  );
-};
-
-
-// --- 4. PAGE SECTIONS & CONTENT COMPONENTS ---
-
-const DraggableTerminal = () => {
-  const [history, setHistory] = useState<TerminalEntry[]>([]);
-  const [input, setInput] = useState('');
-  const bottomRef = useRef<HTMLDivElement | null>(null);
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  useEffect(() => {
-    const cmds = ["RichardOS Kernel v15.0.0 initialized.", "Mounting /usr/richard/skills... [OK]", 'Type "help" for command list.'];
-    cmds.forEach((c, i) => setTimeout(() => setHistory(prev => [...prev, { type: 'output', content: c }]), (i + 1) * 500));
-  }, []);
-  useEffect(() => { if (containerRef.current) containerRef.current.scrollTop = containerRef.current.scrollHeight; }, [history]);
-  const handleCommand = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      let output = '';
-      const command = input.trim().toLowerCase();
-      
-      switch (command) {
-        case 'help': 
-          output = 'Commands: about, projects, skills, contact, clear'; 
-          break;
-        case 'about': 
-          output = 'Computer Engineering Candidate. Builder of hardware. Lover of code.'; 
-          break;
-        case 'skills': 
-          output = 'Java, Kotlin, C++, Python, React, Circuit Design, Arduino...'; 
-          break;
-        case 'projects': 
-          output = 'Navigating to Projects Section...'; 
-          window.location.href = '#projects';
-          break;
-        case 'contact': 
-          output = 'Opening Contact Channel...'; 
-          window.location.href = '#contact';
-          break;
-        case 'clear': 
-          setHistory([]); 
-          setInput(''); 
-          return;
-        default: 
-          output = `Command not found: ${input}`;
-      }
-      setHistory(prev => [...prev, { type: 'input', content: input }, { type: 'output', content: output }]);
-      setInput('');
-    }
-  };
-  return (
-    <div className="relative z-40 w-full max-w-2xl mx-auto my-12 h-[350px]">
-      <motion.div drag dragMomentum={false} className="absolute top-0 left-0 w-full bg-slate-950/90 backdrop-blur-md border border-slate-800 rounded-lg overflow-hidden font-mono text-sm shadow-2xl">
-        <div className="bg-slate-900 px-4 py-2 border-b border-slate-800 flex items-center justify-between cursor-move interactive"><div className="flex gap-1.5"><div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50" /><div className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50" /><div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50" /></div><span className="text-slate-500 ml-2">guest@richard-pu-portfolio:~</span><Move size={14} className="text-slate-600" /></div>
-        <div ref={containerRef} className="p-4 h-64 overflow-y-auto space-y-2 custom-scrollbar cursor-text interactive">
-          {history.map((entry, i) => <div key={i} className={entry.type === 'input' ? 'text-indigo-400' : 'text-slate-300'}>{entry.type === 'input' ? '> ' : ''}{entry.content}</div>)}
-          <div className="flex items-center text-indigo-400"><span className="mr-2">{'>'}</span><input type="text" value={input} aria-label="Terminal input" onChange={(e) => setInput(e.target.value)} onKeyDown={handleCommand} className="bg-transparent border-none outline-none flex-1 interactive focus-visible:ring-1 focus-visible:ring-indigo-500 rounded px-1" placeholder="enter command..." autoFocus /></div>
-          <div ref={bottomRef} />
-        </div>
-      </motion.div>
-    </div>
-  );
-};
-
-// --- PROJECT CARD ---
-const ProjectCard = ({ project, index, onClick, reduceMotion }: ProjectCardProps) => {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const mouseX = useSpring(x, { stiffness: 500, damping: 100 });
-  const mouseY = useSpring(y, { stiffness: 500, damping: 100 });
-  const rotateX = useTransform(mouseY, [-0.5, 0.5], ["-5deg", "5deg"]);
-  const rotateY = useTransform(mouseX, [-0.5, 0.5], ["5deg", "-5deg"]);
-  const maskImage = useMotionTemplate`radial-gradient(250px at ${mouseX}px ${mouseY}px, white, transparent)`;
-  
-  return (
-    <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: reduceMotion ? 0 : index * 0.1 }} className={project.size === 'large' ? 'md:col-span-2 md:row-span-2' : 'col-span-1'}>
-      <button onClick={onClick} className="block h-full w-full cursor-pointer text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded-3xl" aria-label={`View details for ${project.title}`}>
-        <motion.div ref={ref} onMouseMove={(e: React.MouseEvent<HTMLDivElement>) => { if(reduceMotion) return; const node = ref.current; if (!node) return; const r = node.getBoundingClientRect(); x.set((e.clientX - r.left - r.width / 2) / r.width); y.set((e.clientY - r.top - r.height / 2) / r.height); }} onMouseLeave={() => { if(reduceMotion) return; x.set(0); y.set(0); }} style={reduceMotion ? {} : { rotateY, rotateX, transformStyle: "preserve-3d" }} className="group relative h-full w-full overflow-hidden rounded-3xl border border-white/5 bg-slate-900/50 p-1 hover:border-indigo-500/50 interactive">
-          {!reduceMotion && <motion.div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" style={{ maskImage, WebkitMaskImage: maskImage }} />}
-          <div className="relative h-full w-full overflow-hidden rounded-[calc(1.5rem-1px)] bg-slate-950 p-6 flex flex-col justify-between">
-             {!reduceMotion && <div className="absolute top-0 left-0 w-full h-1 bg-cyan-400 opacity-0 group-hover:opacity-50 blur-[2px] animate-[scan-down_1.5s_linear_infinite]" />}
-             <div>
-                <div className="flex items-center justify-between mb-4"><span className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 text-[10px] uppercase tracking-widest text-indigo-400 font-bold border border-white/10">{project.tag}</span><ArrowUpRight size={18} className="text-slate-600 group-hover:text-white" /></div>
-                <h3 className="font-bold text-white mb-2 text-xl group-hover:text-indigo-300"><GlitchText text={project.title} reduceMotion={reduceMotion} /></h3>
-                <p className="text-slate-400 text-sm leading-relaxed mb-6 line-clamp-3">{project.description}</p>
-             </div>
-             <div className="flex flex-wrap gap-2 mt-auto">{project.tech.map(t => <span key={t} className="text-[10px] font-mono text-slate-500 bg-slate-900 px-2 py-1 rounded border border-white/5">{t}</span>)}</div>
-          </div>
-        </motion.div>
-      </button>
-    </motion.div>
-  );
-};
-
-// --- MODAL COMPONENT ---
-const ProjectModal = ({ selectedProject, onClose }: ProjectModalProps) => {
-  if (!selectedProject) return null;
-
-  return (
-    <motion.div 
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }} 
-      exit={{ opacity: 0 }} 
-      onClick={onClose} 
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
+    <header
+      className="fixed top-0 inset-x-0 z-50 backdrop-blur-md"
+      style={{ background: 'color-mix(in srgb, var(--bg) 85%, transparent)', borderBottom: '1px solid var(--line)' }}
     >
-      <motion.div 
-        layoutId={`project-${selectedProject.title}`} 
-        className="relative bg-slate-900 rounded-3xl overflow-hidden max-w-2xl w-full border border-indigo-500/30 shadow-2xl flex flex-col max-h-[85vh]" 
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Close Button - Stays fixed in the corner */}
-        <button aria-label="Close Project Modal" onClick={onClose} className="absolute top-4 right-4 p-2 bg-black/50 rounded-full text-white hover:bg-white/20 transition-colors z-30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white">
-          <X size={20} />
+      <nav ref={navRef} className="max-w-6xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between" aria-label="Main navigation">
+        <button onClick={() => setView('main')} className="flex items-center gap-3" aria-label="Back to top">
+          <span
+            className="w-9 h-9 rounded-full overflow-hidden border shrink-0"
+            style={{ borderColor: 'var(--line-strong)' }}
+          >
+            <Image
+              src={CONFIG.PROFILE_IMAGE_SRC}
+              alt={CONFIG.NAME}
+              width={36}
+              height={36}
+              className="object-cover w-full h-full"
+            />
+          </span>
+          <span
+            className="font-display font-semibold text-lg tracking-tight"
+            style={{ color: 'var(--text)' }}
+          >
+            {CONFIG.NAME}
+          </span>
         </button>
 
-        {/* Scrollable Container covering both Image and Content */}
-        <div className="overflow-y-auto custom-scrollbar flex-1 w-full flex flex-col">
-          {/* Media Section */}
-          <div className="w-full aspect-video bg-black relative flex items-center justify-center overflow-hidden shrink-0">
-            {selectedProject.mediaType === 'video' ? (
-               <video 
-                 src={selectedProject.mediaSrc} 
-                 controls 
-                 autoPlay 
-                 loop
-                 muted
-                 className="w-full h-full object-cover"
-               >
-                 Your browser does not support video.
-               </video>
-            ) : (
-               <img 
-                 src={selectedProject.mediaSrc} 
-                 alt={selectedProject.title} 
-                 className="w-full h-full object-cover" 
-               />
-            )}
+        <div className="hidden md:flex items-center gap-10">
+          {links.map((l) => (
+            <a
+              key={l.name}
+              href={l.href}
+              onClick={() => setView('main')}
+              className="text-[13px] uppercase tracking-[0.14em] font-medium hover:opacity-70 transition-opacity"
+              style={{ color: 'var(--text-soft)' }}
+            >
+              {l.name}
+            </a>
+          ))}
+          <span className="h-4 w-px" style={{ background: 'var(--line-strong)' }} />
+          <a
+            href={CONFIG.RESUME}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[13px] uppercase tracking-[0.14em] font-medium px-4 py-2 rounded-full border transition-colors"
+            style={{ borderColor: 'var(--line-strong)', color: 'var(--text)' }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--accent-tint)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+          >
+            Resume
+          </a>
+          <div className="flex items-center gap-4">
+            <a href={CONFIG.SOCIALS.GITHUB} aria-label="GitHub" style={{ color: 'var(--text-soft)' }}>
+              <Github size={18} />
+            </a>
+            <a href={CONFIG.SOCIALS.LINKEDIN} aria-label="LinkedIn" style={{ color: 'var(--text-soft)' }}>
+              <Linkedin size={18} />
+            </a>
           </div>
+        </div>
 
-          {/* Text Content Section */}
-          <div className="p-8 flex-1 flex flex-col">
-            <div className="mb-6">
-              <h2 className="text-3xl font-bold text-white mb-2">{selectedProject.title}</h2>
-              <div className="flex flex-wrap gap-2">
-                {selectedProject.tech.map(t => (
-                  <span key={t} className="text-xs font-mono text-indigo-400 bg-indigo-900/20 px-2 py-1 rounded border border-indigo-500/20">
-                    {t}
-                  </span>
-                ))}
+        <button
+          className="md:hidden"
+          aria-label={open ? 'Close menu' : 'Open menu'}
+          aria-expanded={open}
+          onClick={() => setOpen(!open)}
+          style={{ color: 'var(--text)' }}
+        >
+          {open ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </nav>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="md:hidden overflow-hidden"
+            style={{ borderTop: '1px solid var(--line)' }}
+          >
+            <div className="flex flex-col gap-5 px-4 sm:px-6 py-6">
+              {links.map((l) => (
+                <a
+                  key={l.name}
+                  href={l.href}
+                  onClick={() => {
+                    setView('main');
+                    setOpen(false);
+                  }}
+                  className="text-lg font-display font-medium"
+                  style={{ color: 'var(--text)' }}
+                >
+                  {l.name}
+                </a>
+              ))}
+              <a href={CONFIG.RESUME} className="text-sm uppercase tracking-widest font-mono" style={{ color: 'var(--mint)' }}>
+                Resume ↗
+              </a>
+              <div className="flex gap-6 pt-2">
+                <a href={CONFIG.SOCIALS.GITHUB} aria-label="GitHub" style={{ color: 'var(--text-soft)' }}>
+                  <Github size={20} />
+                </a>
+                <a href={CONFIG.SOCIALS.LINKEDIN} aria-label="LinkedIn" style={{ color: 'var(--text-soft)' }}>
+                  <Linkedin size={20} />
+                </a>
               </div>
             </div>
-
-            <div className="prose prose-invert prose-sm max-w-none text-slate-300 mb-8">
-              <p className="leading-relaxed">{selectedProject.description}</p>
-            </div>
-
-            {/* Action Buttons (Bottom) */}
-            <div className="flex flex-wrap items-center gap-4 mt-auto pt-6 border-t border-white/10">
-              {selectedProject.github && (
-                <a 
-                  href={selectedProject.github} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-6 py-3 rounded-full bg-white text-slate-950 font-bold hover:bg-indigo-50 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400"
-                >
-                  <Github size={20} /> View Source
-                </a>
-              )}
-              
-              {selectedProject.downloadLink && (
-                <a 
-                  href={selectedProject.downloadLink} 
-                  download
-                  className="flex items-center gap-2 px-6 py-3 rounded-full bg-indigo-600/20 text-indigo-400 border border-indigo-500/50 font-bold hover:bg-indigo-600 hover:text-white transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400"
-                >
-                  <Download size={20} /> Download .JAR
-                </a>
-              )}
-
-              {selectedProject.schematic && (
-                <a 
-                  href={selectedProject.schematic} 
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-6 py-3 rounded-full bg-indigo-600/20 text-indigo-400 border border-indigo-500/50 font-bold hover:bg-indigo-600 hover:text-white transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400"
-                >
-                  <FileText size={20} /> View Schematic
-                </a>
-              )}
-
-              {!selectedProject.github && !selectedProject.downloadLink && !selectedProject.schematic && (
-                 <div className="text-slate-500 text-sm italic flex items-center gap-2">
-                   <ShieldCheck size={16} /> Proprietary / Source Unavailable
-                 </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-};
-
-// --- IMAGE MODAL (Gallery) ---
-const ImageModal = ({ selectedImage, onClose }: ImageModalProps) => {
-  if (!selectedImage) return null;
-  return (
-    <motion.div 
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }} 
-      exit={{ opacity: 0 }} 
-      onClick={onClose} 
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-md p-4 cursor-zoom-out"
-    >
-      <motion.div 
-        layoutId={`image-${selectedImage.label}`} 
-        className="relative w-full h-full flex items-center justify-center pointer-events-none"
-      >
-        <div 
-          className="relative max-w-5xl w-full flex flex-col items-center justify-center pointer-events-auto"
-          onClick={(e) => e.stopPropagation()}
-        >
-           <div className="relative w-full max-h-[85vh] flex justify-center overflow-hidden rounded-lg bg-slate-900 border border-indigo-500/30 shadow-2xl">
-             {selectedImage.src ? (
-               <img 
-                 src={selectedImage.src} 
-                 alt={selectedImage.label} 
-                 className="w-auto h-auto max-w-full max-h-[85vh] object-contain bg-black" 
-               />
-             ) : (
-               <div className="w-full aspect-video bg-gradient-to-br from-indigo-900/20 to-slate-900/20" />
-             )}
-             
-             <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-12 text-left">
-               <h3 className="text-2xl font-bold text-white">{selectedImage.label}</h3>
-               <p className="text-indigo-400 font-mono mt-1">{selectedImage.date}</p>
-             </div>
-
-             <button 
-               onClick={onClose} 
-               aria-label="Close Image Modal"
-               className="absolute top-4 right-4 p-2 bg-black/50 rounded-full text-white hover:bg-red-500/80 transition-colors z-30 border border-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
-             >
-               <X size={24} />
-             </button>
-           </div>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-};
-
-const HoloImage = ({ label, date, src, onClick }: HoloImageProps) => (
-  <button aria-label={`View full image for ${label}`} className="w-full group relative overflow-hidden rounded-xl border border-white/10 bg-slate-900 interactive cursor-zoom-in focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400" onClick={onClick}>
-    <div className="absolute inset-0 bg-indigo-500/20 opacity-0 group-hover:opacity-100 mix-blend-color-dodge transition-opacity z-10 pointer-events-none" />
-    <div className="absolute inset-0 z-20 opacity-0 group-hover:opacity-30 pointer-events-none bg-[linear-gradient(to_bottom,transparent_50%,rgba(0,0,0,0.5)_50%)] bg-[size:100%_4px]" />
-    <div className="aspect-video bg-slate-800 flex items-center justify-center relative overflow-hidden">
-      {src ? (
-          <img src={src} alt={label} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100" />
-      ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/40 to-slate-900/40" />
-      )}
-      {!src && <Camera size={48} className="text-white/20 group-hover:scale-110 transition-transform duration-500 relative z-10 motion-reduce:transition-none motion-reduce:group-hover:scale-100" />}
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-slate-900 to-transparent z-20">
-        <div className="flex justify-between items-end">
-           <div className="text-left"><p className="text-[10px] font-mono text-indigo-400 mb-1">{date}</p><p className="text-sm font-bold text-white">{label}</p></div>
-           <Maximize size={16} className="text-white/40 group-hover:text-white transition-colors" />
-        </div>
-      </div>
-    </div>
-  </button>
-);
-
-// LIFEGALLERY
-const LifeGallery = ({ images, onSelect }: LifeGalleryProps) => {
-  return (
-    <section id="records" className="py-24 px-6 max-w-7xl mx-auto relative z-10">
-      <div className="mb-16"><h2 className="text-sm font-mono text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2"><Aperture size={16} /> Visual Database</h2><ScrollRevealHeader text="Field Operations & Logs." className="text-4xl md:text-5xl font-bold text-white block" /></div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">{images.map((img, i) => (<motion.div key={i} layoutId={`image-${img.label}`} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}><HoloImage label={img.label} date={img.date} src={img.src} onClick={() => onSelect(img)} /></motion.div>))}</div>
-    </section>
-  );
-};
-
-const Navbar = ({ setView, socials, reduceMotion }: NavbarProps) => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const navLinks = [{ name: 'Projects', href: '#projects' }, { name: 'About', href: '#about' }, { name: 'Records', href: '#records' }, { name: 'Contact', href: '#contact' }];
-  return (
-    <nav className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4" aria-label="Main Navigation">
-      <motion.div initial={{ y: -100 }} animate={{ y: 0 }} transition={reduceMotion ? { duration: 0 } : {}} className="flex items-center justify-between w-full max-w-4xl px-6 py-3 rounded-full border border-white/10 backdrop-blur-xl bg-slate-950/80 shadow-2xl">
-        <button className="flex items-center gap-3 cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded-full" onClick={() => setView('main')} aria-label="Return to Home">
-          <div className="w-8 h-8 rounded-full overflow-hidden border border-indigo-500/50"><ProfileImage className="w-full h-full" /></div>
-          <span className="font-bold tracking-tighter text-white hidden sm:block">RICHARD PU</span>
-        </button>
-        <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <MagneticLink key={link.name} href={link.href} onClick={() => setView('main')}>
-              <ScrambleHover text={link.name} reduceMotion={reduceMotion} className="text-sm font-medium text-slate-400 hover:text-indigo-400 transition-colors" />
-            </MagneticLink>
-          ))}
-          <div className="h-4 w-[1px] bg-white/10" />
-          <div className="flex items-center gap-4">
-            <a href={CONFIG.RESUME} target="_blank" rel="noopener noreferrer" className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded-full">
-              <MagneticButton className="flex items-center gap-2 text-xs font-medium bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white px-3 py-1.5 rounded-full transition-all">
-                <FileText size={14} /> RESUME
-              </MagneticButton>
-            </a>
-            <MagneticLink aria-label="GitHub Profile" href={socials.GITHUB}><Github size={18} className="text-slate-400 hover:text-white" /></MagneticLink>
-            <MagneticLink aria-label="LinkedIn Profile" href={socials.LINKEDIN}><Linkedin size={18} className="text-slate-400 hover:text-white" /></MagneticLink>
-          </div>
-        </div>
-        <button aria-label={mobileMenuOpen ? "Close mobile menu" : "Open mobile menu"} aria-expanded={mobileMenuOpen} className="md:hidden text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>{mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}</button>
-      </motion.div>
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={reduceMotion ? { duration: 0 } : {}} className="absolute top-24 left-4 right-4 bg-slate-900/95 border border-white/10 backdrop-blur-2xl rounded-3xl p-8 md:hidden z-50 max-h-[80vh] overflow-y-auto custom-scrollbar">
-            <div className="flex flex-col gap-6 items-center">
-              {navLinks.map((link) => <a key={link.name} href={link.href} onClick={() => { setView('main'); setMobileMenuOpen(false); }} className="text-xl font-medium text-white">{link.name}</a>)}
-              <div className="flex gap-8 pt-4"><a href={socials.GITHUB} aria-label="Github"><Github size={24} className="text-slate-400" /></a><a href={socials.LINKEDIN} aria-label="LinkedIn"><Linkedin size={24} className="text-slate-400" /></a></div>
-            </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </nav>
+    </header>
   );
 };
 
-const Footer = ({ setView, socials, email }: FooterProps) => (
-  <footer className="py-12 bg-slate-950 border-t border-white/5 relative z-20">
-    <div className="max-w-7xl mx-auto px-6">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-        <div className="col-span-1 md:col-span-2"><h3 className="text-2xl font-bold text-white mb-4 tracking-tighter">RICHARD PU</h3><p className="text-slate-400 text-sm max-w-md leading-relaxed">Engineering the interface between hardware and software. Specialized in embedded control, circuit restoration, and custom Java software architecture.</p></div>
-        <div><h4 className="text-white font-bold mb-4">Connect</h4><ul className="space-y-3 text-sm text-slate-400">
-          <li><a href={socials.LINKEDIN} className="hover:text-indigo-400 transition-colors flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded"><Linkedin size={14}/> LinkedIn</a></li>
-          <li><a href={socials.GITHUB} className="hover:text-indigo-400 transition-colors flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded"><Github size={14}/> GitHub</a></li>
-          <li><a href={socials.INSTAGRAM} className="hover:text-indigo-400 transition-colors flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded"><Instagram size={14}/> Instagram</a></li>
-          <li><a href={socials.DISCORD} className="hover:text-indigo-400 transition-colors flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded"><Disc size={14}/> Discord</a></li>
-        </ul></div>
-        <div><h4 className="text-white font-bold mb-4">Legal</h4><ul className="space-y-3 text-sm text-slate-400"><li><button onClick={() => setView('privacy')} className="hover:text-indigo-400 transition-colors flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded"><ShieldCheck size={14}/> Privacy Policy</button></li><li><button onClick={() => setView('terms')} className="hover:text-indigo-400 transition-colors flex items-center gap-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded"><Scale size={14}/> Terms of Service</button></li><li className="flex items-center gap-2 pt-2 opacity-60"><FileText size={14} /> CC BY-NC-SA 4.0</li></ul></div>
-      </div>
-      <div className="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-white/5 text-xs text-slate-500"><p>© 2026 Richard Pu. All hardware synchronized.</p><p>Designed & Engineered in Canada</p></div>
-    </div>
-  </footer>
-);
+/* ------------------------------------------------------------------ */
+/*  Hero                                                                */
+/* ------------------------------------------------------------------ */
 
-const Contact = ({ email, socials, reduceMotion }: ContactProps) => (
-  <section id="contact" className="py-24 px-6 max-w-7xl mx-auto relative z-10 overflow-hidden">
-    {!reduceMotion && <div className="absolute inset-0 pointer-events-none opacity-20">{[...Array(20)].map((_, i) => <motion.div key={i} className="absolute top-0 w-px bg-gradient-to-b from-transparent via-indigo-500 to-transparent" style={{ left: `${Math.random() * 100}%`, height: `${Math.random() * 50 + 20}%` }} animate={{ top: ['-100%', '100%'] }} transition={{ duration: Math.random() * 3 + 2, repeat: Infinity, ease: "linear", delay: Math.random() * 2 }} />)}</div>}
-    <div className="bg-gradient-to-br from-indigo-600 to-indigo-900 rounded-[3rem] p-12 md:p-20 relative overflow-hidden text-center">
-      <div className="absolute top-0 right-0 h-full w-full opacity-10 pointer-events-none"><CircuitBoard size={400} className="absolute -right-20 -top-20" /></div>
-      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={reduceMotion ? { duration: 0 } : {}}>
-        <ScrollRevealHeader text="Let's build something revolutionary." className="text-4xl md:text-6xl font-black text-white mb-6 block" reduceMotion={reduceMotion} />
-        <p className="text-indigo-100 text-lg mb-12 max-w-xl mx-auto opacity-80">Currently looking for co-op opportunities and project collaborations. Let's talk about hardware, games, or high-performance systems.</p>
-        <a href={`mailto:${email}`} className="inline-flex items-center gap-4 text-3xl md:text-5xl font-bold text-white hover:text-indigo-200 transition-all border-b-4 border-white/30 pb-2 mb-16 interactive focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-200 rounded">{email} <ExternalLink size={32} /></a>
-        <div className="flex flex-col md:flex-row items-center justify-between pt-12 border-t border-white/20 gap-8">
-          <div className="flex items-center gap-8"><a href={socials.GITHUB} className="text-white opacity-60 hover:opacity-100 transition-opacity flex items-center gap-2 interactive focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-200 rounded p-1"><Github size={20} /> GitHub</a><a href={socials.LINKEDIN} className="text-white opacity-60 hover:opacity-100 transition-opacity flex items-center gap-2 interactive focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-200 rounded p-1"><Linkedin size={20} /> LinkedIn</a></div>
-          <p className="text-white/40 font-mono text-sm">© 2026 RICHARD PU — COMPUTER ENGINEERING</p>
+const Hero = ({ reduceMotion }: { reduceMotion?: boolean }) => (
+  <section className="relative min-h-[calc(100svh-5rem)] flex items-center px-4 sm:px-6 pt-24 sm:pt-28 pb-16 sm:pb-20 md:pt-24 md:pb-24 max-w-6xl mx-auto overflow-visible">
+    <div
+      className="dot-grid absolute inset-0 -z-10 opacity-40"
+      style={{ maskImage: 'radial-gradient(ellipse at 30% 20%, black, transparent 70%)' }}
+    />
+
+    <div className="hero-content grid grid-cols-1 md:grid-cols-[1.15fr_0.85fr] gap-12 sm:gap-14 md:gap-24 items-center">
+      <motion.div
+        initial={{ opacity: 0, y: reduceMotion ? 0 : 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: reduceMotion ? 0 : 0.8, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <Kicker showMarker={false}>
+          {CONFIG.EDUCATION.program} · {CONFIG.EDUCATION.school}
+        </Kicker>
+
+        <h1
+          className="font-display font-semibold text-[clamp(2.75rem,12vw,4.6rem)] leading-[0.98] tracking-tight mt-6"
+          style={{ color: 'var(--text)' }}
+        >
+          Building where
+          <br />
+          hardware meets{' '}
+          <span style={{ color: 'var(--accent)' }}>software.</span>
+        </h1>
+
+        <p className="mt-7 max-w-lg text-lg leading-relaxed" style={{ color: 'var(--text-soft)' }}>
+          I work across the whole stack, from circuit-level signalling and embedded
+          firmware to the interactive software that sits on top of it. This is a short
+          collection of recent work.
+        </p>
+
+        <div className="mt-10 flex flex-wrap items-center gap-5">
+          <a
+            href="#projects"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-transform hover:-translate-y-0.5"
+            style={{ background: 'var(--accent)', color: 'var(--bg)' }}
+          >
+            View projects <ArrowUpRight size={16} />
+          </a>
+          <a
+            href="#contact"
+            className="inline-flex items-center gap-2 text-sm font-medium underline underline-offset-4"
+            style={{ color: 'var(--text)', textDecorationColor: 'var(--line-strong)' }}
+          >
+            Get in touch
+          </a>
         </div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, scale: reduceMotion ? 1 : 0.94 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: reduceMotion ? 0 : 0.8, ease: [0.22, 1, 0.36, 1], delay: reduceMotion ? 0 : 0.15 }}
+        className="relative mx-auto md:mx-0 md:justify-self-center w-full max-w-[340px] aspect-square"
+      >
+        <div
+          className="absolute -inset-3 rounded-[2rem] blur-2xl opacity-40"
+          style={{ background: 'linear-gradient(135deg, var(--accent), var(--mint))' }}
+        />
+        <div
+          className="relative w-full h-full rounded-full overflow-hidden border"
+          style={{ borderColor: 'var(--line-strong)', background: 'var(--surface)' }}
+        >
+          <Image
+            src={CONFIG.HERO_IMAGE_SRC}
+            alt={CONFIG.NAME}
+            fill
+            sizes="340px"
+            className="object-cover"
+            priority
+          />
+        </div>
+        {}
+        <span className="absolute -top-2 -left-2 w-6 h-6 border-t-2 border-l-2 rounded-tl-lg" style={{ borderColor: 'var(--accent)' }} />
+        <span className="absolute -bottom-2 -right-2 w-6 h-6 border-b-2 border-r-2 rounded-br-lg" style={{ borderColor: 'var(--mint)' }} />
       </motion.div>
     </div>
   </section>
 );
 
-const LegalPage = ({ type, setView }: LegalPageProps) => {
-  const content = type === 'privacy' ? {
-    title: "Privacy Policy",
-    body: (
-      <div className="space-y-6">
-        <p>This Privacy Policy describes how Richard Pu ("we," "us," or "our") collects, uses, and discloses your information when you visit this digital portfolio. We are committed to protecting your privacy and ensuring a secure user experience.</p>
-        
-        <div>
-          <h3 className="text-white font-bold mb-2">1. Information We Collect</h3>
-          <p><strong>A. Automatically Collected Information:</strong> We use Vercel Analytics to monitor site performance and improve user experience. This service collects de-identified data such as browser type, operating system, and general geographic data (City/Country level). IP addresses are masked to maintain anonymity.</p>
-          <p><strong>B. Voluntary Information:</strong> If you contact us via email, we collect your name, email address, and any information included in your inquiry for professional communication purposes.</p>
-        </div>
+/* ------------------------------------------------------------------ */
+/*  Projects, editorial index / accordion                             */
+/* ------------------------------------------------------------------ */
 
-        <div>
-          <h3 className="text-white font-bold mb-2">2. Use of Information</h3>
-          <p>Data is used exclusively for website optimization, analyzing traffic patterns, and responding to professional inquiries regarding co-op opportunities or project collaborations.</p>
-        </div>
+const ProjectRow = ({
+  project,
+  index,
+  isOpen,
+  onToggle,
+  reduceMotion,
+}: {
+  project: Project;
+  index: number;
+  isOpen: boolean;
+  onToggle: () => void;
+  reduceMotion?: boolean;
+}) => (
+  <div style={{ borderBottom: '1px solid var(--line)' }}>
+    <button
+      onClick={onToggle}
+      aria-expanded={isOpen}
+      className="w-full flex items-center gap-4 md:gap-8 py-6 md:py-8 text-left group"
+    >
+      <span className="font-mono text-sm md:text-base w-8 shrink-0" style={{ color: 'var(--text-faint)' }}>
+        {String(index + 1).padStart(2, '0')}
+      </span>
+      <span
+        className="font-display font-medium text-2xl md:text-4xl tracking-tight flex-1 transition-colors"
+        style={{ color: isOpen ? 'var(--accent)' : 'var(--text)' }}
+      >
+        {project.title}
+      </span>
+      <span
+        className="hidden sm:block font-mono text-xs uppercase tracking-[0.14em] shrink-0"
+        style={{ color: 'var(--text-faint)' }}
+      >
+        {project.tag}
+      </span>
+      <ChevronDown
+        size={20}
+        className="shrink-0 transition-transform"
+        style={{ color: 'var(--text-faint)', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+      />
+    </button>
 
-        <div>
-          <h3 className="text-white font-bold mb-2">3. Cookies & Third Parties</h3>
-          <p>This Website utilizes Vercel’s privacy-friendly analytics, which function without invasive persistent cookies. We do not sell, trade, or transfer your personally identifiable information to outside parties.</p>
-        </div>
+    <AnimatePresence initial={false}>
+      {isOpen && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: reduceMotion ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
+          className="overflow-hidden"
+        >
+          <div className="pb-10 pl-12 md:pl-20 pr-2 grid grid-cols-1 md:grid-cols-[1fr_260px] gap-8 items-start">
+            <div>
+              <p className="text-base leading-relaxed max-w-xl" style={{ color: 'var(--text-soft)' }}>
+                {project.description}
+              </p>
+              <div className="flex flex-wrap gap-2 mt-5">
+                {project.tech.map((t) => (
+                  <span
+                    key={t}
+                    className="text-xs font-mono px-3 py-1 rounded-full border"
+                    style={{ borderColor: 'var(--line-strong)', color: 'var(--text-soft)' }}
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+              <div className="flex flex-wrap gap-6 mt-6">
+                {project.github && (
+                  <a
+                    href={project.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm font-medium underline underline-offset-4"
+                    style={{ color: 'var(--text)' }}
+                  >
+                    <GithubIcon size={14} /> Source
+                  </a>
+                )}
+                {project.schematic && (
+                  <a
+                    href={project.schematic}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm font-medium underline underline-offset-4"
+                    style={{ color: 'var(--text)' }}
+                  >
+                    <FileText size={14} /> Schematic
+                  </a>
+                )}
+                {project.designFile && (
+                  <a
+                    href={project.designFile}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm font-medium underline underline-offset-4"
+                    style={{ color: 'var(--text)' }}
+                  >
+                    <FileText size={14} /> 3D design file
+                  </a>
+                )}
+                {project.downloadLink && (
+                  <a
+                    href={project.downloadLink}
+                    className="inline-flex items-center gap-1.5 text-sm font-medium underline underline-offset-4"
+                    style={{ color: 'var(--text)' }}
+                  >
+                    Download build
+                  </a>
+                )}
+              </div>
+            </div>
 
-        <p className="pt-4 border-t border-white/10 text-xs">Last updated: February 2026</p>
-      </div>
-    )
-    } : {
-    title: "Terms of Service",
-    body: (
-      <div className="space-y-6 text-sm">
-        <p>Welcome to the digital portfolio of Richard Pu. By accessing or using this Website, you agree to be bound by these Terms of Service. If you do not agree to these terms, please refrain from using the site.</p>
+            <div
+              className={`relative ${project.mediaAspect === 'portrait' ? 'aspect-[3/4]' : 'aspect-[4/3]'} w-full rounded-lg overflow-hidden border`}
+              style={{ borderColor: 'var(--line)', background: 'var(--surface)' }}
+            >
+              {project.mediaType === 'image' ? (
+                <Image
+                  src={project.mediaSrc}
+                  alt={project.title}
+                  fill
+                  sizes="260px"
+                  className="object-cover"
+                />
+              ) : (
+                <video src={project.mediaSrc} muted loop autoPlay playsInline className="w-full h-full object-cover" />
+              )}
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </div>
+);
 
-        <div>
-          <h3 className="text-white font-bold mb-2 uppercase tracking-wider text-xs">1. Intellectual Property Rights</h3>
-          <p>Unless otherwise stated, all content on this site—including architectural designs, source code snippets (e.g., EcoLens algorithm, Java game engines), hardware logs, and visual media—is the intellectual property of Richard Pu. Most project code is provided for demonstration purposes and is licensed under <strong>Creative Commons BY-NC-SA 4.0</strong>, meaning you must provide credit and cannot use it for commercial purposes without explicit written consent.</p>
-        </div>
+const ProjectsIndex = ({ reduceMotion }: { reduceMotion?: boolean }) => {
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
 
-        <div>
-          <h3 className="text-white font-bold mb-2 uppercase tracking-wider text-xs">2. Use License & Restrictions</h3>
-          <p>Permission is granted to temporarily view the materials on this Website for personal, non-commercial transitory viewing only. You may not:</p>
-          <ul className="list-disc pl-5 mt-2 space-y-1">
-            <li>Modify or copy the materials for commercial gain.</li>
-            <li>Attempt to decompile or reverse engineer any software contained on the Website.</li>
-            <li>Remove any copyright or other proprietary notations from the materials.</li>
-            <li>Mirror the materials on any other server without authorization.</li>
-          </ul>
-        </div>
-
-        <div>
-          <h3 className="text-white font-bold mb-2 uppercase tracking-wider text-xs">3. Disclaimer of Liability</h3>
-          <p>The materials on this Website are provided on an 'as-is' basis. Richard Pu makes no warranties, expressed or implied, and hereby disclaims all other warranties including, without limitation, implied warranties or conditions of merchantability or fitness for a particular purpose. Hardware projects and circuit designs are documented for portfolio purposes and should not be replicated without proper engineering supervision.</p>
-        </div>
-
-        <div>
-          <h3 className="text-white font-bold mb-2 uppercase tracking-wider text-xs">4. External Links</h3>
-          <p>This Website contains links to external platforms such as GitHub, LinkedIn, and Instagram. We have not reviewed all of the sites linked to our Website and are not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement.</p>
-        </div>
-
-        <p className="pt-4 border-t border-white/10 text-xs">Last updated: February 2026</p>
-      </div>
-    )
-  };
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen pt-32 px-6 max-w-3xl mx-auto pb-24">
-      <button onClick={() => setView('main')} className="flex items-center gap-2 text-indigo-400 hover:text-white mb-8 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400 rounded p-1">
-        <ChevronRight size={18} className="rotate-180" /> Back to Portfolio
+    <section id="projects" className="px-4 sm:px-6 py-20 sm:py-24 md:py-32 max-w-5xl mx-auto">
+      <Reveal reduceMotion={reduceMotion}>
+        <Kicker>Selected work</Kicker>
+        <h2 className="font-display font-semibold text-4xl md:text-5xl tracking-tight mt-4 mb-14" style={{ color: 'var(--text)' }}>
+          Projects
+        </h2>
+      </Reveal>
+
+      <div style={{ borderTop: '1px solid var(--line)' }}>
+        {CONFIG.PROJECTS.map((p, i) => (
+          <ProjectRow
+            key={p.title}
+            project={p}
+            index={i}
+            isOpen={openIndex === i}
+            onToggle={() => setOpenIndex(openIndex === i ? null : i)}
+            reduceMotion={reduceMotion}
+          />
+        ))}
+      </div>
+    </section>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/*  About                                                               */
+/* ------------------------------------------------------------------ */
+
+const About = ({ reduceMotion }: { reduceMotion?: boolean }) => (
+  <section id="about" className="px-4 sm:px-6 py-20 sm:py-24 md:py-32" style={{ background: 'var(--surface)' }}>
+    <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-12 md:gap-16">
+      <Reveal reduceMotion={reduceMotion}>
+        <Kicker>About</Kicker>
+        <h2 className="font-display font-semibold text-3xl md:text-4xl tracking-tight mt-4 mb-8 max-w-md" style={{ color: 'var(--text)' }}>
+          I like building things I can understand from end to end.
+        </h2>
+        <p className="text-base leading-relaxed max-w-md" style={{ color: 'var(--text-soft)' }}>
+          I&apos;m a Computer Engineering student at the University of Waterloo who enjoys
+          working across hardware and software. Most of my projects start with a physical
+          system and grow into the code, controls, and interface that make it useful.
+        </p>
+        <p className="mt-4 text-base leading-relaxed max-w-md" style={{ color: 'var(--text-soft)' }}>
+          I&apos;m currently looking for co-op opportunities and collaborations where I can
+          keep learning, build practical systems, and contribute across the stack.
+        </p>
+
+      </Reveal>
+
+      <Reveal reduceMotion={reduceMotion} delay={0.1}>
+        <div className="space-y-6">
+          {CONFIG.SKILLS.map((cat) => (
+            <div key={cat.title} className="pb-6" style={{ borderBottom: '1px solid var(--line)' }}>
+              <h4 className="font-mono text-xs uppercase tracking-[0.14em] mb-3" style={{ color: 'var(--mint)' }}>
+                {cat.title}
+              </h4>
+              <p className="text-base leading-relaxed" style={{ color: 'var(--text)' }}>
+                {cat.items.join(' · ')}
+              </p>
+            </div>
+          ))}
+        </div>
+      </Reveal>
+    </div>
+  </section>
+);
+
+/* ------------------------------------------------------------------ */
+/*  Contact                                                             */
+/* ------------------------------------------------------------------ */
+
+const Contact = ({ reduceMotion }: { reduceMotion?: boolean }) => (
+  <section
+    id="contact"
+    className="px-4 sm:px-6 py-24 sm:py-28 md:py-36"
+    style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent-strong))' }}
+  >
+    <div className="max-w-4xl mx-auto text-center">
+      <Reveal reduceMotion={reduceMotion}>
+        <p className="font-mono text-[13px] uppercase tracking-[0.2em] mb-6" style={{ color: 'rgba(11,14,20,0.6)' }}>
+          Get in touch
+        </p>
+        <h2 className="font-display font-semibold text-4xl md:text-6xl tracking-tight mb-10" style={{ color: 'var(--bg)' }}>
+          Let&apos;s build something good together.
+        </h2>
+        <a
+          href={`mailto:${CONFIG.EMAIL}`}
+          className="inline-flex items-center gap-3 text-xl md:text-2xl font-display font-medium border-b-2 pb-1 transition-opacity hover:opacity-80"
+          style={{ color: 'var(--bg)', borderColor: 'rgba(11,14,20,0.3)' }}
+        >
+          {CONFIG.EMAIL} <ArrowUpRight size={22} />
+        </a>
+
+        <div className="flex items-center justify-center gap-8 mt-14">
+          <a href={CONFIG.SOCIALS.GITHUB} aria-label="GitHub" style={{ color: 'rgba(11,14,20,0.65)' }}>
+            <Github size={20} />
+          </a>
+          <a href={CONFIG.SOCIALS.LINKEDIN} aria-label="LinkedIn" style={{ color: 'rgba(11,14,20,0.65)' }}>
+            <Linkedin size={20} />
+          </a>
+          <a href={CONFIG.SOCIALS.INSTAGRAM} aria-label="Instagram" style={{ color: 'rgba(11,14,20,0.65)' }}>
+            <Instagram size={20} />
+          </a>
+        </div>
+      </Reveal>
+    </div>
+  </section>
+);
+
+/* ------------------------------------------------------------------ */
+/*  Footer                                                              */
+/* ------------------------------------------------------------------ */
+
+const Footer = ({ setView }: { setView: React.Dispatch<React.SetStateAction<ViewState>> }) => (
+  <footer className="px-6 py-10" style={{ background: 'var(--bg)', borderTop: '1px solid var(--line)' }}>
+    <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono text-center md:text-left" style={{ color: 'var(--text-faint)' }}>
+      <p>© 2026 {CONFIG.NAME}.</p>
+      <div className="flex items-center gap-6">
+        <button onClick={() => setView('privacy')} className="hover:opacity-80 inline-flex items-center gap-1.5">
+          <ShieldCheck size={13} /> Privacy
+        </button>
+        <button onClick={() => setView('terms')} className="hover:opacity-80 inline-flex items-center gap-1.5">
+          <Scale size={13} /> Terms
+        </button>
+      </div>
+    </div>
+  </footer>
+);
+
+/* ------------------------------------------------------------------ */
+/*  Legal pages                                                         */
+/* ------------------------------------------------------------------ */
+
+const LegalPage = ({
+  type,
+  setView,
+}: {
+  type: Exclude<ViewState, 'main'>;
+  setView: React.Dispatch<React.SetStateAction<ViewState>>;
+}) => {
+  const content =
+    type === 'privacy'
+      ? {
+          title: 'Privacy Policy',
+          body: (
+            <div className="space-y-6 text-base leading-relaxed">
+              <p>
+                This Privacy Policy explains what information this portfolio collects and how it is
+                used. It applies to visitors to this website.
+              </p>
+              <div>
+                <h3 className="font-display font-medium text-lg mb-2" style={{ color: 'var(--text)' }}>1. Information collected</h3>
+                <p>
+                  <strong>Website analytics:</strong> this website uses Vercel Analytics to understand
+                  website traffic and improve performance. Vercel may process technical information
+                  such as page views, browser or device details, and approximate location in
+                  accordance with its own privacy policy.
+                </p>
+                <p className="mt-2">
+                  <strong>Messages:</strong> if you contact me by email, I receive the information
+                  you choose to send, such as your name, email address, and message. I use it only
+                  to reply and handle your request.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-display font-medium text-lg mb-2" style={{ color: 'var(--text)' }}>2. How information is used</h3>
+                <p>
+                  I do not sell your personal information. Information is used to operate and
+                  improve this website, understand basic site usage, and respond to messages.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-display font-medium text-lg mb-2" style={{ color: 'var(--text)' }}>3. Third-party services</h3>
+                <p>
+                  This website is hosted by Vercel and uses Vercel Analytics. Links to GitHub,
+                  LinkedIn, Instagram, and other services take you to websites governed by their
+                  own terms and privacy policies.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-display font-medium text-lg mb-2" style={{ color: 'var(--text)' }}>4. Your choices</h3>
+                <p>
+                  You can avoid sending personal information by not contacting me. You can also
+                  manage cookies and similar technologies through your browser settings. To ask
+                  about information sent to me, contact {CONFIG.EMAIL}.
+                </p>
+              </div>
+              <p className="pt-4 text-sm" style={{ borderTop: '1px solid var(--line)', color: 'var(--text-faint)' }}>
+                Last updated: August 2026
+              </p>
+            </div>
+          ),
+        }
+      : {
+          title: 'Terms of Service',
+          body: (
+            <div className="space-y-6 text-base leading-relaxed">
+              <p>
+                By using this website, you agree to these Terms. If you do not agree, please do not
+                use the website or download its materials.
+              </p>
+              <div>
+                <h3 className="font-display font-medium text-lg mb-2" style={{ color: 'var(--text)' }}>1. Intellectual property</h3>
+                <p>
+                  Unless stated otherwise, the writing, design, photographs, videos, and other
+                  content on this site belong to {CONFIG.NAME}. Project source code is generally
+                  released under the <strong>MIT License</strong>, but the license for each project
+                  is controlled by its repository and license file.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-display font-medium text-lg mb-2" style={{ color: 'var(--text)' }}>2. Check the project repository</h3>
+                <p>
+                  Before using, copying, modifying, or distributing project code, check the
+                  corresponding GitHub repository and its LICENSE, README, and other documentation.
+                  Those project-specific terms take priority over this summary. If a repository
+                  does not include a license, do not assume that its code or assets may be reused.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-display font-medium text-lg mb-2" style={{ color: 'var(--text)' }}>3. Responsible use</h3>
+                <p>You may not use this website or its materials to:</p>
+                <ul className="list-disc pl-5 mt-2 space-y-1">
+                  <li>Break the law or infringe someone else&apos;s rights.</li>
+                  <li>Remove copyright, attribution, or license notices.</li>
+                  <li>Present my work, writing, or media as your own.</li>
+                  <li>Use hardware examples without appropriate knowledge, supervision, and safety precautions.</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-display font-medium text-lg mb-2" style={{ color: 'var(--text)' }}>4. No warranty</h3>
+                <p>
+                  This website and its materials are provided &ldquo;as is&rdquo; and &ldquo;as
+                  available,&rdquo; without warranties of any kind. Project descriptions are for
+                  portfolio and educational purposes. I do not promise that the website, code, or
+                  hardware information will be complete, current, error-free, or suitable for a
+                  particular purpose.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-display font-medium text-lg mb-2" style={{ color: 'var(--text)' }}>5. Liability</h3>
+                <p>
+                  To the fullest extent permitted by law, {CONFIG.NAME} is not responsible for
+                  loss, damage, injury, or other harm resulting from use of this website, its
+                  materials, or linked services. Nothing in these Terms excludes rights or
+                  protections that cannot legally be excluded.
+                </p>
+              </div>
+              <div>
+                <h3 className="font-display font-medium text-lg mb-2" style={{ color: 'var(--text)' }}>6. External links and changes</h3>
+                <p>
+                  Links to GitHub and other external websites are provided for convenience. I do
+                  not control or guarantee those websites. I may update this website or these Terms
+                  from time to time; the updated version will be posted here.
+                </p>
+              </div>
+              <p className="pt-4 text-sm" style={{ borderTop: '1px solid var(--line)', color: 'var(--text-faint)' }}>
+                Last updated: August 2026
+              </p>
+            </div>
+          ),
+        };
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen pt-32 sm:pt-36 px-4 sm:px-6 max-w-2xl mx-auto pb-24 sm:pb-28">
+      <button
+        onClick={() => setView('main')}
+        className="text-sm mb-8 underline underline-offset-4"
+        style={{ color: 'var(--text-soft)' }}
+      >
+        ← Back to portfolio
       </button>
-      <h1 className="text-4xl font-bold text-white mb-8">{content.title}</h1>
-      <div className="p-8 rounded-3xl bg-white/5 border border-white/10 text-slate-400 leading-relaxed">
+      <h1 className="font-display font-semibold text-4xl mb-10" style={{ color: 'var(--text)' }}>{content.title}</h1>
+      <div style={{ color: 'var(--text-soft)' }}>
         {content.body}
-        <p className="mt-6 text-sm">For inquiries, contact: {CONFIG.EMAIL}</p>
+        <p className="mt-8 text-sm">For inquiries, contact: {CONFIG.EMAIL}</p>
       </div>
     </motion.div>
   );
 };
 
+/* ------------------------------------------------------------------ */
+/*  Accessibility widget                                                */
+/* ------------------------------------------------------------------ */
 
-// --- 5. MAIN APP ---
+const AccessibilityWidget = ({
+  a11y,
+  setA11y,
+}: {
+  a11y: A11yState;
+  setA11y: React.Dispatch<React.SetStateAction<A11yState>>;
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const widgetRef = useRef<HTMLDivElement>(null);
+  const resetAll = () =>
+    setA11y({
+      highContrast: false,
+      largeText: false,
+      reduceMotion: false,
+      textSpacing: false,
+      readingMode: false,
+      highlightLinks: false,
+    });
+
+  const options: { key: keyof A11yState; label: string; icon: React.ReactNode }[] = [
+    { key: 'highContrast', label: 'High contrast', icon: <Eye size={18} /> },
+    { key: 'largeText', label: 'Large text', icon: <ALargeSmall size={18} /> },
+    { key: 'reduceMotion', label: 'Reduce motion', icon: <VideoOff size={18} /> },
+    { key: 'readingMode', label: 'Reading mode', icon: <Type size={18} /> },
+    { key: 'textSpacing', label: 'Text spacing', icon: <TextSelect size={18} /> },
+    { key: 'highlightLinks', label: 'Highlight links', icon: <Link2 size={18} /> },
+  ];
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (widgetRef.current && !widgetRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [isOpen]);
+
+  return (
+    <div ref={widgetRef} className="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 z-[9999]">
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.97 }}
+            transition={{ duration: 0.15 }}
+            className="absolute bottom-16 left-0 p-4 sm:p-5 rounded-2xl shadow-xl mb-2 w-[calc(100vw-2rem)] max-w-72 border"
+            style={{ background: 'var(--surface)', borderColor: 'var(--line-strong)' }}
+          >
+            <div className="flex items-center justify-between mb-4 pb-3" style={{ borderBottom: '1px solid var(--line)' }}>
+              <h4 className="text-sm font-medium uppercase tracking-wide flex items-center gap-2" style={{ color: 'var(--text)' }}>
+                <Accessibility size={16} /> Accessibility
+              </h4>
+              <button onClick={resetAll} aria-label="Reset all settings" className="text-xs flex items-center gap-1" style={{ color: 'var(--text-faint)' }}>
+                <RefreshCcw size={12} /> Reset
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {options.map((opt) => {
+                const active = a11y[opt.key];
+                return (
+                  <button
+                    key={opt.key}
+                    onClick={() => setA11y((p) => ({ ...p, [opt.key]: !p[opt.key] }))}
+                    className="flex flex-col items-center justify-center gap-1.5 p-3 text-xs text-center rounded-xl border transition-colors"
+                    style={{
+                      borderColor: active ? 'var(--accent)' : 'var(--line)',
+                      background: active ? 'var(--accent-tint)' : 'transparent',
+                      color: active ? 'var(--accent)' : 'var(--text-soft)',
+                    }}
+                  >
+                    {opt.icon}
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        aria-label="Toggle accessibility menu"
+        aria-expanded={isOpen}
+        className="w-12 h-12 rounded-full flex items-center justify-center border shadow-md transition-colors"
+        style={{
+          background: isOpen ? 'var(--accent)' : 'var(--surface)',
+          borderColor: 'var(--line-strong)',
+          color: isOpen ? 'var(--bg)' : 'var(--text)',
+        }}
+      >
+        {isOpen ? <X size={20} /> : <Accessibility size={22} />}
+      </button>
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------ */
+/*  App                                                                 */
+/* ------------------------------------------------------------------ */
 
 export default function App() {
-  const [booted, setBooted] = useState(false);
-  const [view, setView] = useState<ViewState>('main'); 
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
-  const [a11y, setA11y] = useState<A11yState>({ highContrast: false, largeText: false, reduceMotion: false, textSpacing: false, dyslexiaFont: false, highlightLinks: false });
+  const [view, setView] = useState<ViewState>('main');
+  const [a11y, setA11y] = useState<A11yState>({
+    highContrast: false,
+    largeText: false,
+    reduceMotion: false,
+    textSpacing: false,
+    readingMode: false,
+    highlightLinks: false,
+  });
 
-  // Hook settings into the root document for true global overrides
   useEffect(() => {
     const root = document.documentElement;
     root.classList.toggle('a11y-large-text', a11y.largeText);
     root.classList.toggle('a11y-reduce-motion', a11y.reduceMotion);
     root.classList.toggle('a11y-text-spacing', a11y.textSpacing);
-    root.classList.toggle('a11y-dyslexia', a11y.dyslexiaFont);
+    root.classList.toggle('a11y-reading-mode', a11y.readingMode);
     root.classList.toggle('a11y-highlight-links', a11y.highlightLinks);
+    root.classList.toggle('a11y-contrast', a11y.highContrast);
   }, [a11y]);
 
   useEffect(() => {
-    if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
-    window.scrollTo(0, 0);
-  }, [view, booted]);
-
-  const skillCats = [
-    { title: "Languages", skills: ["Java", "Python", "C++", "HTML/CSS", "Swift", "Kotlin", "Groovy"] },
-    { title: "Hardware & Design", skills: ["Arduino", "Raspberry Pi", "Circuit Design", "3D Design & Printing"] },
-    { title: "Tools & Ecosystems", skills: ["VSCode", "Eclipse", "Arduino IDE", "Gradle", "Google Antigravity"] }
-  ];
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [view]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 selection:bg-indigo-500 selection:text-white font-sans overflow-x-hidden relative">
-      <AnimatePresence>{!booted && <BootSequence onComplete={() => setBooted(true)} reduceMotion={a11y.reduceMotion} />}</AnimatePresence>
-      
-      <div className={`transition-opacity duration-1000 ${booted ? 'opacity-100' : 'opacity-0'}`}>
-        
-        {/* WIDGET STAYS OUTSIDE THE CONTRAST WRAPPER SO FIXED POSITIONING DOESNT BREAK */}
+    <div className="min-h-screen font-sans" style={{ background: 'var(--bg)' }}>
+      <div className={a11y.highContrast ? 'a11y-contrast-wrapper' : ''}>
         <AccessibilityWidget a11y={a11y} setA11y={setA11y} />
+        <Navbar setView={setView} />
 
-        {/* EVERYTHING ELSE IS WRAPPED SO WE CAN APPLY FILTERS SAFELY */}
-        <div className={`w-full h-full min-h-screen ${a11y.highContrast ? 'a11y-contrast-wrapper' : ''}`}>
-          
-          <GrainOverlay />
-          <ClickSpark reduceMotion={a11y.reduceMotion} />
-          <CursorFollower reduceMotion={a11y.reduceMotion} />
-          <ScanlineOverlay reduceMotion={a11y.reduceMotion} />
-          <SystemHUD reduceMotion={a11y.reduceMotion} />
-          {!a11y.reduceMotion && <ScrollProgress />}
-          
-          <Navbar setView={setView} socials={CONFIG.SOCIALS} reduceMotion={a11y.reduceMotion} />
-          
-          {/* Main Content Area */}
-          <main className="relative z-10">
-            {view === 'main' ? (
-              <>
-                <section className="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden pt-20">
-                  <NeuralCanvas reduceMotion={a11y.reduceMotion} />
-                  <div className="absolute bottom-0 left-0 w-full h-[400px] z-0 opacity-40">
-                    <CyberGrid reduceMotion={a11y.reduceMotion} />
-                  </div>
-                  
-                  <motion.div initial={{ scale: 2, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={a11y.reduceMotion ? {duration: 0} : { duration: 1.5, ease: "circOut", delay: 0.5 }} className="relative z-10 text-center max-w-4xl pointer-events-none">
-                    <h1 className="text-5xl md:text-8xl font-black text-white tracking-tight mb-6 pointer-events-auto">
-                      <AutoGlitchText text="RICHARD PU" className="block" reduceMotion={a11y.reduceMotion} />
-                      <span className="text-2xl md:text-4xl font-normal text-slate-400 block mt-2">Engineering the <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 font-bold">Interface</span> Between Worlds.</span>
-                    </h1>
-                    <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed pointer-events-auto">Computer Engineering Candidate specializing in custom hardware, low-level embedded software, and full-stack interactive design.</p>
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto">
-                      <a href="#projects" className="px-8 py-4 rounded-full bg-white text-slate-950 font-bold flex items-center justify-center gap-2 hover:bg-indigo-50 transition-colors w-full sm:w-auto focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400">Explore Works <ChevronRight size={18} /></a>
-                      <a href="#about" className="px-8 py-4 rounded-full bg-white/5 border border-white/10 text-white font-bold backdrop-blur-sm hover:bg-white/10 transition-colors w-full sm:w-auto flex items-center justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400">About Me</a>
-                    </div>
-                  </motion.div>
+        <main>
+          {view === 'main' ? (
+            <>
+              <Hero reduceMotion={a11y.reduceMotion} />
+              <ProjectsIndex reduceMotion={a11y.reduceMotion} />
+              <About reduceMotion={a11y.reduceMotion} />
+              <Contact reduceMotion={a11y.reduceMotion} />
+            </>
+          ) : (
+            <LegalPage type={view} setView={setView} />
+          )}
+        </main>
 
-                  {!a11y.reduceMotion && (
-                    <motion.div animate={{ y: [0, 10, 0] }} transition={{ duration: 2, repeat: Infinity }} className="absolute bottom-10 left-1/2 -translate-x-1/2 text-slate-600">
-                      <div className="w-6 h-10 border-2 border-slate-700 rounded-full flex justify-center p-1"><div className="w-1 h-2 bg-slate-700 rounded-full" /></div>
-                    </motion.div>
-                  )}
-                </section>
-
-                <ParallaxText baseVelocity={2} reduceMotion={a11y.reduceMotion}>JAVA • PYTHON • C++ • ARDUINO • </ParallaxText>
-                
-                <section id="projects" className="py-24 px-6 max-w-7xl mx-auto relative z-10">
-                  <CircuitBackground />
-                  <div className="mb-16 relative z-10">
-                    <h2 className="text-sm font-mono text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2"><CircuitBoard size={16} /> Technical Projects</h2>
-                    <ScrollRevealHeader text="Bridging Logic and Physicality." className="text-4xl md:text-5xl font-bold text-white block" reduceMotion={a11y.reduceMotion} />
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
-                    {CONFIG.PROJECTS.map((p, idx) => (
-                      <ProjectCard 
-                        key={idx} 
-                        project={p} 
-                        index={idx} 
-                        onClick={() => setSelectedProject(p)} 
-                        reduceMotion={a11y.reduceMotion}
-                      />
-                    ))}
-                  </div>
-                </section>
-
-                <ParallaxText baseVelocity={-2} reduceMotion={a11y.reduceMotion}>3D DESIGN • PRINTING • CIRCUIT DESIGN • </ParallaxText>
-                
-                <section id="about" className="py-24 px-6 bg-slate-950/50 relative z-10 overflow-hidden">
-                  <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-                    <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={a11y.reduceMotion ? { duration: 0 } : {}}>
-                      <ScrollRevealHeader text="Bridging the Gap" className="text-4xl font-bold text-white mb-8" reduceMotion={a11y.reduceMotion} />
-                      <RevealText delay={a11y.reduceMotion ? 0 : 0.2}>
-                        <p className="text-slate-400 text-lg mb-6 leading-relaxed">My approach to engineering is centered on the integration of hardware and software systems. I am driven by a need to understand the entire technical stack, from low-level circuit design and PCB-level interactions to high-level application logic and system architecture.</p>
-                      </RevealText>
-                      <div className="space-y-6 mb-8">
-                        {skillCats.map((cat) => (
-                          <div key={cat.title}>
-                            <h4 className="text-xs font-mono text-indigo-400 mb-2 uppercase">{cat.title}</h4>
-                            <div className="flex flex-wrap gap-2">
-                              {cat.skills.map(skill => (<span key={skill} className="text-xs font-medium bg-white/5 text-slate-300 px-3 py-1.5 rounded-full border border-white/5 hover:bg-indigo-600 transition-colors cursor-default">{skill}</span>))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      <DraggableTerminal />
-                    </motion.div>
-                    <div className="relative aspect-square rounded-3xl bg-slate-900 border border-indigo-500/20 flex items-center justify-center overflow-hidden group">
-                      <NeuralNexus reduceMotion={a11y.reduceMotion} />
-                      <div className="absolute inset-4 border border-indigo-500/10 rounded-2xl pointer-events-none" />
-                    </div>
-                  </div>
-                </section>
-                
-                {/* Pass state setter to LifeGallery */}
-                <LifeGallery images={CONFIG.GALLERY} onSelect={setSelectedImage} />
-                
-                <section id="extras" className="py-24 px-6 max-w-7xl mx-auto relative z-10">
-                  <div className="mb-16"><h2 className="text-sm font-mono text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2"><Activity size={16} /> Operations & Leadership</h2><ScrollRevealHeader text="Beyond the IDE." className="text-4xl md:text-5xl font-bold text-white tracking-tight block" reduceMotion={a11y.reduceMotion} /></div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {CONFIG.EXTRACURRICULARS.map((item, idx) => (
-                      <motion.a key={idx} href={item.link} target="_blank" rel="noopener noreferrer" initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={a11y.reduceMotion ? {duration: 0} : { delay: idx * 0.1 }} className="group flex items-start gap-4 p-6 rounded-2xl bg-white/5 border border-white/5 hover:border-indigo-500/30 transition-all interactive h-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-400">
-                        <div className="p-3 rounded-xl bg-slate-900 text-indigo-400 group-hover:text-indigo-300 transition-all shrink-0">{item.icon}</div>
-                        <div className="w-full">
-                          <div className="flex items-center justify-between">
-                             <h4 className="text-xl font-bold text-white mb-1 group-hover:text-indigo-200 transition-colors">{item.title}</h4>
-                             {item.link && <ArrowUpRight size={16} className="text-slate-600 group-hover:text-white transition-colors" />}
-                          </div>
-                          <p className="text-xs font-mono text-indigo-400 mb-2 uppercase tracking-wide">{item.role}</p>
-                          <p className="text-sm text-slate-400 leading-relaxed">{item.desc}</p>
-                        </div>
-                      </motion.a>
-                    ))}
-                  </div>
-                </section>
-                
-                <Contact email={CONFIG.EMAIL} socials={CONFIG.SOCIALS} reduceMotion={a11y.reduceMotion} />
-              </>
-            ) : (
-              <LegalPage type={view} setView={setView} />
-            )}
-          </main>
-          
-          <Footer setView={setView} socials={CONFIG.SOCIALS} email={CONFIG.EMAIL} />
-
-          {/* MODALS*/}
-          <AnimatePresence>
-            {selectedProject && (
-              <ProjectModal 
-                selectedProject={selectedProject} 
-                onClose={() => setSelectedProject(null)} 
-              />
-            )}
-            {selectedImage && (
-               <ImageModal 
-                 selectedImage={selectedImage} 
-                 onClose={() => setSelectedImage(null)} 
-               />
-            )}
-          </AnimatePresence>
-          
-        </div> {/* END OF CONTRAST WRAPPER */}
+        <Footer setView={setView} />
       </div>
-
-      <style dangerouslySetInnerHTML={{ __html: `
-        html { scroll-behavior: smooth; }
-        body { scrollbar-width: thin; scrollbar-color: #4f46e5 #020617; }
-        
-        /* A11Y GLOBAL CSS INJECTIONS */
-
-        /* 1. Large Text (Forces standard tailwind rems to scale up globally) */
-        html.a11y-large-text { font-size: 18px !important; }
-
-        /* 2. Text Spacing */
-        html.a11y-text-spacing * { 
-          letter-spacing: 0.05em !important; 
-          word-spacing: 0.1em !important; 
-          line-height: 1.7 !important; 
-        }
-
-        /* 3. Dyslexia Font Override */
-        html.a11y-dyslexia * { 
-          font-family: 'Comic Sans MS', 'OpenDyslexic', 'Trebuchet MS', sans-serif !important; 
-        }
-
-        /* 4. Highlight Links */
-        html.a11y-highlight-links a, 
-        html.a11y-highlight-links button { 
-          text-decoration: underline !important; 
-          text-decoration-thickness: 3px !important; 
-          text-underline-offset: 4px !important; 
-          text-decoration-color: #818cf8 !important; /* Indigo 400 */
-        }
-
-        /* 5. Reduce Motion (Catch-all for CSS animations not handled by React State) */
-        html.a11y-reduce-motion *, 
-        html.a11y-reduce-motion ::before, 
-        html.a11y-reduce-motion ::after {
-           animation-duration: 0.01ms !important;
-           animation-iteration-count: 1 !important;
-           transition-duration: 0.01ms !important;
-           scroll-behavior: auto !important;
-        }
-
-        /* 6. High Contrast Wrapper (Applied only to content, leaving widget unaffected) */
-        .a11y-contrast-wrapper { 
-           filter: contrast(1.25) saturate(1.2); 
-        }
-
-        /* Standard Scrollbars */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #020617; }
-        ::-webkit-scrollbar-thumb { background: #1e1b4b; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #4f46e5; }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 2px; }
-        
-        @keyframes scan-down { 0% { top: -10%; opacity: 0; } 10% { opacity: 0.5; } 90% { opacity: 0.5; } 100% { top: 110%; opacity: 0; } }
-      `}} />
     </div>
   );
 }

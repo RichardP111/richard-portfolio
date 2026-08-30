@@ -1,26 +1,157 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* --- Soft charcoal palette --- */
+  --bg: #17191c;
+  --surface: #202327;
+  --surface-2: #292d32;
+  --text: #f2f0e9;
+  --text-soft: #b9bbb5;
+  --text-faint: #858a86;
+  --accent: #e0a06d;
+  --accent-strong: #c47c50;
+  --accent-tint: rgba(224, 160, 109, 0.14);
+  --mint: #9bb9a6;
+  --line: #32363a;
+  --line-strong: #4a4f53;
+
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--line);
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* Quiet scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 999px;
+  border: 2px solid var(--bg);
+}
+
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Subtle tech dot-grid, used behind the hero */
+.dot-grid {
+  background-image: radial-gradient(circle, var(--line-strong) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* --- Accessibility toggles --- */
+html.a11y-reduce-motion *,
+html.a11y-reduce-motion *::before,
+html.a11y-reduce-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+html.a11y-large-text {
+  font-size: 112.5%;
+}
+
+html.a11y-text-spacing {
+  letter-spacing: 0.02em;
+  word-spacing: 0.08em;
+}
+
+html.a11y-text-spacing p,
+html.a11y-text-spacing li {
+  line-height: 1.9;
+}
+
+html.a11y-reading-mode p,
+html.a11y-reading-mode li {
+  max-width: 68ch;
+  line-height: 1.85;
+  letter-spacing: 0.015em;
+  word-spacing: 0.08em;
+}
+
+html.a11y-reading-mode h1,
+html.a11y-reading-mode h2,
+html.a11y-reading-mode h3,
+html.a11y-reading-mode h4 {
+  line-height: 1.2;
+}
+
+html.a11y-highlight-links a {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+html.a11y-contrast .a11y-contrast-wrapper {
+  --bg: #000000;
+  --surface: #0a0a0a;
+  --surface-2: #111111;
+  --text: #ffffff;
+  --text-soft: #e6e6e6;
+  --text-faint: #bfbfbf;
+  --accent: #8fb2ff;
+  --accent-strong: #6f96f5;
+  --accent-tint: rgba(143, 178, 255, 0.2);
+  --mint: #7cf0da;
+  --line: #ffffff;
+  --line-strong: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (max-height: 800px) and (min-width: 768px) {
+  .hero-content {
+    transform: scale(0.92);
+    transform-origin: center;
+  }
 }
