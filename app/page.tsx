@@ -258,7 +258,7 @@ const Navbar = ({ setView }: { setView: React.Dispatch<React.SetStateAction<View
             onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--accent-tint)')}
             onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
           >
-            Resume
+            Résumé
           </a>
           <div className="flex items-center gap-4">
             <a href={CONFIG.SOCIALS.GITHUB} aria-label="GitHub" style={{ color: 'var(--text-soft)' }}>
@@ -312,7 +312,7 @@ const Navbar = ({ setView }: { setView: React.Dispatch<React.SetStateAction<View
                 className="text-sm uppercase tracking-widest font-mono"
                 style={{ color: 'var(--mint)' }}
               >
-                Resume ↗
+                Résumé ↗
               </a>
               <div className="flex gap-6 pt-2">
                 <a href={CONFIG.SOCIALS.GITHUB} aria-label="GitHub" style={{ color: 'var(--text-soft)' }}>

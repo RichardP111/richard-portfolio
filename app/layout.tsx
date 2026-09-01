@@ -58,6 +58,25 @@ export const metadata: Metadata = {
   },
 };
 
+const personJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Richard Pu",
+  jobTitle: "Computer Engineering Student",
+  url: siteUrl,
+  image: new URL("/profile.jpg", siteUrl).toString(),
+  email: "mailto:r3pu@uwaterloo.ca",
+  alumniOf: {
+    "@type": "CollegeOrUniversity",
+    name: "University of Waterloo",
+  },
+  sameAs: [
+    "https://github.com/RichardPu",
+    "https://www.linkedin.com/in/purichard/",
+    "https://www.instagram.com/_._.richard/",
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -65,6 +84,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+        />
+      </head>
       <body
         className={`${ibmPlexSans.variable} ${inter.variable} ${jetbrainsMono.variable} antialiased`}
       >
