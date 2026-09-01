@@ -293,18 +293,24 @@ const Navbar = ({ setView }: { setView: React.Dispatch<React.SetStateAction<View
           >
             <div className="flex flex-col gap-5 px-4 sm:px-6 py-6">
               {links.map((l) => (
-                <a
+                <button
                   key={l.name}
-                  href={l.href}
                   onClick={() => {
-                    setView('main');
                     setOpen(false);
+                    window.location.hash = l.href;
+                    // Delay scroll slightly to ensure DOM is ready
+                    setTimeout(() => {
+                      const element = document.querySelector(l.href);
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }, 100);
                   }}
-                  className="text-lg font-display font-medium"
+                  className="text-lg font-display font-medium text-left"
                   style={{ color: 'var(--text)' }}
                 >
                   {l.name}
-                </a>
+                </button>
               ))}
               <a
                 href={CONFIG.RESUME}
