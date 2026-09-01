@@ -213,10 +213,11 @@ const Navbar = ({ setView }: { setView: React.Dispatch<React.SetStateAction<View
 
   return (
     <header
+      ref={navRef}
       className="fixed top-0 inset-x-0 z-50 backdrop-blur-md"
       style={{ background: 'color-mix(in srgb, var(--bg) 85%, transparent)', borderBottom: '1px solid var(--line)' }}
     >
-      <nav ref={navRef} className="max-w-6xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between" aria-label="Main navigation">
+      <nav className="max-w-6xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between" aria-label="Main navigation">
         <button onClick={() => setView('main')} className="flex items-center gap-3" aria-label="Back to top">
           <span
             className="w-9 h-9 rounded-full overflow-hidden border shrink-0"
@@ -309,6 +310,7 @@ const Navbar = ({ setView }: { setView: React.Dispatch<React.SetStateAction<View
                 href={CONFIG.RESUME}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => setOpen(false)}
                 className="text-sm uppercase tracking-widest font-mono"
                 style={{ color: 'var(--mint)' }}
               >
