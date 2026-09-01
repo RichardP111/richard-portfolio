@@ -61,18 +61,19 @@ export default async function Image() {
           fontFamily: 'Inter',
         }}
       >
-        {/* soft accent glow, top-left — stand-in for the site's dot-grid/vignette */}
+        {/* soft accent glow, top-left — stand-in for the site's dot-grid/vignette.
+            Satori (next/og's renderer) doesn't support CSS `filter`, so the glow
+            is faded with a radial-gradient instead of blur. */}
         <div
           style={{
             position: 'absolute',
-            top: -160,
-            left: -120,
-            width: 560,
-            height: 560,
+            top: -200,
+            left: -160,
+            width: 680,
+            height: 680,
             borderRadius: '50%',
-            background: COLORS.accent,
-            opacity: 0.16,
-            filter: 'blur(40px)',
+            background: `radial-gradient(circle, ${COLORS.accent} 0%, transparent 68%)`,
+            opacity: 0.28,
             display: 'flex',
           }}
         />
@@ -172,11 +173,10 @@ export default async function Image() {
             <div
               style={{
                 position: 'absolute',
-                inset: -14,
-                borderRadius: 200,
-                background: `linear-gradient(135deg, ${COLORS.accent}, ${COLORS.mint})`,
-                opacity: 0.35,
-                filter: 'blur(30px)',
+                inset: -50,
+                borderRadius: '50%',
+                background: `radial-gradient(circle at 35% 30%, ${COLORS.accent} 0%, ${COLORS.mint} 42%, transparent 72%)`,
+                opacity: 0.55,
                 display: 'flex',
               }}
             />
