@@ -436,14 +436,16 @@ const ProjectRow = ({
   isOpen,
   onToggle,
   reduceMotion,
+  rowRef,
 }: {
   project: Project;
   index: number;
   isOpen: boolean;
   onToggle: () => void;
   reduceMotion?: boolean;
+  rowRef?: (el: HTMLDivElement | null) => void;
 }) => (
-  <div style={{ borderBottom: '1px solid var(--line)' }}>
+  <div ref={rowRef} style={{ borderBottom: '1px solid var(--line)', scrollMarginTop: '96px' }}>
     <button
       onClick={onToggle}
       aria-expanded={isOpen}
@@ -565,6 +567,26 @@ const ProjectRow = ({
 
 const ProjectsIndex = ({ reduceMotion }: { reduceMotion?: boolean }) => {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const rowEls = useRef<(HTMLDivElement | null)[]>([]);
+  const didMount = useRef(false);
+
+  useEffect(() => {
+    // Skip the scroll on first mount (project 0 starts open by default;
+    // we don't want the page to jump on load).
+    if (!didMount.current) {
+      didMount.current = true;
+      return;
+    }
+    if (openIndex === null) return;
+
+    const el = rowEls.current[openIndex];
+    if (!el) return;
+
+    // Wait a frame so the row's expanded layout is in place before measuring.
+    requestAnimationFrame(() => {
+      el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    });
+  }, [openIndex, reduceMotion]);
 
   return (
     <section id="projects" className="px-4 sm:px-6 py-20 sm:py-24 md:py-32 max-w-5xl mx-auto">
@@ -584,6 +606,9 @@ const ProjectsIndex = ({ reduceMotion }: { reduceMotion?: boolean }) => {
             isOpen={openIndex === i}
             onToggle={() => setOpenIndex(openIndex === i ? null : i)}
             reduceMotion={reduceMotion}
+            rowRef={(el) => {
+              rowEls.current[i] = el;
+            }}
           />
         ))}
       </div>

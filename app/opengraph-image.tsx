@@ -120,7 +120,7 @@ export default async function Image() {
                 maxWidth: 660,
               }}
             >
-              From circuits to <span style={{ display: 'flex', color: COLORS.accent, marginLeft: 16 }}>production code.</span>
+              From circuits to <span style={{ display: 'flex', color: COLORS.accent }}>production code.</span>
             </div>
 
             <div
