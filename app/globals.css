@@ -156,3 +156,32 @@ html.a11y-contrast .a11y-contrast-wrapper {
     transform-origin: center;
   }
 }
+
+/* --- PDF viewer header (resume + schematic pages) --- */
+.pdf-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas: "home download" "title title";
+  align-items: center;
+}
+
+@media (min-width: 640px) {
+  .pdf-header {
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-areas: "home title download";
+  }
+}
+
+.pdf-header-home {
+  grid-area: home;
+  justify-self: start;
+}
+
+.pdf-header-title {
+  grid-area: title;
+}
+
+.pdf-header-download {
+  grid-area: download;
+  justify-self: end;
+}

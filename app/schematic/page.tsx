@@ -17,27 +17,27 @@ export default async function SchematicPage({
     >
       <div className="mx-auto max-w-6xl">
         <div
-          className="mb-6 grid grid-cols-1 gap-4 rounded-2xl border p-4 shadow-sm sm:grid-cols-[1fr_auto_1fr] sm:items-center"
+          className="pdf-header mb-6 gap-3 rounded-2xl border p-4 shadow-sm sm:gap-4"
           style={{ borderColor: 'var(--line)', background: 'var(--surface)' }}
         >
-          <div className="flex justify-start sm:justify-start">
+          <div className="pdf-header-home flex">
             <Link
               href="/"
-              className="inline-flex items-center rounded-full border px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] transition-opacity hover:opacity-75"
+              className="inline-flex items-center rounded-full border px-4 py-2 text-[10px] uppercase tracking-[0.14em] transition-opacity hover:opacity-75"
               style={{ borderColor: 'var(--line-strong)', color: 'var(--text-soft)' }}
             >
               ← Home
             </Link>
           </div>
 
-          <div className="flex flex-col items-center text-center">
+          <div className="pdf-header-title flex flex-col items-center text-center">
             <p className="font-mono text-[10px] uppercase tracking-[0.18em]" style={{ color: 'var(--mint)' }}>
               PDF Viewer
             </p>
             <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h1>
           </div>
 
-          <div className="flex justify-start sm:justify-end">
+          <div className="pdf-header-download flex">
             <a
               href={pdfUrl}
               download

@@ -41,7 +41,7 @@ async function loadGoogleFont(family: string, weight: number, text: string) {
 
 export default async function Image() {
   const displayText = 'From circuits to production code.' + NAME;
-  const bodyText = AVAILABILITY + EDUCATION_LINE + TAGLINE + 'View projects  Get in touch';
+  const bodyText = AVAILABILITY + EDUCATION_LINE + TAGLINE + 'View projects Get in touch';
 
   const [displayFont, bodyFont, bodyMedium] = await Promise.all([
     loadGoogleFont('IBM Plex Sans', 700, displayText),
@@ -150,7 +150,7 @@ export default async function Image() {
                   fontFamily: 'Inter-Medium',
                 }}
               >
-                View projects ↗
+                View projects
               </div>
               <div
                 style={{
