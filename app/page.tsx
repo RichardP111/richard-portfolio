@@ -71,8 +71,8 @@ const CONFIG = {
   RESUME_FILE: '/resume.pdf',
   LOCATION: 'Ontario, Canada',
   ROLE: 'Computer Engineering',
-  PROFILE_IMAGE_SRC:
-    'https://lh3.googleusercontent.com/ogw/AF2bZyjYvPrbBzBEso1zBrRqnjS1KebQ_jxX5FWnn9-xtnkcrdQ=s600-c-mo',
+  AVAILABILITY: 'Available for Winter 2027 co-op (Jan–Apr)',
+  PROFILE_IMAGE_SRC: '/profile.jpg',
   HERO_IMAGE_SRC: '/profile-hero.jpg',
   SOCIALS: {
     GITHUB: 'https://github.com/RichardPu',
@@ -347,24 +347,26 @@ const Hero = ({ reduceMotion }: { reduceMotion?: boolean }) => (
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: reduceMotion ? 0 : 0.8, ease: [0.22, 1, 0.36, 1] }}
       >
-        <Kicker showMarker={false}>
-          {CONFIG.EDUCATION.program} · {CONFIG.EDUCATION.school}
-        </Kicker>
+        <div className="pl-4" style={{ borderLeft: '2px solid var(--accent)' }}>
+          <p className="text-base sm:text-lg font-medium" style={{ color: 'var(--text)' }}>
+            Available for Winter 2027 co-op (Jan–Apr).
+          </p>
+          <p className="mt-1 text-sm sm:text-base italic" style={{ color: 'var(--text-soft)' }}>
+            {CONFIG.EDUCATION.program} student at {CONFIG.EDUCATION.school}.
+          </p>
+        </div>
 
         <h1
           className="font-display font-semibold text-[clamp(2.75rem,12vw,4.6rem)] leading-[0.98] tracking-tight mt-6"
           style={{ color: 'var(--text)' }}
         >
-          Building where
-          <br />
-          hardware meets{' '}
-          <span style={{ color: 'var(--accent)' }}>software.</span>
+          From circuits to{' '}
+          <span style={{ color: 'var(--accent)' }}>production code.</span>
         </h1>
 
-        <p className="mt-7 max-w-lg text-lg leading-relaxed" style={{ color: 'var(--text-soft)' }}>
+        <p className="mt-5 max-w-lg text-lg leading-relaxed" style={{ color: 'var(--text-soft)' }}>
           I work across the whole stack, from circuit-level signalling and embedded
-          firmware to the interactive software that sits on top of it. This is a short
-          collection of recent work.
+          firmware to the interactive software that sits on top of it.
         </p>
 
         <div className="mt-10 flex flex-wrap items-center gap-5">
