@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
 import {
   Github,
   Linkedin,
@@ -25,29 +26,11 @@ import {
   Github as GithubIcon,
 } from 'lucide-react';
 
+import { CONFIG, type Project } from '../lib/config';
+
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
-
-type Socials = {
-  GITHUB: string;
-  LINKEDIN: string;
-  INSTAGRAM: string;
-};
-
-type Project = {
-  title: string;
-  description: string;
-  tag: string;
-  tech: string[];
-  mediaType: 'video' | 'image';
-  mediaSrc: string;
-  github?: string;
-  downloadLink?: string;
-  schematic?: string;
-  designFile?: string;
-  mediaAspect?: 'portrait';
-};
 
 type ViewState = 'main' | 'privacy' | 'terms';
 
@@ -63,91 +46,7 @@ type A11yState = {
 /* ------------------------------------------------------------------ */
 /*  Content                                              */
 /* ------------------------------------------------------------------ */
-
-const CONFIG = {
-  NAME: 'Richard Pu',
-  EMAIL: 'r3pu@uwaterloo.ca',
-  RESUME: '/resume',
-  RESUME_FILE: '/resume.pdf',
-  LOCATION: 'Ontario, Canada',
-  ROLE: 'Computer Engineering',
-  AVAILABILITY: 'Available for Winter 2027 co-op (Jan–Apr)',
-  PROFILE_IMAGE_SRC: '/profile.jpg',
-  HERO_IMAGE_SRC: '/profile-hero.jpg',
-  SOCIALS: {
-    GITHUB: 'https://github.com/RichardPu',
-    LINKEDIN: 'https://www.linkedin.com/in/purichard/',
-    INSTAGRAM: 'https://www.instagram.com/_._.richard/',
-  } as Socials,
-  EDUCATION: {
-    school: 'University of Waterloo',
-    program: 'Computer Engineering (BASc Co-op)',
-    note: 'Edit the timeframe/year in the EDUCATION block in page.tsx.',
-  },
-  PROJECTS: [
-    {
-      title: 'Smart Chess Board',
-      description:
-        'A smart chess board powered by an NVIDIA Jetson Orin Nano. The project combines computer vision, embedded control, and a physical LED board into one interactive system.',
-      tag: 'Hardware Engineering',
-      tech: ['Jetson Orin Nano', 'Neopixels', 'OLED Display'],
-      mediaType: 'image' as const,
-      mediaSrc: '/images/chessBoard.jpg',
-      github: 'https://github.com/RichardPu/jetson-chess',
-      designFile: 'https://github.com/RichardPu/jetson-chess/tree/main/3D%20models',
-    },
-    {
-      title: 'Red Light, Green Light',
-      description:
-        'An AI-powered Red Light, Green Light game inspired by Squid Game, running on an NVIDIA Jetson Orin Nano. The system uses vision-based movement detection to decide when players move.',
-      tag: 'AI & Hardware',
-      tech: ['Jetson Orin Nano', 'Python', 'Computer Vision', 'Ultralytics YOLO'],
-      mediaType: 'image' as const,
-      mediaSrc: '/images/rlgl.jpg',
-      github: 'https://github.com/RichardPu/jetson-rlgl',
-      designFile: 'https://github.com/RichardPu/jetson-rlgl/tree/main/3D_files',
-      mediaAspect: 'portrait',
-    },
-    {
-      title: 'BenumZombs',
-      description:
-        'A scratch-built 2D survival shooter using Java Graphics2D and OOP principles. Features custom vector physics, object-pooling for entity management, and a personalized asset library.',
-      tag: 'Java Game',
-      tech: ['Java', 'Graphics2D', 'OOP'],
-      mediaType: 'image' as const,
-      mediaSrc: '/images/benumZombsGame.png',
-      github: 'https://github.com/RichardPu/BenumZombs',
-      downloadLink: '/jar/BenumZombs.jar',
-    },
-    {
-      title: 'Truck Game',
-      description:
-        'A high-speed object-avoidance game on an Arduino Uno, using the LiquidCrystal library for dynamic 16x2 display updates and a low-latency coordinate system for real-time physics and analog joystick input.',
-      tag: 'Circuit Design',
-      tech: ['Arduino Uno', 'Joystick', 'LCD 16x2'],
-      mediaType: 'video' as const,
-      mediaSrc: '/videos/truckGameVideo.mp4',
-      github: 'https://github.com/RichardPu/arduino-truck-game',
-      schematic: '/schematic?file=/truckGameSchematic.pdf&title=Truck%20Game%20Schematic',
-    },
-    {
-      title: 'Memory Matrix',
-      description:
-        'A reaction-time assessment tool built on an Arduino I2C architecture, synchronizing LED matrices with user input. Optimized interrupt service routines achieve millisecond precision in measuring pattern retention.',
-      tag: 'Circuit Design',
-      tech: ['Arduino', 'I2C', 'LED'],
-      mediaType: 'video' as const,
-      mediaSrc: '/videos/memoryGameVideo.mp4',
-      github: 'https://github.com/RichardPu/arduino-memory-game',
-      schematic: '/schematic?file=/memoryGameSchematic.pdf&title=Memory%20Matrix%20Schematic',
-    },
-  ] as Project[],
-  SKILLS: [
-    { title: 'Languages', items: ['Java', 'Python', 'C++', 'HTML / CSS'] },
-    { title: 'Hardware & Design', items: ['Arduino', 'Raspberry Pi', 'NVIDIA Jetson Orin Nano', '3D Design & Printing'] },
-    { title: 'Tools & Ecosystems', items: ['VS Code', 'Eclipse', 'Arduino IDE', 'GitHub', 'Docker'] },
-  ],
-};
+/* CONFIG now lives in lib/config.ts, shared with app/projects/[slug]/page.tsx */
 
 /* ------------------------------------------------------------------ */
 /*  Small primitives                                                   */
@@ -540,6 +439,16 @@ const ProjectRow = ({
                   </a>
                 )}
               </div>
+
+              {project.slug && project.caseStudy && (
+                <Link
+                  href={`/projects/${project.slug}`}
+                  className="inline-flex items-center gap-1.5 mt-6 text-sm font-medium transition-transform hover:translate-x-0.5"
+                  style={{ color: 'var(--accent)' }}
+                >
+                  Read full case study <ArrowUpRight size={14} />
+                </Link>
+              )}
             </div>
 
             <div
